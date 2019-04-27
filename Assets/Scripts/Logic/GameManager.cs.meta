@@ -1,0 +1,35 @@
+fileFormatVersion: 2
+guid: dc1c41012b8d8354a80817041c6efc6f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - KnightPrefab: {instanceID: 0}
+  - WizardPrefab: {instanceID: 0}
+  - AttackTextPrefab: {instanceID: 0}
+  - DropTextPrefab: {instanceID: 0}
+  - EndTurnTextPrefab: {instanceID: 0}
+  - EquipTextPrefab: {instanceID: 0}
+  - ItemsTextPrefab: {fileID: 114011382870861244, guid: 80b0172afff255c4599a84fee26830b5,
+      type: 2}
+  - TradeTextPrefab: {instanceID: 0}
+  - UseTextPrefab: {instanceID: 0}
+  - WaitTextPrefab: {instanceID: 0}
+  - AttackableSpacePrefab: {instanceID: 0}
+  - AttackDetailPanel: {instanceID: 0}
+  - CharacterActionMenu: {instanceID: 0}
+  - Cursor: {instanceID: 0}
+  - ItemActionMenu: {instanceID: 0}
+  - ItemDetailMenu: {instanceID: 0}
+  - ItemSelectionMenu: {instanceID: 0}
+  - MovableSpacePrefab: {instanceID: 0}
+  - PlayerActionMenu: {instanceID: 0}
+  - TradeDetailPanel: {instanceID: 0}
+  - FireballTextPrefab: {instanceID: 0}
+  - IronAxeTextPrefab: {instanceID: 0}
+  - IronSwordTextPrefab: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
