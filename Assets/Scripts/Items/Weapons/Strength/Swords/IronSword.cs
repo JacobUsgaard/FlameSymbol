@@ -8,6 +8,6 @@ public class IronSword : Sword
 
     public static IronSword Create()
     {
-        return CreateInstance<IronSword>(GameManager.IronSwordTextPrefab, 30, Proficiency.E, 100, 5, 5, 1);
+        return CreateInstance<IronSword>(GameManager.IronSwordTextPrefab, 30, Character.Proficiency.Rank.E, 100, 5, 5, 1);
     }
 }

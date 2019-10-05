@@ -52,10 +52,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f57821c3e7acdc64c94c559301f51427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitPercentage: 0
-  defensePercentage: 0
-  movementCost: 3
-  isPassable: 1
+  HitPercentage: 0
+  DefensePercentage: 0
+  MovementCost: 1
+  IsPassable: 1
+  DisplayName: Water
 --- !u!212 &212140928658326512
 SpriteRenderer:
   m_ObjectHideFlags: 1

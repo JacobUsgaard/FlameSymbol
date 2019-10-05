@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class MyTerrain : MonoBehaviour {
-    public int hitPercentage = 0;
-    public int defensePercentage = 0;
-    public int movementCost = 1;
-    public bool isPassable = true;
+public class MyTerrain : MonoBehaviour {
+    public int HitPercentage = 0;
+    public int DefensePercentage = 0;
+    public int MovementCost = 1;
+    public bool IsPassable = true;
+    public string DisplayName;
+
 }

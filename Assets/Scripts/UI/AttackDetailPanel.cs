@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class AttackDetailPanel : MonoBehaviour {
-
-    public Transform panel;
-
+public class AttackDetailPanel :  ManagedMonoBehavior {
+   
     public Text AttackNameText;
     public Text InfoText;
     public Text DefenseNameText;
@@ -44,12 +42,27 @@ public class AttackDetailPanel : MonoBehaviour {
         AttackDamageText.text = CurrentAttackInfo.AttackDamage.ToString();
         AttackCriticalText.text = CurrentAttackInfo.AttackCriticalPercentage + "%";
 
-        DefenseWeaponText.text = CurrentAttackInfo.DefenseWeapon == null ? "" : CurrentAttackInfo.DefenseWeapon.Text.text;
+        DefenseWeaponText.text = CurrentAttackInfo.DefenseWeapon == null ? "--" : CurrentAttackInfo.DefenseWeapon.Text.text;
+
         DefenseHpText.text = defenseCharacter.CurrentHp.ToString();
-        DefenseHitText.text = CurrentAttackInfo.DefenseHitPercentage + "%";
-        DefenseDamageText.text = CurrentAttackInfo.DefenseDamage.ToString();
-        DefenseCriticalText.text = CurrentAttackInfo.DefenseCriticalPercentage + "%";
+        DefenseHitText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseHitPercentage + "%": "--";
+        DefenseDamageText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseDamage.ToString() : "--";
+        DefenseCriticalText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseCriticalPercentage + "%" : "--";
+
+        float x;
+        Debug.Log("GameManager: " + (GameManager != null).ToString());
+        if (defenseCharacter.transform.position.x >= GameManager.CurrentLevel.TerrainMap.GetLength(0) / 2)
+        {
+            x = defenseCharacter.transform.position.x - 3;
+        }
+        else
+        {
+            x = defenseCharacter.transform.position.x + 3;
+        }
+
         
+        transform.position = new Vector2(x, defenseCharacter.transform.position.y);
+
         transform.gameObject.SetActive(true);
     }
 

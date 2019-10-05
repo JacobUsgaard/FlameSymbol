@@ -52,10 +52,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 886d135636d386c4e951f6768dd7b290, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitPercentage: 0
-  defensePercentage: 0
-  movementCost: 0
-  isPassable: 0
+  HitPercentage: 0
+  DefensePercentage: 0
+  MovementCost: 100
+  IsPassable: 0
+  DisplayName: Wall
 --- !u!212 &212236236743634728
 SpriteRenderer:
   m_ObjectHideFlags: 1

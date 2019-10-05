@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 public class Menu : FocusableObject {
 
-    public Transform MenuContainer;
-
     protected GameManager.Callback CancelCallback;
 
     public readonly List<MenuItem<Item>> MenuItems;
@@ -41,7 +39,19 @@ public class Menu : FocusableObject {
         }
 
         CancelCallback = cancelCallback;
-        MenuContainer.gameObject.SetActive(true);
+
+        float x;
+        if(GameManager.Cursor.transform.position.x >= GameManager.CurrentLevel.TerrainMap.GetLength(0) / 2)
+        {
+            x = GameManager.Cursor.transform.position.x - 1;
+        }
+        else
+        {
+            x = GameManager.Cursor.transform.position.x + 1;
+        }
+
+        transform.position = new Vector2(x, GameManager.Cursor.transform.position.y);
+        transform.gameObject.SetActive(true);
         Focus();
     }
 
@@ -57,7 +67,7 @@ public class Menu : FocusableObject {
 
     public void Hide()
     {
-        MenuContainer.gameObject.SetActive(false);
+        transform.gameObject.SetActive(false);
         Clear();
     }
 
@@ -115,7 +125,7 @@ public class Menu : FocusableObject {
         public MenuItem(Item itemObject, Text displayText, GameManager.Callback callback, Menu menu)
         {
             this.itemObject = itemObject;
-            this.displayText = Instantiate(displayText, menu.MenuContainer);
+            this.displayText = Instantiate(displayText, menu.transform);
             menuItemCallback = callback;
             this.menu = menu;
         }

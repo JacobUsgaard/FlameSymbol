@@ -4,8 +4,9 @@ using UnityEngine.UI;
 
 public class TradeDetailPanel : FocusableObject {
 
-    public Transform Panel;
+    public Text SourceText;
     public Transform TradeSourcePanel;
+    public Text DestinationText;
     public Transform TradeDestinationPanel;
 
     private int SourceItemsIndex = 0;
@@ -76,13 +77,14 @@ public class TradeDetailPanel : FocusableObject {
     public void Show(Character sourceCharacter, Character destinationCharacter)
     {
         SourceCharacter = sourceCharacter;
+        SourceText.text = sourceCharacter.CharacterName;
         Debug.Log("Source character: " + sourceCharacter);
 
         DestinationCharacter = destinationCharacter;
+        DestinationText.text = destinationCharacter.CharacterName;
         Debug.Log("Destination character: " + destinationCharacter);
 
-        Focus();
-        transform.gameObject.SetActive(true);
+        
 
         foreach(TradeMenuItem tradeMenuItem in TradeSourceMenuItems)
         {
@@ -120,6 +122,11 @@ public class TradeDetailPanel : FocusableObject {
         {
             Debug.LogError("Neither character has items to trade. What do");
         }
+
+        transform.position = sourceCharacter.transform.position;
+
+        Focus();
+        transform.gameObject.SetActive(true);
     }
 
     private void SetItemsTextsIndex(List<TradeMenuItem> tradeMenuItems, ref int masterIndex, int index = 0)

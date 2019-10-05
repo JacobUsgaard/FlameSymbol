@@ -51,7 +51,8 @@ public abstract class Level : ScriptableObject
     /// <returns></returns>
     public bool IsOutOfBounds(float x, float y)
     {
-        return (x < 0f || x >= CharacterMap.GetLength(0) || y < 0f || y >= CharacterMap.GetLength(1) || !TerrainMap[(int)x,(int)y].isPassable);
+        //return (x < 0f || x >= CharacterMap.GetLength(0) || y < 0f || y >= CharacterMap.GetLength(1) || !TerrainMap[(int)x,(int)y].IsPassable);
+        return x < 0f || x >= CharacterMap.GetLength(0) || y < 0f || y >= CharacterMap.GetLength(1);
     }
 
     /// <summary>
@@ -80,6 +81,11 @@ public abstract class Level : ScriptableObject
         return CharacterMap[(int)x, (int)y];
     }
 
+    public Character GetCharacter()
+    {
+        return GetCharacter(GameManager.Cursor.transform.position);
+    }
+
     public Character GetCharacter(Vector3 position)
     {
         return GetCharacter(position.x, position.y);
@@ -105,9 +111,41 @@ public abstract class Level : ScriptableObject
         }
     }
 
+    public void SetCharacter(Character character, Vector2 position)
+    {
+        SetCharacter(character, position.x, position.y);
+    }
+
+    public MyTerrain GetTerrain(float x, float y)
+    {
+        if(IsOutOfBounds(x, y))
+        {
+            return null;
+        }
+        return TerrainMap[(int)x, (int)y];
+    }
+
+    public MyTerrain GetTerrain(Vector2 position)
+    {
+        return GetTerrain(position.x, position.y);
+    }
+
+    protected Character Create<Character>(Transform original)
+    {
+        Component copy = Instantiate(original, GameManager.transform);
+        return copy.GetComponent<Character>();
+    }
+
     /// <summary>
     /// Create the terrain and character maps. 
     /// The GameManager, HumanPlayer, and AiPlayer have all been initialized before this method is called.
     /// </summary>
     protected abstract void Init();
+
+    public virtual Level GetNextLevel()
+    {
+        return this;
+    }
+
+    public abstract bool IsLevelOver();
 }

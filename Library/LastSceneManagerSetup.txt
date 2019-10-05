@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/FireEmblem.unity
+- path: Assets/Scenes/FlameSymbol.unity
   isLoaded: 1
   isActive: 1

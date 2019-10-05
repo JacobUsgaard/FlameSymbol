@@ -52,10 +52,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0e2cd074216854989b87526f0c6957, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitPercentage: 0
-  defensePercentage: 0
-  movementCost: 1
-  isPassable: 1
+  HitPercentage: 0
+  DefensePercentage: 0
+  MovementCost: 1
+  IsPassable: 1
+  DisplayName: Grass
 --- !u!212 &212808999492189672
 SpriteRenderer:
   m_ObjectHideFlags: 1

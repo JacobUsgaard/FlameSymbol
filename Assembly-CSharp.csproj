@@ -10,7 +10,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace>
     </RootNamespace>
-    <ProjectGuid>{7F2B569E-555C-B681-B521-4AD2AB9C5AB0}</ProjectGuid>
+    <ProjectGuid>{B2E0FF1E-AD1E-77C7-9631-B961801F94F6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -72,13 +72,19 @@
     <Compile Include="Assets\Scripts\Items\Weapons\Strength\Axes\Axe.cs" />
     <Compile Include="Assets\Scripts\Items\Weapons\Strength\Axes\IronAxe.cs" />
     <Compile Include="Assets\Scripts\Items\Weapons\Strength\Lances\IronLance.cs" />
+    <Compile Include="Assets\Scripts\Items\Weapons\Strength\Lances\Lance.cs" />
     <Compile Include="Assets\Scripts\Items\Weapons\Strength\StrengthWeapon.cs" />
     <Compile Include="Assets\Scripts\Items\Weapons\Strength\Swords\IronSword.cs" />
     <Compile Include="Assets\Scripts\Items\Weapons\Strength\Swords\Sword.cs" />
     <Compile Include="Assets\Scripts\Items\Weapons\Weapon.cs" />
+    <Compile Include="Assets\Scripts\Logic\AIPlayer.cs" />
     <Compile Include="Assets\Scripts\Logic\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Logic\HumanPlayer.cs" />
+    <Compile Include="Assets\Scripts\Logic\IManagedObject.cs" />
     <Compile Include="Assets\Scripts\Logic\Levels\Level.cs" />
     <Compile Include="Assets\Scripts\Logic\Levels\TestLevel.cs" />
+    <Compile Include="Assets\Scripts\Logic\ManagedMonoBehavior.cs" />
+    <Compile Include="Assets\Scripts\Logic\ManagedScriptableObject.cs" />
     <Compile Include="Assets\Scripts\Logic\Player.cs" />
     <Compile Include="Assets\Scripts\Terrain\Grass.cs" />
     <Compile Include="Assets\Scripts\Terrain\Mountain.cs" />
@@ -87,22 +93,24 @@
     <Compile Include="Assets\Scripts\Terrain\Water.cs" />
     <Compile Include="Assets\Scripts\UI\AttackDetailPanel.cs" />
     <Compile Include="Assets\Scripts\UI\CharacterInformationPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\CharacterInformationScene.cs" />
     <Compile Include="Assets\Scripts\UI\Cursor.cs" />
     <Compile Include="Assets\Scripts\UI\FocusableObject.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenu.cs" />
     <Compile Include="Assets\Scripts\UI\Menu.cs" />
+    <Compile Include="Assets\Scripts\UI\TerrainInformationPanel.cs" />
     <Compile Include="Assets\Scripts\UI\TradeDetailPanel.cs" />
     <Reference Include="UnityEditor.StandardEvents">
-      <HintPath>H:/Unity Projects/Fire Emblem/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
+      <HintPath>H:/Unity Projects/Flame Symbol(Git)/FlameSymbol/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>H:/Unity Projects/Fire Emblem/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>H:/Unity Projects/Flame Symbol(Git)/FlameSymbol/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.PackageManagerUI.Editor">
-      <HintPath>H:/Unity Projects/Fire Emblem/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+      <HintPath>H:/Unity Projects/Flame Symbol(Git)/FlameSymbol/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>H:/Unity Projects/Fire Emblem/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>H:/Unity Projects/Flame Symbol(Git)/FlameSymbol/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>E:/Program Files/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

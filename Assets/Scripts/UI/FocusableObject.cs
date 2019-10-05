@@ -1,23 +1,13 @@
 ﻿using UnityEngine;
 
-public abstract class FocusableObject :  MonoBehaviour {
+public abstract class FocusableObject :  ManagedMonoBehavior {
 
-    public static FocusableObject CurrentObject;
+    private static FocusableObject _currentObject;
 
-    public static GameManager GameManager;
-
-    public void Focus()
+    public virtual void Focus()
     {
-        CurrentObject = this;
-        Debug.Log("Focus: " + CurrentObject);
-    }
-
-    public void Start()
-    {
-        if(GameManager == null)
-        {
-            GameManager = GameManager.gameManager;
-        }
+        _currentObject = this;
+        Debug.Log("Focus: " + _currentObject);
     }
 
     public abstract void OnArrow(float horizontal, float vertical);
@@ -25,4 +15,12 @@ public abstract class FocusableObject :  MonoBehaviour {
     public abstract void OnSubmit();
 
     public abstract void OnCancel();
+
+    public static FocusableObject CurrentObject
+    {
+        get
+        {
+            return _currentObject;
+        }
+    }
 }

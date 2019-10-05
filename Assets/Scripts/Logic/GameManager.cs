@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// Handles are game play aspects.
+/// 
+/// Initializes/loads game. Maintains all prefabs including menus, terrains, and UI texts. Directs input to correct handler.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     [Header("Characters")]
@@ -10,6 +15,7 @@ public class GameManager : MonoBehaviour
     public Transform WizardPrefab;
 
     [Header("Terrain")]
+    public Transform ForrestTerrain;
     public Transform GrassTerrain;
     public Transform WaterTerrain;
     public Transform WallTerrain;
@@ -36,39 +42,58 @@ public class GameManager : MonoBehaviour
     public Menu ItemSelectionMenu;
     public Transform MovableSpacePrefab;
     public Menu PlayerActionMenu;
+    public TerrainInformationPanel TerrainInformationPanel;
     public TradeDetailPanel TradeDetailPanel;
-
+   
     [Header("Weapons")]
     public Text FireTextPrefab;
     public Text IronAxeTextPrefab;
     public Text IronSwordTextPrefab;
+    public Text IronLanceTextPrefab;
+    public Text AxeTextPrefab;
+    public Text LanceTextPrefab;
+    public Text SwordTextPrefab;
 
-    public static GameManager gameManager;
-    
+    [Header("Level")]
+    public Level _currentLevel;
+
+    public System.Random Random = new System.Random();
     private bool IsHumanTurn = false;
     private Player currentPlayer;
     private Player HumanPlayer;
-    private Player AiPlayer;
-    private bool _characterIsMoving = false;
+    private AIPlayer AiPlayer;
 
-    public Level CurrentLevel;
+    public Level CurrentLevel
+    {
+        get
+        {
+            return _currentLevel;
+        }
 
-    // Use this for initialization
+        private set
+        {
+            _currentLevel = value;
+        }
+    }
+
     public void Start()
     {
-        gameManager = this;
+        DontDestroyOnLoad(transform.gameObject);
+        ManagedMonoBehavior.Initialize(this);
+        ManagedScriptableObject.Initialize(this);
 
         HumanPlayer = ScriptableObject.CreateInstance<Player>();
-        AiPlayer = ScriptableObject.CreateInstance<Player>();
+        AiPlayer = ScriptableObject.CreateInstance<AIPlayer>();
 
         CurrentLevel = ScriptableObject.CreateInstance<TestLevel>();
         CurrentLevel.Init(this, HumanPlayer, AiPlayer);
-        
+
         Cursor.transform.position = CurrentLevel.StartPosition;
 
         CurrentPlayer = HumanPlayer;
         IsHumanTurn = true;
         Cursor.Focus();
+        Cursor.CurrentState = Cursor.State.Free;
 
         //CurrentPlayer = AiPlayer;
     }
@@ -77,7 +102,14 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (IsHumanTurn || _characterIsMoving)
+        if (CurrentLevel.IsLevelOver())
+        {
+            Debug.Log("Level is over");
+            SceneManager.LoadScene("Resources/Scenes/MainMenu");
+            return;
+        }
+
+        if (IsHumanTurn)
         {
             HandleInput();
             return;
@@ -89,18 +121,18 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Attacking character: " + character.transform.position);
 
-            foreach(Vector2 movablePosition in character.CalculateMovablePositions())
+            foreach (Vector2 movablePosition in character.CalculateMovablePositions())
             {
-                if(GetCharacter(movablePosition) != null)
+                if (CurrentLevel.GetCharacter(movablePosition) != null)
                 {
                     continue;
                 }
 
                 character.Move(movablePosition);
                 HashSet<Vector2> attackablePositions = character.CalculateAttackablePositions(movablePosition.x, movablePosition.y, character.GetWeaponRanges());
-                foreach(Vector2 attackablePosition in attackablePositions)
+                foreach (Vector2 attackablePosition in attackablePositions)
                 {
-                    Character defendingCharacter = GetCharacter(attackablePosition);
+                    Character defendingCharacter = CurrentLevel.GetCharacter(attackablePosition);
                     if (defendingCharacter == null || defendingCharacter.Player.Equals(character.Player))
                     {
                         continue;
@@ -174,130 +206,17 @@ public class GameManager : MonoBehaviour
         PlayerActionMenu.AddMenuItem(null, EndTurnTextPrefab, delegate (Object[] objects)
         {
             Debug.Log("Ending turn");
-            gameManager.EndTurn();
+            EndTurn();
             PlayerActionMenu.Hide();
             Cursor.CurrentState = Cursor.State.Free;
             Cursor.Focus();
         });
-        PlayerActionMenu.Show(delegate(Object[] objects)
+        PlayerActionMenu.Show(delegate (Object[] objects)
         {
             PlayerActionMenu.Hide();
+            Cursor.Focus();
         });
         PlayerActionMenu.Focus();
-    }
-
-    public Vector2 FindMove(Character attackingCharacter)
-    {
-        System.Random random = new System.Random();
-
-        Vector2 oldPosition = attackingCharacter.transform.position;
-        Vector2 newPosition = new Vector2(-1, -1);
-        do
-        {
-            switch (random.Next(3))
-            {
-                case 0:
-                    newPosition = new Vector2(oldPosition.x + 1, oldPosition.y);
-                    break;
-                case 1:
-                    newPosition = new Vector2(oldPosition.x - 1, oldPosition.y);
-                    break;
-                case 2:
-                    newPosition = new Vector2(oldPosition.x, oldPosition.y + 1);
-                    break;
-                case 3:
-                    newPosition = new Vector2(oldPosition.x, oldPosition.y - 1);
-                    break;
-            }
-        } while (IsOutOfBounds(newPosition));
-
-        return newPosition;
-    }
-
-    /// <summary>
-    /// A callback after the character has finished moving and has an attack all lined up.
-    /// </summary>
-    /// <param name="attackingCharacter"></param>
-    /// <param name="defendingCharacter"></param>
-    /// <returns></returns>
-    public void Attack(Character attackingCharacter, Character defendingCharacter)
-    {
-        Attack(attackingCharacter, defendingCharacter);
-        _characterIsMoving = false;
-    }
-
-    /// <summary>
-    /// Find the first available enemy for attacking.
-    /// TODO make this smarter so that it evaluates options a bit
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="attackRanges"></param>
-    /// <returns></returns>
-    public Character Attacks(float x, float y, HashSet<int> attackRanges)
-    {
-        foreach (int attackRange in attackRanges)
-        {
-            Character character = Attacks(x, y, attackRange);
-            if (character != null)
-            {
-                return character;
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Find the first available enemy for attacking.
-    /// TODO make this smarter so that it evaluates options a bit
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="attackRangeRemaining"></param>
-    /// <returns></returns>
-    public Character Attacks(float x, float y, int attackRangeRemaining)
-    {
-        if (attackRangeRemaining < 0 || IsOutOfBounds(x, y))
-        {
-            return null;
-        }
-
-        Character character;
-        if (attackRangeRemaining == 0)
-        {
-            character = GetCharacter(x, y);
-            if (character != null && !character.Player.Equals(CurrentPlayer))
-            {
-                return character;
-            }
-        }
-
-        character = Attacks(x - 1, y, attackRangeRemaining - 1);
-        if (character != null)
-        {
-            return character;
-        }
-
-        character = Attacks(x + 1, y, attackRangeRemaining - 1);
-        if (character != null)
-        {
-            return character;
-        }
-
-        character = Attacks(x, y - 1, attackRangeRemaining - 1);
-        if (character != null)
-        {
-            return character;
-        }
-
-        character = Attacks(x, y + 1, attackRangeRemaining - 1);
-        if (character != null)
-        {
-            return character;
-        }
-
-        return null;
     }
 
     public void EndTurn()
@@ -328,51 +247,6 @@ public class GameManager : MonoBehaviour
             Debug.LogError("Player 3 has entered");
             return;
         }
-    }
-
-    public class MoveInfo
-    {
-        public Vector2 Move;
-        public Vector2 Attack;
-
-        public MoveInfo() { }
-    }
-
-    // TODO delete this and use Level.GetCharacter directly
-    public Character GetCharacter(float x, float y)
-    {
-        return CurrentLevel.GetCharacter(x, y);
-    }
-
-    // TODO delete this and use Level.GetCharacter directly
-    public Character GetCharacter(Vector2 position)
-    {
-        return GetCharacter(position.x, position.y);
-    }
-
-    
-    /// TODO delete this and use Level.IsOutOfBounds directly
-    public bool IsOutOfBounds(Vector2 position)
-    {
-        return CurrentLevel.IsOutOfBounds(position);
-    }
-
-    // TODO delete this and use Level.IsOutOfBounds directly
-    public bool IsOutOfBounds(float x, float y)
-    {
-        return CurrentLevel.IsOutOfBounds(x, y);
-    }
-
-    // TODO delete this and use Level.IsOutOfBounds directly
-    public void SetCharacter(Character character, Vector2 newPosition)
-    {
-        SetCharacter(character, newPosition.x, newPosition.y);
-    }
-
-    // TODO delete this and use Level.IsOutOfBounds directly
-    public void SetCharacter(Character character, float x, float y)
-    {
-        CurrentLevel.SetCharacter(character, x, y);
     }
 
     public Player CurrentPlayer

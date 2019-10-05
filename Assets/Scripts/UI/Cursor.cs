@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Cursor : FocusableObject
 {
@@ -22,7 +23,7 @@ public class Cursor : FocusableObject
         Free
     };
 
-    private State currentState = State.Free;
+    private State currentState;
 
     public State CurrentState
     {
@@ -33,9 +34,34 @@ public class Cursor : FocusableObject
 
         set
         {
-            Debug.Log(value);
+            Debug.Log("Current state: " + value);
             currentState = value;
+            UpdateInformationPanels();
         }
+    }
+
+    private void UpdateInformationPanels()
+    {
+        if (currentState == State.Free)
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(transform.position);
+            if (character != null)
+            {
+                GameManager.CharacterInformationPanel.Show(character);
+            }
+            else
+            {
+                GameManager.CharacterInformationPanel.Hide();
+            }
+            MyTerrain terrain = GameManager.CurrentLevel.GetTerrain(transform.position);
+            GameManager.TerrainInformationPanel.Show(terrain);
+        }
+        else
+        {
+            GameManager.CharacterInformationPanel.Hide();
+            GameManager.TerrainInformationPanel.Hide();
+        }
+        
     }
 
     public void Update()
@@ -72,6 +98,7 @@ public class Cursor : FocusableObject
         }
 
         GameManager.ItemSelectionMenu.Focus();
+        GameManager.CharacterActionMenu.Hide();
         GameManager.ItemSelectionMenu.Show(ItemSelectionMenuOnCancel);
     }
 
@@ -224,21 +251,14 @@ public class Cursor : FocusableObject
         GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.WaitTextPrefab, CharacterActionMenuWait);
 
         GameManager.CharacterActionMenu.Focus();
+        GameManager.CharacterActionMenu.transform.position = new Vector2(character.transform.position.x - 1, character.transform.position.y);
         GameManager.CharacterActionMenu.Show(CharacterActionMenuOnCancel);
     }
 
     private void Move(Vector3 endposition)
     {
         transform.position = endposition;
-        Character character = GameManager.GetCharacter(endposition);
-        if(character != null && CurrentState == State.Free)
-        {
-            GameManager.CharacterInformationPanel.Show(character);
-        }
-        else
-        {
-            GameManager.CharacterInformationPanel.Hide();
-        }
+        UpdateInformationPanels();
     }
 
     public override void OnArrow(float horizontal, float vertical)
@@ -291,7 +311,7 @@ public class Cursor : FocusableObject
             newPosition.y += System.Math.Sign(vertical);
         }
 
-        if (!GameManager.IsOutOfBounds(newPosition))
+        if (!GameManager.CurrentLevel.IsOutOfBounds(newPosition))
         {
             Move(newPosition);
         }
@@ -304,10 +324,11 @@ public class Cursor : FocusableObject
             return;
         }
 
-        float direction = Mathf.Max(Mathf.Abs(vertical), Mathf.Abs(horizontal));
+        int direction = System.Math.Sign(Mathf.Abs(vertical) > Mathf.Abs(horizontal) ? vertical : horizontal);
+
         if (direction != 0f)
         {
-            SetAttackableSpaceWithCharacter((AttackableSpacesWithCharactersIndex + AttackableSpacesWithCharacters.Count + System.Math.Sign(direction)) % AttackableSpacesWithCharacters.Count);
+            SetAttackableSpaceWithCharacter((AttackableSpacesWithCharactersIndex + AttackableSpacesWithCharacters.Count + direction) % AttackableSpacesWithCharacters.Count);
         }
     }
 
@@ -316,7 +337,7 @@ public class Cursor : FocusableObject
         AttackableSpacesWithCharactersIndex = index;
         transform.position = AttackableSpacesWithCharacters[AttackableSpacesWithCharactersIndex].transform.position;
 
-        GameManager.AttackDetailPanel.Show(SelectedCharacter, GameManager.GetCharacter(transform.position));
+        GameManager.AttackDetailPanel.Show(SelectedCharacter, GameManager.CurrentLevel.GetCharacter(transform.position));
     }
 
     public void SetTradableSpaceWithCharacter(int index = 0)
@@ -354,7 +375,7 @@ public class Cursor : FocusableObject
 
     private void OnSubmitChoosingAttackTarget()
     {
-        Character defender = GameManager.GetCharacter(AttackableSpacesWithCharacters[AttackableSpacesWithCharactersIndex].position);
+        Character defender = GameManager.CurrentLevel.GetCharacter(AttackableSpacesWithCharacters[AttackableSpacesWithCharactersIndex].position);
         Debug.Log("defender: " + defender);
 
         Character attacker = SelectedCharacter;
@@ -373,12 +394,12 @@ public class Cursor : FocusableObject
     private void OnSubmitChoosingMove(Vector3 currentPosition)
     {
         Debug.Log("OnEnterChoosingMove: " + currentPosition);
-        foreach (Transform movableSpace in SelectedCharacter.CreateMovableTransforms())
+        foreach (Transform movableSpace in SelectedCharacter.MovableSpaces)
         {
             if (currentPosition.x == movableSpace.position.x && currentPosition.y == movableSpace.position.y)
             {
                 Debug.Log("Found MovableSpace");
-                Character checkCharacter = GameManager.GetCharacter(currentPosition);
+                Character checkCharacter = GameManager.CurrentLevel.GetCharacter(currentPosition);
                 if (checkCharacter != null && !checkCharacter.Equals(SelectedCharacter))
                 {
                     Debug.Log("Spot already taken!");
@@ -386,7 +407,7 @@ public class Cursor : FocusableObject
                     return;
                 }
 
-                SelectedCharacterOldPosition = SelectedCharacter.GetPosition();
+                SelectedCharacterOldPosition = SelectedCharacter.transform.position;
                 SelectedCharacter.Move(transform.position);
                 ShowCharacterActionMenu(SelectedCharacter);
                 return;
@@ -402,7 +423,7 @@ public class Cursor : FocusableObject
 
     private void OnSubmitFree(Vector3 currentPosition)
     {
-        SelectedCharacter = GameManager.GetCharacter(currentPosition);
+        SelectedCharacter = GameManager.CurrentLevel.GetCharacter(currentPosition);
         if (SelectedCharacter != null)
         {
             if (SelectedCharacter.Player.Equals(GameManager.CurrentPlayer))
@@ -413,7 +434,8 @@ public class Cursor : FocusableObject
             else
             {
                 // TODO open character info
-                Debug.LogError("Have not created character info yet.");
+                //Debug.LogError("Have not created character info yet.");
+                SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
                 return;
             }
         }
@@ -427,7 +449,7 @@ public class Cursor : FocusableObject
     private void OnSubmitChoosingTradeTarget()
     {
         Debug.Log("OnSubmitChoosingTradeTarget");
-        GameManager.TradeDetailPanel.Show(SelectedCharacter, GameManager.GetCharacter(transform.position));
+        GameManager.TradeDetailPanel.Show(SelectedCharacter, GameManager.CurrentLevel.GetCharacter(transform.position));
     }
 
     public override void OnCancel()

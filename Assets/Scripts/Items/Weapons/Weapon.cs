@@ -10,18 +10,7 @@ public abstract class Weapon : Item
     public int Damage;
     public int CriticalPercentage;
 
-    public Proficiency RequiredProficiency;
-
-    public enum Proficiency
-    {
-        NA,
-        E,
-        D,
-        C,
-        B,
-        A,
-        S
-    }
+    public Character.Proficiency.Rank RequiredProficiencyRank;
 
     public virtual int CalculateDamage(Character defendingCharacter)
     {
@@ -30,17 +19,17 @@ public abstract class Weapon : Item
 
     public override string ToString()
     {
-        return Text.text + "=[HitPercentage: " + HitPercentage + ", Damage: " + Damage + ", CriticalPercentage: " + CriticalPercentage + "]";
+        return Text.text + "=[HitPercentage: " + HitPercentage + ", Damage: " + Damage + ", CriticalPercentage: " + CriticalPercentage + ", RequiredProficiencyRank: " + RequiredProficiencyRank + "]";
     }
 
     // TODO create constructor maybe instead of method
-    public static Type CreateInstance<Type>(Text text, int uses, Proficiency proficiency, int hitPercentage, int damage, int criticalPercentage, params int[] ranges) where Type : Weapon
+    public static Type CreateInstance<Type>(Text text, int uses, Character.Proficiency.Rank rank, int hitPercentage, int damage, int criticalPercentage, params int[] ranges) where Type : Weapon
     {
         Type weapon = CreateInstance<Type>();
         weapon.Text = text;
         weapon.UsesTotal = uses;
         weapon.UsesRemaining = uses;
-        weapon.RequiredProficiency = proficiency;
+        weapon.RequiredProficiencyRank = rank;
         weapon.HitPercentage = hitPercentage;
         weapon.Damage = damage;
         weapon.CriticalPercentage = criticalPercentage;

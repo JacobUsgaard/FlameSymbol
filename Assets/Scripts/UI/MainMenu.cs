@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenuButtonScript : MonoBehaviour {
-
-    
+public class MainMenu : MonoBehaviour {
 
     public void NewGameButtonOnClick()
     {
-        SceneManager.LoadScene("FireEmblem");
+        SceneManager.LoadScene("Resources/Scenes/FlameSymbol");
     }
 }

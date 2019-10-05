@@ -6,7 +6,7 @@ using UnityEngine.UI;
 /// <summary>
 /// TODO weapon proficiencies
 /// </summary>
-public abstract class Character : MonoBehaviour
+public abstract class Character : ManagedMonoBehavior
 {
     private Player player;
     public List<Item> Items = new List<Item>();
@@ -28,13 +28,7 @@ public abstract class Character : MonoBehaviour
     public int Experience;
 
     // TODO do these better
-    public Weapon.Proficiency SwordProficiency;
-    public Weapon.Proficiency FireMagicProficiency;
-    public Weapon.Proficiency AxeProficiency;
 
-    public GameManager GameManager;
-
-    public System.Random Random = new System.Random();
 
     public Player Player
     {
@@ -50,9 +44,28 @@ public abstract class Character : MonoBehaviour
         }
     }
 
-    public void Start()
+    public List<Proficiency> Proficiencies
     {
-        GameManager = GetComponentInParent<GameManager>();
+        get
+        {
+            return proficiencies;
+        }
+    }
+
+    private readonly List<Proficiency> proficiencies = new List<Proficiency>();
+
+    public void AddProficiency(Proficiency proficiency)
+    {
+        foreach(Proficiency p in proficiencies)
+        {
+            if (p.type.Equals(proficiency.type))
+            {
+                proficiencies.Remove(p);
+                break;
+            }
+        }
+
+        proficiencies.Add(proficiency);
     }
 
     /// <summary>
@@ -62,9 +75,8 @@ public abstract class Character : MonoBehaviour
     public HashSet<int> GetWeaponRanges()
     {
         HashSet<int> ranges = new HashSet<int>();
-        Debug.Log("Items: " + Items.Count);
-
-        foreach(Item item in Items)
+        
+        foreach(Item item in GetUsableWeapons())
         {
             if(item is Weapon)
             {
@@ -80,11 +92,6 @@ public abstract class Character : MonoBehaviour
         return ranges;
     }
 
-    public Vector2 GetPosition()
-    {
-        return transform.position;
-    }
-
     public HashSet<Vector2> CalculateMovablePositions()
     {
         return CalculateMovablePositions(transform.position.x, transform.position.y, Moves);
@@ -93,18 +100,18 @@ public abstract class Character : MonoBehaviour
     private HashSet<Vector2> CalculateMovablePositions(float x, float y, int moves)
     {
         HashSet<Vector2> movableSpaces = new HashSet<Vector2>();
-        Character character = GameManager.GetCharacter(x, y);
-        if (moves == 0 || GameManager.IsOutOfBounds(x, y) || (character != null && !character.Player.Equals(Player)))
+        Character character = GameManager.CurrentLevel.GetCharacter(x, y);
+        if (moves == 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || (character != null && !character.Player.Equals(Player)))
         {
             return movableSpaces;
         }
 
         movableSpaces.Add(new Vector2(x, y));
 
-        movableSpaces.UnionWith(CalculateMovablePositions(x - 1, y, moves - 1));
-        movableSpaces.UnionWith(CalculateMovablePositions(x + 1, y, moves - 1));
-        movableSpaces.UnionWith(CalculateMovablePositions(x, y - 1, moves - 1));
-        movableSpaces.UnionWith(CalculateMovablePositions(x, y + 1, moves - 1));
+        movableSpaces.UnionWith(CalculateMovablePositions(x - 1, y, Mathf.Max(moves - CalculateMovementCost(x - 1, y), 0)));
+        movableSpaces.UnionWith(CalculateMovablePositions(x + 1, y, Mathf.Max(moves - CalculateMovementCost(x + 1, y), 0)));
+        movableSpaces.UnionWith(CalculateMovablePositions(x, y - 1, Mathf.Max(moves - CalculateMovementCost(x, y - 1), 0)));
+        movableSpaces.UnionWith(CalculateMovablePositions(x, y + 1, Mathf.Max(moves - CalculateMovementCost(x, y + 1), 0)));
         return movableSpaces;
     }
 
@@ -148,10 +155,26 @@ public abstract class Character : MonoBehaviour
         return attackablePositions;
     }
 
+    public void AddExperience(int experience)
+    {
+        if(experience > 100)
+        {
+            Debug.LogErrorFormat("Experience cannot be greater than 100: {0}", experience);
+            return;
+        }
+
+        Experience += experience;
+        if(experience >= 100)
+        {
+            Level += 1;
+            Experience %= experience;
+        }
+    }
+
     public HashSet<Vector2> CalculateAttackablePositions(float x, float y, int range)
     {
         HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
-        if (range < 0 || GameManager.IsOutOfBounds(x, y))
+        if (range < 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y))
         {
             return attackablePositions;
         }
@@ -201,17 +224,35 @@ public abstract class Character : MonoBehaviour
             return;
         }
 
-        if (GameManager.GetCharacter(position) != null)
+        if (GameManager.CurrentLevel.GetCharacter(position) != null)
         {
-            Debug.LogError("Position is already taken: " + position);
+            Debug.LogErrorFormat("Position is already taken: {0}" , position);
         }
         Vector2 oldPosition = transform.position;
-        GameManager.SetCharacter(this, position);
+        GameManager.CurrentLevel.SetCharacter(this, position);
 
         if (position.x != oldPosition.x || position.y != oldPosition.y)
         {
-            GameManager.SetCharacter(null, oldPosition);
+            GameManager.CurrentLevel.SetCharacter(null, oldPosition);
         }
+    }
+
+    /// <summary>
+    /// Calculates the cost for this character to move to the given position.
+    /// TODO add more conditions
+    /// </summary>
+    /// <param name="position">The position for which to determine the cost</param>
+    /// <returns>The cost for this character to move to the given position</returns>
+    protected virtual int CalculateMovementCost(float x, float y)
+    {
+        if(GameManager.CurrentLevel.IsOutOfBounds(x, y))
+        {
+            return 100;
+        }
+
+        MyTerrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
+        int cost = terrain.MovementCost;
+        return cost;
     }
 
     public void DestroyAttackableTransforms()
@@ -255,7 +296,7 @@ public abstract class Character : MonoBehaviour
 
     private void CalculateTradableSpace(float x, float y, List<Transform> tradableSpaces)
     {
-        Character character = GameManager.GetCharacter(x, y);
+        Character character = GameManager.CurrentLevel.GetCharacter(x, y);
         if (character != null && character.Player.Equals(Player))
         {
             tradableSpaces.Add(Instantiate(GameManager.AttackableSpacePrefab, new Vector2(x, y), Quaternion.identity, GameManager.transform));
@@ -273,7 +314,7 @@ public abstract class Character : MonoBehaviour
         }
 
         AttackableSpaces.RemoveAll(attackableSpace => {
-            Character defendingCharacter = GameManager.GetCharacter(attackableSpace.position);
+            Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(attackableSpace.position);
 
             if (defendingCharacter == null || defendingCharacter.Player.Equals(Player))
             {
@@ -289,14 +330,16 @@ public abstract class Character : MonoBehaviour
 
     /// <summary>
     /// Equip an item from the Character's inventory.
-    /// // TODO make sure this item actually exists in their inventory
     /// </summary>
     /// <param name="item"></param>
     public void Equip(Item item)
     {
         if (Items.Count > 1)
         {
-            Items.Remove(item);
+            if (!Items.Remove(item))
+            {
+                Debug.LogErrorFormat("{0} does not exist in inventory.", item.Text.text);
+            }
             Items.Insert(0, item);
         }
     }
@@ -308,22 +351,25 @@ public abstract class Character : MonoBehaviour
     {
         Debug.Log("Die: " + this);
         Destroy(gameObject);
+        Debug.Assert(Player.Characters.Remove(this));
+        Debug.LogFormat("Remaining characters: {0}" , Player.Characters.Count);
     }
 
-    // TODO make hits actually based off of hit percentage
     // TODO make criticals a thing
     // TODO make speed a thing
     public void Attack(Character defenseCharacter)
     {
         AttackInfo attackInfo = CalculateAttackInfo(defenseCharacter);
 
-        int attackHitPercentage = Random.Next(100);
+        // TODO use actual hit percentage
+        int attackHitPercentage = GameManager.Random.Next(100);
 
         int attackExperience = 1;
         int defenseExperience = 0;
 
         if (attackHitPercentage <= attackInfo.AttackHitPercentage)
         {
+            attackInfo.AttackWeapon.Use();
             if (attackInfo.AttackDamage != 0)
             {
                 attackExperience += 9;
@@ -340,9 +386,10 @@ public abstract class Character : MonoBehaviour
         {
             defenseExperience += 1;
 
-            int defenseHitPercentage = Random.Next(100);
+            int defenseHitPercentage = GameManager.Random.Next(100);
             if(defenseHitPercentage <= attackInfo.DefenseHitPercentage)
             {
+                attackInfo.DefenseWeapon.Use();
                 if (attackInfo.DefenseDamage != 0)
                 {
                     defenseExperience += 9;
@@ -353,37 +400,34 @@ public abstract class Character : MonoBehaviour
             if (CurrentHp == 0)
             {
                 defenseExperience += 10;
+                defenseCharacter.AddExperience(defenseExperience);
                 Die();
+                return;
             }
         }
 
-        Experience += attackExperience;
-        defenseCharacter.Experience += defenseExperience;
+        AddExperience(attackExperience);
     }
 
     public AttackInfo CalculateAttackInfo(Character defenseCharacter)
     {
-        // TODO check if weapon is usable
-        Weapon attackWeapon = GetUsableWeapon();/* (Weapon)Items[0];*/
-        Debug.Log("Attack weapon: " + attackWeapon);
+        Weapon attackWeapon = GetUsableWeapon();
+        Debug.LogFormat("Attack weapon: {0}" , attackWeapon);
 
         Weapon defenseWeapon = null ;
         List<Weapon> usableWeapons = defenseCharacter.GetUsableWeapons();
-        if(usableWeapons.Count > 0)
+        bool defenseCanAttack;
+        if (usableWeapons.Count > 0)
         {
             defenseWeapon = usableWeapons[0];
+            Debug.LogFormat("Defense weapon: {0}" , defenseWeapon);
+            defenseCanAttack = defenseWeapon.IsInRange(defenseCharacter.transform.position, transform.position);
+        }
+        else
+        {
+            defenseCanAttack = false;
         }
         
-        if(defenseWeapon != null) {
-            Debug.Log("Defense weapon: " + defenseWeapon);
-
-            if(!defenseWeapon.IsInRange(defenseCharacter.GetPosition(), GetPosition()))
-            {
-                Debug.Log("Weapon is not in range");
-                defenseWeapon = null;
-            }
-        }
-
         int attackHitPercentage = CalculateHitPercentage(this, attackWeapon, defenseCharacter);
         int attackDamage = CalculateDamage(this, attackWeapon, defenseCharacter);
         int attackCriticalPercentage = CalculateCriticalPercentage(this, attackWeapon, defenseCharacter);
@@ -391,14 +435,16 @@ public abstract class Character : MonoBehaviour
         int defenseHitPercentage = 0;
         int defenseDamage = 0;
         int defenseCriticalPercentage = 0;
-        if (defenseWeapon != null)
+
+        if(defenseCanAttack)
+        //if (defenseWeapon != null)
         {
             defenseHitPercentage = CalculateHitPercentage(defenseCharacter, defenseWeapon, this);
             defenseDamage = CalculateDamage(defenseCharacter, defenseWeapon, this);
             defenseCriticalPercentage = CalculateCriticalPercentage(defenseCharacter, defenseWeapon, this);
         }
 
-        return new AttackInfo(attackWeapon, attackHitPercentage, attackDamage, attackCriticalPercentage, defenseWeapon, defenseHitPercentage, defenseDamage, defenseCriticalPercentage);
+        return new AttackInfo(attackWeapon, attackHitPercentage, attackDamage, attackCriticalPercentage, defenseWeapon, defenseHitPercentage, defenseDamage, defenseCriticalPercentage, defenseCanAttack);
     }
 
     private int CalculateHitPercentage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
@@ -447,28 +493,29 @@ public abstract class Character : MonoBehaviour
         return weapons;
     }
 
+    /// <summary>
+    /// Whether or not this character is proficient (is able to wield) the weapon in question.
+    /// </summary>
+    /// <param name="weapon"></param>
+    /// <returns></returns>
     public bool IsProficient(Weapon weapon)
     {
-        Weapon.Proficiency requiredProficiency = weapon.RequiredProficiency;
-        Weapon.Proficiency proficiency;
-        if (weapon is Sword)
+        Debug.LogFormat("Is {0} proficient with {1}", CharacterName, weapon);
+        foreach (Proficiency proficiency in proficiencies)
         {
-            proficiency = SwordProficiency;
+            Debug.LogFormat("Proficiency: {0}" , proficiency);
+            if (weapon.GetType().IsSubclassOf(proficiency.type))
+            {
+                Debug.LogFormat("{0} is sub type of {1}", weapon.GetType(), proficiency.type);
+                if (proficiency.rank >= weapon.RequiredProficiencyRank)
+                {
+                    Debug.Log("Yes!");
+                    return true;
+                }
+            }
+           
         }
-        else if (weapon is FireMagic)
-        {
-            proficiency = FireMagicProficiency;
-        }
-        else if (weapon is Axe)
-        {
-            proficiency = AxeProficiency;
-        }
-        else
-        {
-            return false;
-        }
-
-        return requiredProficiency <= proficiency;
+        return false;
     }
 
     public Weapon GetUsableWeapon()
@@ -493,8 +540,9 @@ public abstract class Character : MonoBehaviour
         public int DefenseHitPercentage;
         public int DefenseDamage;
         public int DefenseCriticalPercentage;
+        public bool DefenseCanAttack;
 
-        public AttackInfo(Weapon attackWeapon, int attackHitPercentage, int attackDamage, int attackCriticalPercentage, Weapon defenseWeapon, int defenseHitPercentage, int defenseDamage, int defenseCriticalPercentage)
+        public AttackInfo(Weapon attackWeapon, int attackHitPercentage, int attackDamage, int attackCriticalPercentage, Weapon defenseWeapon, int defenseHitPercentage, int defenseDamage, int defenseCriticalPercentage, bool defenseCanAttack)
         {
             AttackWeapon = attackWeapon;
             AttackHitPercentage = attackHitPercentage;
@@ -505,6 +553,64 @@ public abstract class Character : MonoBehaviour
             DefenseHitPercentage = defenseHitPercentage;
             DefenseDamage = defenseDamage;
             DefenseCriticalPercentage = defenseCriticalPercentage;
+            DefenseCanAttack = defenseCanAttack;
         }
+    }
+
+    public class Proficiency
+    {
+        public System.Type type;
+        public Rank rank;
+        public int experience;
+       
+        public Proficiency(System.Type type, Rank rank)
+        {
+            if(!type.IsSubclassOf(typeof(Weapon)))
+            {
+                Debug.LogErrorFormat("Created Proficiency for non-weapon: {0}" , type);
+            }else if (!type.IsAbstract)
+            {
+                Debug.LogErrorFormat("Created Proficiency for non-abstract: {0}" , type);
+            }
+            this.type = type;
+            this.rank = rank;
+            experience = 0;
+        }
+
+        public void AddExperience(int experience)
+        {
+            if(experience > 100)
+            {
+                Debug.LogErrorFormat("Can't increase by more than 100: {0}", experience);
+            }
+            if (rank.Equals(Rank.S))
+            {
+                return;
+            }
+
+            this.experience += experience;
+
+            if(this.experience >= 100)
+            {
+                rank += 1;
+                this.experience %= 100;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Proficiency:[Type: {0}, Rank: {1}, Rank: {2}]", type, rank, experience);
+        }
+
+        public enum Rank
+        {
+            E,
+            D,
+            C,
+            B,
+            A,
+            S
+        }
+
     }
 }
