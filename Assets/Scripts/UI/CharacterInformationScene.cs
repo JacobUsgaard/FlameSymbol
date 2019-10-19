@@ -31,7 +31,7 @@ public class CharacterInformationScene :  FocusableObject {
     public override void OnCancel()
     {
         SceneManager.UnloadSceneAsync("Scenes/CharacterInformation");
-        GameManager.Cursor.Focus();
+        GameManager.Cursor.CharacterInformationSceneOnCancel();
     }
 
     public override void OnSubmit()
@@ -65,7 +65,6 @@ public class CharacterInformationScene :  FocusableObject {
         Debug.Log("Adding items");
         foreach(Item item in character.Items)
         {
-            
             Text text = Instantiate(item.Text);
             text.text = string.Format("{0}\t{1}/{2}", item.Text.text, item.UsesRemaining, item.UsesTotal);
             text.alignment = TextAnchor.MiddleLeft;
@@ -76,7 +75,7 @@ public class CharacterInformationScene :  FocusableObject {
         ItemScrollbar.value = 1;
 
         Debug.Log("Adding proficiencies");
-        foreach(Character.Proficiency proficiency in character.Proficiencies) 
+        foreach(Proficiency proficiency in character.Proficiencies) 
         {
             Text text = Instantiate(GameManager.AxeTextPrefab);
             text.alignment = TextAnchor.MiddleLeft;

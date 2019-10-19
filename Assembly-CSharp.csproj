@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Characters\Character.cs" />
     <Compile Include="Assets\Scripts\Characters\Knight.cs" />
+    <Compile Include="Assets\Scripts\Characters\Proficiency.cs" />
     <Compile Include="Assets\Scripts\Characters\Wizard.cs" />
     <Compile Include="Assets\Scripts\Items\Item.cs" />
     <Compile Include="Assets\Scripts\Items\Weapons\Magic\FireMagic\Fire.cs" />

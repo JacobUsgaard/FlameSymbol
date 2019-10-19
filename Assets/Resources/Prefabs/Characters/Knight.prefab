@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4076159455236090}
   - component: {fileID: 212669673168618412}
   - component: {fileID: 114646011820456022}
+  - component: {fileID: 50591387063019094}
   m_Layer: 0
   m_Name: Knight
   m_TagString: Untagged
@@ -41,6 +42,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &50591387063019094
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1082859676836240}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!114 &114646011820456022
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -65,10 +86,6 @@ MonoBehaviour:
   Moves: 2
   Level: 0
   Experience: 0
-  SwordProficiency: 1
-  FireMagicProficiency: 0
-  AxeProficiency: 1
-  GameManager: {fileID: 0}
 --- !u!212 &212669673168618412
 SpriteRenderer:
   m_ObjectHideFlags: 1

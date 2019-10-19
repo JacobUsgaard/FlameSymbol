@@ -10,7 +10,7 @@ public abstract class Weapon : Item
     public int Damage;
     public int CriticalPercentage;
 
-    public Character.Proficiency.Rank RequiredProficiencyRank;
+    public Proficiency.Rank RequiredProficiencyRank;
 
     public virtual int CalculateDamage(Character defendingCharacter)
     {
@@ -22,8 +22,8 @@ public abstract class Weapon : Item
         return Text.text + "=[HitPercentage: " + HitPercentage + ", Damage: " + Damage + ", CriticalPercentage: " + CriticalPercentage + ", RequiredProficiencyRank: " + RequiredProficiencyRank + "]";
     }
 
-    // TODO create constructor maybe instead of method
-    public static Type CreateInstance<Type>(Text text, int uses, Character.Proficiency.Rank rank, int hitPercentage, int damage, int criticalPercentage, params int[] ranges) where Type : Weapon
+    // TODO figure out how to do defaults for weapons better
+    public static Type CreateInstance<Type>(Text text, int uses, Proficiency.Rank rank, int hitPercentage, int damage, int criticalPercentage, params int[] ranges) where Type : Weapon
     {
         Type weapon = CreateInstance<Type>();
         weapon.Text = text;

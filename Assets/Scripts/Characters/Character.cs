@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// TODO weapon proficiencies
+/// TODO weapon Proficiencies
 /// </summary>
 public abstract class Character : ManagedMonoBehavior
 {
@@ -27,9 +27,6 @@ public abstract class Character : ManagedMonoBehavior
     public int Level;
     public int Experience;
 
-    // TODO do these better
-
-
     public Player Player
     {
         get
@@ -44,28 +41,20 @@ public abstract class Character : ManagedMonoBehavior
         }
     }
 
-    public List<Proficiency> Proficiencies
-    {
-        get
-        {
-            return proficiencies;
-        }
-    }
-
-    private readonly List<Proficiency> proficiencies = new List<Proficiency>();
+    public List<Proficiency> Proficiencies = new List<Proficiency>();
 
     public void AddProficiency(Proficiency proficiency)
     {
-        foreach(Proficiency p in proficiencies)
+        foreach(Proficiency p in Proficiencies)
         {
             if (p.type.Equals(proficiency.type))
             {
-                proficiencies.Remove(p);
+                Proficiencies.Remove(p);
                 break;
             }
         }
 
-        proficiencies.Add(proficiency);
+        Proficiencies.Add(proficiency);
     }
 
     /// <summary>
@@ -501,7 +490,7 @@ public abstract class Character : ManagedMonoBehavior
     public bool IsProficient(Weapon weapon)
     {
         Debug.LogFormat("Is {0} proficient with {1}", CharacterName, weapon);
-        foreach (Proficiency proficiency in proficiencies)
+        foreach (Proficiency proficiency in Proficiencies)
         {
             Debug.LogFormat("Proficiency: {0}" , proficiency);
             if (weapon.GetType().IsSubclassOf(proficiency.type))
@@ -513,7 +502,7 @@ public abstract class Character : ManagedMonoBehavior
                     return true;
                 }
             }
-           
+
         }
         return false;
     }
@@ -555,62 +544,5 @@ public abstract class Character : ManagedMonoBehavior
             DefenseCriticalPercentage = defenseCriticalPercentage;
             DefenseCanAttack = defenseCanAttack;
         }
-    }
-
-    public class Proficiency
-    {
-        public System.Type type;
-        public Rank rank;
-        public int experience;
-       
-        public Proficiency(System.Type type, Rank rank)
-        {
-            if(!type.IsSubclassOf(typeof(Weapon)))
-            {
-                Debug.LogErrorFormat("Created Proficiency for non-weapon: {0}" , type);
-            }else if (!type.IsAbstract)
-            {
-                Debug.LogErrorFormat("Created Proficiency for non-abstract: {0}" , type);
-            }
-            this.type = type;
-            this.rank = rank;
-            experience = 0;
-        }
-
-        public void AddExperience(int experience)
-        {
-            if(experience > 100)
-            {
-                Debug.LogErrorFormat("Can't increase by more than 100: {0}", experience);
-            }
-            if (rank.Equals(Rank.S))
-            {
-                return;
-            }
-
-            this.experience += experience;
-
-            if(this.experience >= 100)
-            {
-                rank += 1;
-                this.experience %= 100;
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("Proficiency:[Type: {0}, Rank: {1}, Rank: {2}]", type, rank, experience);
-        }
-
-        public enum Rank
-        {
-            E,
-            D,
-            C,
-            B,
-            A,
-            S
-        }
-
     }
 }

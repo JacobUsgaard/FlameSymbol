@@ -1,13 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class IronLance : Lance {
+﻿public class IronLance : Lance {
 
     private IronLance() { }
 
-    public static Lance Create()
+    public static IronLance Create()
     {
-        return CreateInstance<Lance>(GameManager.IronLanceTextPrefab, 30, Character.Proficiency.Rank.E, 100, 6, 5, 1);
+        return CreateInstance<IronLance>(
+            text: Instantiate(GameManager.IronAxeTextPrefab),
+            uses: 30,
+            rank: Proficiency.Rank.E,
+            hitPercentage: 90,
+            damage: 6,
+            criticalPercentage: 5,
+            ranges: new int[] { 1 });
     }
 }

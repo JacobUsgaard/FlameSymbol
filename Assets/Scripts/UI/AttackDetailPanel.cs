@@ -50,7 +50,6 @@ public class AttackDetailPanel :  ManagedMonoBehavior {
         DefenseCriticalText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseCriticalPercentage + "%" : "--";
 
         float x;
-        Debug.Log("GameManager: " + (GameManager != null).ToString());
         if (defenseCharacter.transform.position.x >= GameManager.CurrentLevel.TerrainMap.GetLength(0) / 2)
         {
             x = defenseCharacter.transform.position.x - 3;

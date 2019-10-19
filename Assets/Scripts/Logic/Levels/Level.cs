@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Level : ScriptableObject
+public abstract class Level : ManagedScriptableObject
 {
     public Character[,] CharacterMap;
     public MyTerrain[,] TerrainMap;
-    public GameManager GameManager;
     public Player HumanPlayer;
     public Player AiPlayer;
 

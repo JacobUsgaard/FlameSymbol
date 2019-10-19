@@ -3,6 +3,13 @@
 
     public static Fire Create()
     {
-        return CreateInstance<Fire>(GameManager.FireTextPrefab, 30, Character.Proficiency.Rank.E, 100, 10, 3, 1, 2);
+        return CreateInstance<Fire>(
+            text: Instantiate(GameManager.FireTextPrefab),
+            uses: 30,
+            rank: Proficiency.Rank.E,
+            hitPercentage: 100, 
+            damage: 10, 
+            criticalPercentage: 3, 
+            ranges: new int[] { 1, 2 });
     }
 }

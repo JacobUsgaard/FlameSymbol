@@ -46,7 +46,7 @@ public class TestLevel : Level {
         CharacterMap[0, 0].Items.Add(IronSword.Create());
         CharacterMap[0, 0].Items.Add(IronSword.Create());
         CharacterMap[0, 0].Items.Add(IronSword.Create());
-        CharacterMap[0, 0].AddProficiency(new Character.Proficiency(typeof(Sword), Character.Proficiency.Rank.E));
+        CharacterMap[0, 0].AddProficiency(new Proficiency(typeof(Sword), Proficiency.Rank.E));
 
         CharacterMap[0, 1] = Create<Character>(GameManager.KnightPrefab);
         CharacterMap[0, 1].Player = AiPlayer;
@@ -73,7 +73,7 @@ public class TestLevel : Level {
         CharacterMap[2, 2].Player = HumanPlayer;
         CharacterMap[2, 2].Items.Add(IronSword.Create());
         CharacterMap[2, 2].Items.Add(Fire.Create());
-        CharacterMap[2, 2].AddProficiency(new Character.Proficiency(typeof(FireMagic), Character.Proficiency.Rank.E));
+        CharacterMap[2, 2].AddProficiency(new Proficiency(typeof(FireMagic), Proficiency.Rank.E));
 
         CharacterMap[3, 3] = Create<Character>(GameManager.KnightPrefab);
         CharacterMap[3, 3].Player = AiPlayer;

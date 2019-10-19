@@ -737,6 +737,8 @@ MonoBehaviour:
     type: 2}
   IncinerateTextPrefab: {fileID: 114291897172009408, guid: 6bc6705222fef864fb9552d2385e1484,
     type: 2}
+  InfoTextPrefab: {fileID: 114682939393296358, guid: 9bb26374ece52ac4e8c4ce37949678f0,
+    type: 2}
   ItemsTextPrefab: {fileID: 114011382870861244, guid: 80b0172afff255c4599a84fee26830b5,
     type: 2}
   TradeTextPrefab: {fileID: 114459219793353982, guid: 464346d0afefd5d44a9e0f014598adc9,

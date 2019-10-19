@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     public Text EndTurnTextPrefab;
     public Text EquipTextPrefab;
     public Text IncinerateTextPrefab;
+    public Text InfoTextPrefab;
     public Text ItemsTextPrefab;
     public Text TradeTextPrefab;
     public Text UseTextPrefab;
@@ -179,14 +180,12 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Submit");
             currentFocusableObject.OnSubmit();
-            return;
         }
 
         if (Input.GetButtonDown("Cancel"))
         {
             Debug.Log("Cancel");
             currentFocusableObject.OnCancel();
-            return;
         }
 
         float horizontal = Input.GetAxis("Horizontal");
@@ -197,8 +196,33 @@ public class GameManager : MonoBehaviour
             Debug.Log("Arrow");
             FocusableObject.CurrentObject.OnArrow(horizontal, vertical);
             System.Threading.Thread.Sleep(50);
-            return;
         }
+
+        Vector3 mousePosition = Input.mousePosition;
+        if(mousePosition.x < 0 || mousePosition.x > Screen.width || mousePosition.y < 0 || mousePosition.y > Screen.height)
+        {
+            return;
+            //Debug.Log("Mouse outside window");
+        }
+
+        Vector2 mousePositionWorldPoint = TranslateMousePosition(mousePosition);
+        //Debug.LogFormat("Mouse position in world: {0}", mousePositionWorldPoint);
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Debug.LogFormat("Right click: {0}", mousePositionWorldPoint);
+            currentFocusableObject.OnRightMouse(mousePositionWorldPoint);
+        }
+    }
+
+    public Vector2 TranslateMousePosition(Vector3 mousePosition)
+    {
+        Vector2 vector2 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        vector2.x += 0.5f;
+        vector2.y += 0.5f;
+                
+        return vector2;
     }
 
     public void ShowPlayerActionMenu()

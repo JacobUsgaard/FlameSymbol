@@ -40,6 +40,12 @@ public class Cursor : FocusableObject
         }
     }
 
+    private void HideInformationPanels()
+    {
+        GameManager.CharacterInformationPanel.Hide();
+        GameManager.TerrainInformationPanel.Hide();
+    }
+
     private void UpdateInformationPanels()
     {
         if (currentState == State.Free)
@@ -58,8 +64,7 @@ public class Cursor : FocusableObject
         }
         else
         {
-            GameManager.CharacterInformationPanel.Hide();
-            GameManager.TerrainInformationPanel.Hide();
+            HideInformationPanels();
         }
         
     }
@@ -70,6 +75,15 @@ public class Cursor : FocusableObject
         {
             GameManager.CharacterInformationPanel.Hide();
         }
+    }
+
+    /// <summary>
+    /// Callback when the user selects 'Info' from the CharacterActionMenu.
+    /// </summary>
+    /// <param name="objects"></param>
+    private void CharacterActionMenuInfo(Object[] objects)
+    {
+        SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
     }
 
     /// <summary>
@@ -255,10 +269,32 @@ public class Cursor : FocusableObject
         GameManager.CharacterActionMenu.Show(CharacterActionMenuOnCancel);
     }
 
-    private void Move(Vector3 endposition)
+    private void Move(Vector2 endposition, bool showInformationPanels=true)
     {
-        transform.position = endposition;
+        Move(endposition.x, endposition.y);
+
+        if (showInformationPanels)
+        {
+            UpdateInformationPanels();
+        }
+        else
+        {
+            HideInformationPanels();
+        }
+    }
+
+    public void CharacterInformationSceneOnCancel()
+    {
+        Focus();
         UpdateInformationPanels();
+    }
+
+    private void Move(float x, float y)
+    {
+        Vector2 endPosition = new Vector2((int)x, (int)y);
+        Debug.LogFormat("Moving cursor from {0} to {1}", transform.position, endPosition);
+
+        transform.position = endPosition;
     }
 
     public override void OnArrow(float horizontal, float vertical)
@@ -433,10 +469,7 @@ public class Cursor : FocusableObject
             }
             else
             {
-                // TODO open character info
-                //Debug.LogError("Have not created character info yet.");
-                SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
-                return;
+                Debug.LogError("Need to implement enemy attackable spaces");
             }
         }
         else
@@ -486,6 +519,15 @@ public class Cursor : FocusableObject
         }
     }
 
+    public override void OnRightMouse(Vector2 mousePosition)
+    {
+        Move(mousePosition, false);
+        if (GameManager.CurrentLevel.GetCharacter(mousePosition) != null)
+        {
+            SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
+        }
+    }
+
     public void TradeDetailPanelOnClose()
     {
         Focus();
@@ -500,26 +542,4 @@ public class Cursor : FocusableObject
         }
         TradableSpacesWithCharacters.Clear();
     }
-
-    //private IEnumerator Move(Vector3 endPosition)
-    //{
-    //    yield return Move(endPosition, GameManager.CurrentState);
-    //}
-
-    //private IEnumerator Move(Vector3 endPosition, GameManager.State nextState)
-    //{
-    //    GameManager.CurrentState = GameManager.State.Busy;
-
-    //    float time = 0f;
-
-    //    while (time < 1f)
-    //    {
-    //        time += Time.deltaTime * cursorSpeed;
-    //        transform.position = Vector3.Lerp(a: transform.position, b: endPosition, t: time);
-    //        yield return null;
-    //    }
-
-    //    GameManager.CurrentState = nextState;
-    //    yield break;
-    //}
 }
