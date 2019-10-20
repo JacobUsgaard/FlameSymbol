@@ -153,11 +153,23 @@ public abstract class Character : ManagedMonoBehavior
         }
 
         Experience += experience;
-        if(experience >= 100)
+        if(Experience >= 100)
         {
-            Level += 1;
+            LevelUp();
             Experience %= experience;
         }
+    }
+
+    public void LevelUp()
+    {
+        Debug.Log("Level up!");
+        Level += 1;
+        Strength += GameManager.Random.Next(0, 2);
+        Magic += GameManager.Random.Next(0, 2);
+        Skill += GameManager.Random.Next(0, 2);
+        Resistance += GameManager.Random.Next(0, 2);
+        Defense += GameManager.Random.Next(0, 2);
+        MaxHp += GameManager.Random.Next(0, 2);
     }
 
     public HashSet<Vector2> CalculateAttackablePositions(float x, float y, int range)
