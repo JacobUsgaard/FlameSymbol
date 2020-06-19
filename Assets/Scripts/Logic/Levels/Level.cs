@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -117,7 +117,7 @@ public abstract class Level : ManagedScriptableObject
 
     public MyTerrain GetTerrain(float x, float y)
     {
-        if(IsOutOfBounds(x, y))
+        if (IsOutOfBounds(x, y))
         {
             return null;
         }
@@ -146,5 +146,27 @@ public abstract class Level : ManagedScriptableObject
         return this;
     }
 
+    /// <summary>
+    /// Whether or not the level is complete
+    /// </summary>
+    /// <returns></returns>
     public abstract bool IsLevelOver();
+
+    public ICollection<Character> GetCharacters(Player player)
+    {
+        List<Character> characters = new List<Character>();
+        for (int x = 0; x < CharacterMap.GetLength(0); x++)
+        {
+            for (int y = 0; y < CharacterMap.GetLength(1); y++)
+            {
+                Character character = CharacterMap[x, y];
+                if (character != null)
+                {
+                    characters.Add(character);
+                }
+            }
+        }
+        Debug.LogFormat("Characters found: {0}", characters.Count);
+        return characters;
+    }
 }

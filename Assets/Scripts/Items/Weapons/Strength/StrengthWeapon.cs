@@ -1,1 +1,1 @@
-﻿public abstract class StrengthWeapon : Weapon {}
+public abstract class StrengthWeapon : Weapon {}

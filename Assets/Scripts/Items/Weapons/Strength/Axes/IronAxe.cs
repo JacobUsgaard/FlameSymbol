@@ -1,4 +1,4 @@
-﻿public class IronAxe : Axe {
+public class IronAxe : Axe {
 
     private IronAxe() { }
 

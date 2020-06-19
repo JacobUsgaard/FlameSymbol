@@ -1,4 +1,4 @@
-﻿public class Incinerate : FireMagic {
+public class Incinerate : FireMagic {
 
     public static Incinerate Create()
     {

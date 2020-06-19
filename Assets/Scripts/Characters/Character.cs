@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,7 +45,7 @@ public abstract class Character : ManagedMonoBehavior
 
     public void AddProficiency(Proficiency proficiency)
     {
-        foreach(Proficiency p in Proficiencies)
+        foreach (Proficiency p in Proficiencies)
         {
             if (p.type.Equals(proficiency.type))
             {
@@ -64,10 +64,10 @@ public abstract class Character : ManagedMonoBehavior
     public HashSet<int> GetWeaponRanges()
     {
         HashSet<int> ranges = new HashSet<int>();
-        
-        foreach(Item item in GetUsableWeapons())
+
+        foreach (Item item in GetUsableWeapons())
         {
-            if(item is Weapon)
+            if (item is Weapon)
             {
                 Weapon weapon = (Weapon)item;
 
@@ -124,9 +124,9 @@ public abstract class Character : ManagedMonoBehavior
         HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
         HashSet<Vector2> movablePositions = CalculateMovablePositions();
 
-        HashSet<int> ranges =  GetWeaponRanges();
+        HashSet<int> ranges = GetWeaponRanges();
 
-        foreach(Vector2 movablePosition in movablePositions)
+        foreach (Vector2 movablePosition in movablePositions)
         {
             attackablePositions.UnionWith(CalculateAttackablePositions(movablePosition.x, movablePosition.y, ranges));
         }
@@ -146,14 +146,14 @@ public abstract class Character : ManagedMonoBehavior
 
     public void AddExperience(int experience)
     {
-        if(experience > 100)
+        if (experience > 100)
         {
             Debug.LogErrorFormat("Experience cannot be greater than 100: {0}", experience);
             return;
         }
 
         Experience += experience;
-        if(Experience >= 100)
+        if (Experience >= 100)
         {
             LevelUp();
             Experience %= experience;
@@ -198,7 +198,7 @@ public abstract class Character : ManagedMonoBehavior
     {
         HashSet<Vector2> movablePositions = CalculateMovablePositions();
         CreateMovableTransforms(movablePositions);
-        
+
         return CreateAttackableTransforms(CalculateAttackablePositions(), movablePositions);
     }
 
@@ -220,14 +220,14 @@ public abstract class Character : ManagedMonoBehavior
 
     public void Move(Vector2 position)
     {
-        if(transform.position.x == position.x && transform.position.y == position.y)
+        if (transform.position.x == position.x && transform.position.y == position.y)
         {
             return;
         }
 
         if (GameManager.CurrentLevel.GetCharacter(position) != null)
         {
-            Debug.LogErrorFormat("Position is already taken: {0}" , position);
+            Debug.LogErrorFormat("Position is already taken: {0}", position);
         }
         Vector2 oldPosition = transform.position;
         GameManager.CurrentLevel.SetCharacter(this, position);
@@ -246,7 +246,7 @@ public abstract class Character : ManagedMonoBehavior
     /// <returns>The cost for this character to move to the given position</returns>
     protected virtual int CalculateMovementCost(float x, float y)
     {
-        if(GameManager.CurrentLevel.IsOutOfBounds(x, y))
+        if (GameManager.CurrentLevel.IsOutOfBounds(x, y))
         {
             return 100;
         }
@@ -258,6 +258,7 @@ public abstract class Character : ManagedMonoBehavior
 
     public void DestroyAttackableTransforms()
     {
+        Debug.LogFormat("Destroying {0} attackable spaces", AttackableSpaces.Count);
         foreach (Transform attackableSpace in AttackableSpaces)
         {
             Destroy(attackableSpace.gameObject);
@@ -267,6 +268,7 @@ public abstract class Character : ManagedMonoBehavior
 
     public void DestroyMovableTransforms()
     {
+        Debug.LogFormat("Destroying {0} movable spaces", MovableSpaces.Count);
         foreach (Transform movableSpace in MovableSpaces)
         {
             Destroy(movableSpace.gameObject);
@@ -314,7 +316,8 @@ public abstract class Character : ManagedMonoBehavior
             CreateAttackableTransforms(CalculateAttackablePositions(transform.position.x, transform.position.y, range));
         }
 
-        AttackableSpaces.RemoveAll(attackableSpace => {
+        AttackableSpaces.RemoveAll(attackableSpace =>
+        {
             Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(attackableSpace.position);
 
             if (defendingCharacter == null || defendingCharacter.Player.Equals(Player))
@@ -353,7 +356,7 @@ public abstract class Character : ManagedMonoBehavior
         Debug.Log("Die: " + this);
         Destroy(gameObject);
         Debug.Assert(Player.Characters.Remove(this));
-        Debug.LogFormat("Remaining characters: {0}" , Player.Characters.Count);
+        Debug.LogFormat("Remaining characters: {0}", Player.Characters.Count);
     }
 
     // TODO make criticals a thing
@@ -377,7 +380,7 @@ public abstract class Character : ManagedMonoBehavior
                 defenseCharacter.CurrentHp = Mathf.Max(0, defenseCharacter.CurrentHp - attackInfo.AttackDamage);
             }
         }
-        
+
         if (defenseCharacter.CurrentHp == 0)
         {
             attackExperience += 10;
@@ -388,7 +391,7 @@ public abstract class Character : ManagedMonoBehavior
             defenseExperience += 1;
 
             int defenseHitPercentage = GameManager.Random.Next(100);
-            if(defenseHitPercentage <= attackInfo.DefenseHitPercentage)
+            if (defenseHitPercentage <= attackInfo.DefenseHitPercentage)
             {
                 attackInfo.DefenseWeapon.Use();
                 if (attackInfo.DefenseDamage != 0)
@@ -397,7 +400,7 @@ public abstract class Character : ManagedMonoBehavior
                     CurrentHp = Mathf.Max(0, CurrentHp - attackInfo.DefenseDamage);
                 }
             }
-            
+
             if (CurrentHp == 0)
             {
                 defenseExperience += 10;
@@ -413,22 +416,22 @@ public abstract class Character : ManagedMonoBehavior
     public AttackInfo CalculateAttackInfo(Character defenseCharacter)
     {
         Weapon attackWeapon = GetUsableWeapon();
-        Debug.LogFormat("Attack weapon: {0}" , attackWeapon);
+        Debug.LogFormat("Attack weapon: {0}", attackWeapon);
 
-        Weapon defenseWeapon = null ;
+        Weapon defenseWeapon = null;
         List<Weapon> usableWeapons = defenseCharacter.GetUsableWeapons();
         bool defenseCanAttack;
         if (usableWeapons.Count > 0)
         {
             defenseWeapon = usableWeapons[0];
-            Debug.LogFormat("Defense weapon: {0}" , defenseWeapon);
+            Debug.LogFormat("Defense weapon: {0}", defenseWeapon);
             defenseCanAttack = defenseWeapon.IsInRange(defenseCharacter.transform.position, transform.position);
         }
         else
         {
             defenseCanAttack = false;
         }
-        
+
         int attackHitPercentage = CalculateHitPercentage(this, attackWeapon, defenseCharacter);
         int attackDamage = CalculateDamage(this, attackWeapon, defenseCharacter);
         int attackCriticalPercentage = CalculateCriticalPercentage(this, attackWeapon, defenseCharacter);
@@ -437,7 +440,7 @@ public abstract class Character : ManagedMonoBehavior
         int defenseDamage = 0;
         int defenseCriticalPercentage = 0;
 
-        if(defenseCanAttack)
+        if (defenseCanAttack)
         //if (defenseWeapon != null)
         {
             defenseHitPercentage = CalculateHitPercentage(defenseCharacter, defenseWeapon, this);
@@ -456,10 +459,11 @@ public abstract class Character : ManagedMonoBehavior
     private int CalculateDamage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
     {
         int damage = attackWeapon.CalculateDamage(defenseCharacter);
-        if(attackWeapon is StrengthWeapon)
+        if (attackWeapon is StrengthWeapon)
         {
             damage += attackCharacter.Strength - defenseCharacter.Defense;
-        }else if(attackWeapon is MagicWeapon)
+        }
+        else if (attackWeapon is MagicWeapon)
         {
             damage += attackCharacter.Magic - defenseCharacter.Resistance;
         }
@@ -479,9 +483,9 @@ public abstract class Character : ManagedMonoBehavior
     public List<Weapon> GetUsableWeapons()
     {
         List<Weapon> weapons = new List<Weapon>();
-        foreach(Item item in Items)
+        foreach (Item item in Items)
         {
-            if(item is Weapon)
+            if (item is Weapon)
             {
                 Weapon weapon = (Weapon)item;
                 if (IsProficient(weapon))
@@ -504,7 +508,7 @@ public abstract class Character : ManagedMonoBehavior
         Debug.LogFormat("Is {0} proficient with {1}", CharacterName, weapon);
         foreach (Proficiency proficiency in Proficiencies)
         {
-            Debug.LogFormat("Proficiency: {0}" , proficiency);
+            Debug.LogFormat("Proficiency: {0}", proficiency);
             if (weapon.GetType().IsSubclassOf(proficiency.type))
             {
                 Debug.LogFormat("{0} is sub type of {1}", weapon.GetType(), proficiency.type);
@@ -522,7 +526,7 @@ public abstract class Character : ManagedMonoBehavior
     public Weapon GetUsableWeapon()
     {
         List<Weapon> weapons = GetUsableWeapons();
-        if(weapons.Count > 0)
+        if (weapons.Count > 0)
         {
             return weapons[0];
         }

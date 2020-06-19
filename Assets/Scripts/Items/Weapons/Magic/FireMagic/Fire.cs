@@ -1,4 +1,4 @@
-﻿public class Fire : FireMagic {
+public class Fire : FireMagic {
     private Fire() { }
 
     public static Fire Create()
