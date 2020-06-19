@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TradeDetailPanel : FocusableObject {
+public class TradeDetailPanel : FocusableObject
+{
 
     public Text SourceText;
     public Transform TradeSourcePanel;
@@ -36,7 +37,7 @@ public class TradeDetailPanel : FocusableObject {
             if (CurrentSide == Side.SOURCE && TradeDestinationMenuItems.Count > 0 && sign == 1)
             {
                 TradeMenuItem previousItem = TradeSourceMenuItems[SourceItemsIndex];
-                if(previousItem != null)
+                if (previousItem != null)
                 {
                     previousItem.Text.text = previousItem.Text.text.Replace(INDICATOR, "");
                 }
@@ -44,7 +45,7 @@ public class TradeDetailPanel : FocusableObject {
                 SetItemsTextsIndex(TradeDestinationMenuItems, ref DestinationItemsIndex);
                 CurrentSide = Side.DESTINATION;
             }
-            else if(CurrentSide == Side.DESTINATION  && TradeSourceMenuItems.Count > 0 && sign == -1)
+            else if (CurrentSide == Side.DESTINATION && TradeSourceMenuItems.Count > 0 && sign == -1)
             {
                 TradeMenuItem previousItem = TradeDestinationMenuItems[DestinationItemsIndex];
                 if (previousItem != null)
@@ -84,9 +85,9 @@ public class TradeDetailPanel : FocusableObject {
         DestinationText.text = destinationCharacter.CharacterName;
         Debug.Log("Destination character: " + destinationCharacter);
 
-        
 
-        foreach(TradeMenuItem tradeMenuItem in TradeSourceMenuItems)
+
+        foreach (TradeMenuItem tradeMenuItem in TradeSourceMenuItems)
         {
             Destroy(tradeMenuItem.Text.gameObject);
         }
@@ -97,7 +98,7 @@ public class TradeDetailPanel : FocusableObject {
             Destroy(tradeMenuItem.Text.gameObject);
         }
         TradeDestinationMenuItems.Clear();
-                       
+
         foreach (Item item in sourceCharacter.Items)
         {
             TradeSourceMenuItems.Add(new TradeMenuItem(TradeSourcePanel, item));
@@ -108,12 +109,12 @@ public class TradeDetailPanel : FocusableObject {
             TradeDestinationMenuItems.Add(new TradeMenuItem(TradeDestinationPanel, item));
         }
 
-        if(TradeSourceMenuItems.Count > 0)
+        if (TradeSourceMenuItems.Count > 0)
         {
             SetItemsTextsIndex(TradeSourceMenuItems, ref SourceItemsIndex);
             CurrentSide = Side.SOURCE;
         }
-        else if(TradeDestinationMenuItems.Count > 0)
+        else if (TradeDestinationMenuItems.Count > 0)
         {
             SetItemsTextsIndex(TradeDestinationMenuItems, ref DestinationItemsIndex);
             CurrentSide = Side.DESTINATION;
@@ -149,8 +150,8 @@ public class TradeDetailPanel : FocusableObject {
 
     public override void OnSubmit()
     {
-        
-        if(CurrentSide == Side.SOURCE)
+
+        if (CurrentSide == Side.SOURCE)
         {
             TradeMenuItem tradeMenuItem = TradeSourceMenuItems[SourceItemsIndex];
             SourceCharacter.Items.Remove(tradeMenuItem.Item);

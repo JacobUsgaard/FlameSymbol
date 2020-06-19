@@ -1,3 +1,3 @@
-﻿public class Wizard : Character
+public class Wizard : Character
 {
 }
