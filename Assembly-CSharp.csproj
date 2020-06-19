@@ -696,6 +696,7 @@
  <Reference Include="com.unity.multiplayer-hlapi.Runtime">
  <HintPath>/Users/jacobusgaard/git/FlameSymbol/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
  </Reference>
+ <Compile Include="Assets\Scripts\Logic\AttackableRange.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
