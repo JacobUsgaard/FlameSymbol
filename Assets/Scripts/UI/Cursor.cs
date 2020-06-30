@@ -39,6 +39,7 @@ public class Cursor : FocusableObject
             Debug.Log("Current state: " + value);
             currentState = value;
             UpdateInformationPanels();
+            ShowMovableAndAttackablePositions(transform.position);
         }
     }
 
@@ -99,7 +100,7 @@ public class Cursor : FocusableObject
     /// <param name="character"></param>
     public void CharacterActionMenuOnCancel(Object[] objects)
     {
-        SelectedCharacter.DestroyMovableAndAttackableSpaces();
+        SelectedCharacter.DestroyMovableAndAttackableTransforms();
         DestroyTradableSpaces();
         SelectedCharacter.Move(SelectedCharacterOldPosition);
         SelectedCharacter.CreateAttackableTransforms();
@@ -138,7 +139,7 @@ public class Cursor : FocusableObject
     /// <param name="character"></param>
     public void CharacterActionMenuWait(Object[] objects)
     {
-        SelectedCharacter.DestroyMovableAndAttackableSpaces();
+        SelectedCharacter.DestroyMovableAndAttackableTransforms();
         DestroyTradableSpaces();
         GameManager.CharacterActionMenu.Hide();
         CurrentState = State.Free;
@@ -238,14 +239,14 @@ public class Cursor : FocusableObject
 
         GameManager.ItemActionMenu.Hide();
         GameManager.ItemDetailMenu.Hide();
-        SelectedCharacter.DestroyMovableAndAttackableSpaces();
+        SelectedCharacter.DestroyMovableAndAttackableTransforms();
         Focus();
         CurrentState = State.Free;
     }
 
     private void ShowCharacterActionMenu(Character character)
     {
-        character.DestroyMovableAndAttackableSpaces();
+        character.DestroyMovableAndAttackableTransforms();
         GameManager.CharacterActionMenu.Clear();
 
         // Attack
@@ -312,8 +313,11 @@ public class Cursor : FocusableObject
         switch (CurrentState)
         {
             case State.Free:
+                OnArrowFree(horizontal, vertical);
+                break;
+
             case State.ChoosingMove:
-                OnArrowFreeChoosingMove(horizontal, vertical);
+                OnArrowChoosingMove(horizontal, vertical);
                 break;
 
             case State.ChoosingAttackTarget:
@@ -343,11 +347,54 @@ public class Cursor : FocusableObject
             SetTradableSpaceWithCharacter((TradableSpacesWithCharactersIndex + TradableSpacesWithCharacters.Count + System.Math.Sign(direction)) % TradableSpacesWithCharacters.Count);
         }
     }
-
-    private void OnArrowFreeChoosingMove(float horizontal, float vertical)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="position"></param>
+    private void ShowMovableAndAttackablePositions(Vector2 position)
     {
-        Vector3 startPosition = transform.position;
-        Vector3 newPosition = new Vector3(startPosition.x, startPosition.y);
+        Character character = GameManager.CurrentLevel.GetCharacter(position);
+        
+        if (character)
+        {
+            _ = character.CreateAttackableTransforms();
+        }
+    }
+
+    /// <summary>
+    /// Called when one or several arrow buttons are pressed during the free state
+    /// </summary>
+    /// <param name="horizontal"></param>
+    /// <param name="vertical"></param>
+    private void OnArrowFree(float horizontal, float vertical)
+    {
+        Vector2 startPosition = transform.position;
+        Vector2 newPosition = OnArrowChoosingMove(horizontal, vertical);
+
+        if (startPosition.Equals(newPosition))
+        {
+            return;
+        }
+
+        Character currentCharacter = GameManager.CurrentLevel.GetCharacter(startPosition);
+        if (currentCharacter)
+        {
+            currentCharacter.DestroyMovableAndAttackableTransforms();
+        }
+
+        ShowMovableAndAttackablePositions(newPosition);
+    }
+
+    /// <summary>
+    /// Called when one or several arrow buttons are pressed during the choosing move state
+    /// </summary>
+    /// <param name="horizontal">The horizontal direction of the arrow press</param>
+    /// <param name="vertical">The vertical direction of the arrow press</param>
+    /// <returns>The new position on the board</returns>
+    private Vector2 OnArrowChoosingMove(float horizontal, float vertical)
+    {
+        Vector2 startPosition = transform.position;
+        Vector2 newPosition = new Vector3(startPosition.x, startPosition.y);
         if (Mathf.Abs(horizontal) > Mathf.Abs(vertical))
         {
             newPosition.x += System.Math.Sign(horizontal);
@@ -360,7 +407,10 @@ public class Cursor : FocusableObject
         if (!GameManager.CurrentLevel.IsOutOfBounds(newPosition))
         {
             Move(newPosition);
+            return newPosition;
         }
+
+        return startPosition;
     }
 
     private void OnArrowChoosingAttackTarget(float horizontal, float vertical)
@@ -462,7 +512,7 @@ public class Cursor : FocusableObject
 
         Debug.Log("Enter was pressed outside MovableSpaces");
 
-        SelectedCharacter.DestroyMovableAndAttackableSpaces();
+        SelectedCharacter.DestroyMovableAndAttackableTransforms();
         //GameManager.CurrentState = GameManager.State.Menu;
         CurrentState = State.Free;
     }
