@@ -277,7 +277,7 @@ public abstract class Character : ManagedMonoBehavior
         MovableSpaces.Clear();
     }
 
-    public void DestroyMovableAndAttackableSpaces()
+    public void DestroyMovableAndAttackableTransforms()
     {
         DestroyMovableTransforms();
         DestroyAttackableTransforms();
@@ -485,13 +485,9 @@ public abstract class Character : ManagedMonoBehavior
         List<Weapon> weapons = new List<Weapon>();
         foreach (Item item in Items)
         {
-            if (item is Weapon)
+            if (item is Weapon weapon && IsProficient(weapon))
             {
-                Weapon weapon = (Weapon)item;
-                if (IsProficient(weapon))
-                {
-                    weapons.Add(weapon);
-                }
+                weapons.Add(weapon);
             }
         }
 
