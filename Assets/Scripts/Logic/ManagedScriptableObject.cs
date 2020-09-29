@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-public class ManagedScriptableObject : ScriptableObject {
+public class ManagedScriptableObject : ScriptableObject
+{
 
     public static GameManager GameManager { get; set; }
 

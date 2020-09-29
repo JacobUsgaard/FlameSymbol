@@ -45,7 +45,7 @@ public abstract class Weapon : Item
         return weapon;
     }
 
-    public bool IsInRange(Vector3 start, Vector3 end)
+    public bool IsInRange(Vector2 start, Vector2 end)
     {
         foreach(int range in _ranges)
         {

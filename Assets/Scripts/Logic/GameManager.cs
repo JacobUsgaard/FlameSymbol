@@ -45,6 +45,9 @@ public class GameManager : MonoBehaviour
     public Menu PlayerActionMenu;
     public TerrainInformationPanel TerrainInformationPanel;
     public TradeDetailPanel TradeDetailPanel;
+    public Transform PathCornerPrefab;
+    public Transform PathEndPrefab;
+    public Transform PathStraightPrefab;
    
     [Header("Weapons")]
     public Text FireTextPrefab;
@@ -80,6 +83,8 @@ public class GameManager : MonoBehaviour
     public void Start()
     {
         DontDestroyOnLoad(transform.gameObject);
+
+        // Initialize both managed objects
         ManagedMonoBehavior.Initialize(this);
         ManagedScriptableObject.Initialize(this);
 
@@ -143,27 +148,6 @@ public class GameManager : MonoBehaviour
                     goto EndTurn;
                 }
             }
-            //Tuple<Vector2, Vector2> moveAttack = Moves(character, character.transform.position.x, character.transform.position.y, character.Moves, character.GetWeaponRanges());
-
-            //if (moveAttack != null)
-            //{
-            //    Debug.Log("Found move: " + moveAttack.value1 + ", attack: " + moveAttack.value2);
-            //    _characterIsMoving = true;
-            //    character.Move(moveAttack.value1);
-            //    character.Attack(CurrentLevel.GetCharacter(moveAttack.value2));
-            //    //Debug.LogError("Need to actually move character");
-            //    //MoveCharacter(character, moveAttack.value1, delegate (Object[] objects)
-            //    //{
-            //    //    Attack(character, GetCharacter(moveAttack.value2));
-            //    //});
-            //}
-            //else
-            //{
-            //    Debug.Log("Could not find move attack. Trying to find move.");
-            //    //Vector2 move = FindMove(character);
-            //    Debug.LogError("Need to actually move character");
-            //    //MoveCharacter(character, move, CurrentState);
-            //}
         }
 
         EndTurn:
@@ -198,7 +182,7 @@ public class GameManager : MonoBehaviour
             System.Threading.Thread.Sleep(50);
         }
 
-        Vector3 mousePosition = Input.mousePosition;
+        Vector2 mousePosition = Input.mousePosition;
         if(mousePosition.x < 0 || mousePosition.x > Screen.width || mousePosition.y < 0 || mousePosition.y > Screen.height)
         {
             return;
@@ -215,7 +199,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public Vector2 TranslateMousePosition(Vector3 mousePosition)
+    public Vector2 TranslateMousePosition(Vector2 mousePosition)
     {
         Vector2 vector2 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 

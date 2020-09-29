@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TestLevel : Level {
@@ -13,7 +11,6 @@ public class TestLevel : Level {
     /// </summary>
     protected override void Init()
     {
-        
         TerrainMap = new MyTerrain[4, 4];
         CharacterMap = new Character[4, 4];
 
