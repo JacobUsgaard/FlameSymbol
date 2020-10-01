@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UI;
 
 public class Cursor : FocusableObject
 {
@@ -12,10 +13,12 @@ public class Cursor : FocusableObject
     private int TradableSpacesWithCharactersIndex = 0;
     public readonly List<Transform> TradableSpacesWithCharacters = new List<Transform>();
 
-    private Vector3 SelectedCharacterOldPosition;
+    private Vector2 SelectedCharacterOldPosition;
     private Character SelectedCharacter;
 
     public AttackableRange AttackableRange;
+
+    public Path Path;
 
     public enum State
     {
@@ -38,14 +41,22 @@ public class Cursor : FocusableObject
         {
             Debug.Log("Current state: " + value);
             currentState = value;
-            UpdateInformationPanels();
-            ShowMovableAndAttackablePositions(transform.position);
+
+            switch (currentState)
+            {
+                case State.Free:
+                    UpdateInformationPanels();
+                    ShowMovableAndAttackablePositions(transform.position);
+                    break;
+
+            }
         }
     }
 
     public void Start()
     {
         AttackableRange = ScriptableObject.CreateInstance<AttackableRange>();
+        Path = ScriptableObject.CreateInstance<Path>();
     }
 
     private void HideInformationPanels()
@@ -107,6 +118,7 @@ public class Cursor : FocusableObject
         GameManager.CharacterActionMenu.Hide();
         Focus();
         CurrentState = State.ChoosingMove;
+        Path.Show();
     }
 
     private void CharacterActionMenuAttack(Object[] objects)
@@ -137,7 +149,7 @@ public class Cursor : FocusableObject
     /// Callback when the user selects the wait option from the CharacterActionMenu.
     /// </summary>
     /// <param name="character"></param>
-    public void CharacterActionMenuWait(Object[] objects)
+    private void CharacterActionMenuWait(Object[] objects)
     {
         SelectedCharacter.DestroyMovableAndAttackableTransforms();
         DestroyTradableSpaces();
@@ -248,6 +260,7 @@ public class Cursor : FocusableObject
     {
         character.DestroyMovableAndAttackableTransforms();
         GameManager.CharacterActionMenu.Clear();
+        Path.Hide();
 
         // Attack
         AttackableSpacesWithCharacters.Clear();
@@ -280,7 +293,7 @@ public class Cursor : FocusableObject
         GameManager.CharacterActionMenu.Show(CharacterActionMenuOnCancel);
     }
 
-    private void Move(Vector2 endposition, bool showInformationPanels = true)
+    public void Move(Vector2 endposition, bool showInformationPanels = true)
     {
         Move(endposition.x, endposition.y);
 
@@ -300,7 +313,12 @@ public class Cursor : FocusableObject
         UpdateInformationPanels();
     }
 
-    private void Move(float x, float y)
+    /// <summary>
+    /// Move the cursor to the provided position. No validation occurs.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    public void Move(float x, float y)
     {
         Vector2 endPosition = new Vector2((int)x, (int)y);
         Debug.LogFormat("Moving cursor from {0} to {1}", transform.position, endPosition);
@@ -308,6 +326,11 @@ public class Cursor : FocusableObject
         transform.position = endPosition;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="horizontal"></param>
+    /// <param name="vertical"></param>
     public override void OnArrow(float horizontal, float vertical)
     {
         switch (CurrentState)
@@ -348,13 +371,13 @@ public class Cursor : FocusableObject
         }
     }
     /// <summary>
-    /// 
+    /// Shows the movable and attackable positions for the character in the specified position.
     /// </summary>
     /// <param name="position"></param>
     private void ShowMovableAndAttackablePositions(Vector2 position)
     {
         Character character = GameManager.CurrentLevel.GetCharacter(position);
-        
+
         if (character)
         {
             _ = character.CreateAttackableTransforms();
@@ -369,7 +392,7 @@ public class Cursor : FocusableObject
     private void OnArrowFree(float horizontal, float vertical)
     {
         Vector2 startPosition = transform.position;
-        Vector2 newPosition = OnArrowChoosingMove(horizontal, vertical);
+        Vector2 newPosition = GetNewPosition(horizontal, vertical);
 
         if (startPosition.Equals(newPosition))
         {
@@ -382,19 +405,14 @@ public class Cursor : FocusableObject
             currentCharacter.DestroyMovableAndAttackableTransforms();
         }
 
+        Move(newPosition);
         ShowMovableAndAttackablePositions(newPosition);
     }
 
-    /// <summary>
-    /// Called when one or several arrow buttons are pressed during the choosing move state
-    /// </summary>
-    /// <param name="horizontal">The horizontal direction of the arrow press</param>
-    /// <param name="vertical">The vertical direction of the arrow press</param>
-    /// <returns>The new position on the board</returns>
-    private Vector2 OnArrowChoosingMove(float horizontal, float vertical)
+    private Vector2 GetNewPosition(float horizontal, float vertical)
     {
         Vector2 startPosition = transform.position;
-        Vector2 newPosition = new Vector3(startPosition.x, startPosition.y);
+        Vector2 newPosition = new Vector2(startPosition.x, startPosition.y);
         if (Mathf.Abs(horizontal) > Mathf.Abs(vertical))
         {
             newPosition.x += System.Math.Sign(horizontal);
@@ -406,11 +424,35 @@ public class Cursor : FocusableObject
 
         if (!GameManager.CurrentLevel.IsOutOfBounds(newPosition))
         {
-            Move(newPosition);
             return newPosition;
         }
 
         return startPosition;
+    }
+
+    /// <summary>
+    /// Called when one or several arrow buttons are pressed during the choosing move state
+    /// </summary>
+    /// <param name="horizontal">The horizontal direction of the arrow press</param>
+    /// <param name="vertical">The vertical direction of the arrow press</param>
+    /// <returns>The new position on the board</returns>
+    private void OnArrowChoosingMove(float horizontal, float vertical)
+    {
+        Vector2 startPosition = transform.position;
+        Vector2 newPosition = GetNewPosition(horizontal, vertical);
+
+        if (startPosition.Equals(newPosition))
+        {
+            return;
+        }
+        Move(newPosition);
+
+        if (SelectedCharacter.MovableSpaces.Exists(t => t.position.Equals(newPosition)))
+        {
+            Debug.LogFormat("Space is in movable spaces");
+
+            Path.Add(newPosition);
+        }
     }
 
     private void OnArrowChoosingAttackTarget(float horizontal, float vertical)
@@ -444,7 +486,7 @@ public class Cursor : FocusableObject
 
     public override void OnSubmit()
     {
-        Vector3 currentPosition = transform.position;
+        Vector2 currentPosition = transform.position;
         switch (CurrentState)
         {
             case State.ChoosingMove:
@@ -487,7 +529,7 @@ public class Cursor : FocusableObject
         CurrentState = State.Free;
     }
 
-    private void OnSubmitChoosingMove(Vector3 currentPosition)
+    private void OnSubmitChoosingMove(Vector2 currentPosition)
     {
         Debug.Log("OnEnterChoosingMove: " + currentPosition);
         foreach (Transform movableSpace in SelectedCharacter.MovableSpaces)
@@ -517,15 +559,17 @@ public class Cursor : FocusableObject
         CurrentState = State.Free;
     }
 
-    private void OnSubmitFree(Vector3 currentPosition)
+    private void OnSubmitFree(Vector2 currentPosition)
     {
         SelectedCharacter = GameManager.CurrentLevel.GetCharacter(currentPosition);
         if (SelectedCharacter != null)
         {
             if (SelectedCharacter.Player.Equals(GameManager.CurrentPlayer))
             {
-                SelectedCharacter.CreateAttackableTransforms();
+                // SelectedCharacter.CreateAttackableTransforms();
+                AttackableRange.Clear();
                 CurrentState = State.ChoosingMove;
+                Path.StartPath(SelectedCharacter);
             }
             else
             {
@@ -569,6 +613,7 @@ public class Cursor : FocusableObject
 
                 SelectedCharacter.DestroyAttackableTransforms();
                 SelectedCharacter.DestroyMovableTransforms();
+                Path.Destroy();
                 CurrentState = State.Free;
                 break;
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -85,7 +84,7 @@ public abstract class Level : ManagedScriptableObject
         return GetCharacter(GameManager.Cursor.transform.position);
     }
 
-    public Character GetCharacter(Vector3 position)
+    public Character GetCharacter(Vector2 position)
     {
         return GetCharacter(position.x, position.y);
     }
@@ -110,11 +109,22 @@ public abstract class Level : ManagedScriptableObject
         }
     }
 
+    /// <summary>
+    /// Set the character in the map at the specified position.
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="position"></param>
     public void SetCharacter(Character character, Vector2 position)
     {
         SetCharacter(character, position.x, position.y);
     }
 
+    /// <summary>
+    /// Get the Terrain at the specified position
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
     public MyTerrain GetTerrain(float x, float y)
     {
         if (IsOutOfBounds(x, y))
@@ -136,7 +146,7 @@ public abstract class Level : ManagedScriptableObject
     }
 
     /// <summary>
-    /// Create the terrain and character maps. 
+    /// Create the terrain and character maps.
     /// The GameManager, HumanPlayer, and AiPlayer have all been initialized before this method is called.
     /// </summary>
     protected abstract void Init();
@@ -149,7 +159,7 @@ public abstract class Level : ManagedScriptableObject
     /// <summary>
     /// Whether or not the level is complete
     /// </summary>
-    /// <returns></returns>
+    /// <returns>True if the level is over. False if not.</returns>
     public abstract bool IsLevelOver();
 
     public ICollection<Character> GetCharacters(Player player)

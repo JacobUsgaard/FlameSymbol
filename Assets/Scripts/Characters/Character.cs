@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 /// <summary>
 /// TODO weapon Proficiencies
@@ -13,6 +11,7 @@ public abstract class Character : ManagedMonoBehavior
 
     public readonly List<Transform> MovableSpaces = new List<Transform>();
     public readonly List<Transform> AttackableSpaces = new List<Transform>();
+    public readonly List<Transform> Path = new List<Transform>();
 
     public string CharacterName;
     public int Strength;
@@ -86,21 +85,24 @@ public abstract class Character : ManagedMonoBehavior
         return CalculateMovablePositions(transform.position.x, transform.position.y, Moves);
     }
 
-    private HashSet<Vector2> CalculateMovablePositions(float x, float y, int moves)
+    private HashSet<Vector2> CalculateMovablePositions(float x, float y, int remainingMoves)
     {
         HashSet<Vector2> movableSpaces = new HashSet<Vector2>();
         Character character = GameManager.CurrentLevel.GetCharacter(x, y);
-        if (moves == 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || (character != null && !character.Player.Equals(Player)))
+        if (remainingMoves <= 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || (character != null && !character.Player.Equals(Player)))
         {
             return movableSpaces;
         }
 
-        movableSpaces.Add(new Vector2(x, y));
+        Vector2 position = new Vector2(x, y);
+        remainingMoves -= CalculateMovementCost(position);
 
-        movableSpaces.UnionWith(CalculateMovablePositions(x - 1, y, Mathf.Max(moves - CalculateMovementCost(x - 1, y), 0)));
-        movableSpaces.UnionWith(CalculateMovablePositions(x + 1, y, Mathf.Max(moves - CalculateMovementCost(x + 1, y), 0)));
-        movableSpaces.UnionWith(CalculateMovablePositions(x, y - 1, Mathf.Max(moves - CalculateMovementCost(x, y - 1), 0)));
-        movableSpaces.UnionWith(CalculateMovablePositions(x, y + 1, Mathf.Max(moves - CalculateMovementCost(x, y + 1), 0)));
+        _ = movableSpaces.Add(position);
+
+        movableSpaces.UnionWith(CalculateMovablePositions(x - 1, y, remainingMoves));
+        movableSpaces.UnionWith(CalculateMovablePositions(x + 1, y, remainingMoves));
+        movableSpaces.UnionWith(CalculateMovablePositions(x, y - 1, remainingMoves));
+        movableSpaces.UnionWith(CalculateMovablePositions(x, y + 1, remainingMoves));
         return movableSpaces;
     }
 
@@ -109,6 +111,11 @@ public abstract class Character : ManagedMonoBehavior
         return CreateMovableTransforms(CalculateMovablePositions());
     }
 
+    /// <summary>
+    /// Creates the movable transforms from the collection of movable positions
+    /// </summary>
+    /// <param name="movablePositions"></param>
+    /// <returns></returns>
     public List<Transform> CreateMovableTransforms(ICollection<Vector2> movablePositions)
     {
         foreach (Vector2 movablePosition in movablePositions)
@@ -119,6 +126,10 @@ public abstract class Character : ManagedMonoBehavior
         return MovableSpaces;
     }
 
+    /// <summary>
+    /// Calculates the attackable positions for all of the character's movable positions.
+    /// </summary>
+    /// <returns></returns>
     public HashSet<Vector2> CalculateAttackablePositions()
     {
         HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
@@ -134,6 +145,13 @@ public abstract class Character : ManagedMonoBehavior
         return attackablePositions;
     }
 
+    /// <summary>
+    /// Calculates the attackable positions for the given position and the ranges (e.g. of weapons)
+    /// </summary>
+    /// <param name="x">The x coordinate of the position</param>
+    /// <param name="y">The y coordinate of the position</param>
+    /// <param name="ranges">The list of ranges</param>
+    /// <returns>The list of attackable positions</returns>
     public HashSet<Vector2> CalculateAttackablePositions(float x, float y, HashSet<int> ranges)
     {
         HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
@@ -194,6 +212,12 @@ public abstract class Character : ManagedMonoBehavior
         return attackablePositions;
     }
 
+    /// <summary>
+    /// Creates the movable and attackable transforms.
+    ///
+    /// Will not delete previous movable and attackable transforms.
+    /// </summary>
+    /// <returns>The list of all attackable transforms</returns>
     public List<Transform> CreateAttackableTransforms()
     {
         HashSet<Vector2> movablePositions = CalculateMovablePositions();
@@ -202,6 +226,12 @@ public abstract class Character : ManagedMonoBehavior
         return CreateAttackableTransforms(CalculateAttackablePositions(), movablePositions);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="attackablePositions"></param>
+    /// <param name="movablePositions"></param>
+    /// <returns></returns>
     public List<Transform> CreateAttackableTransforms(ICollection<Vector2> attackablePositions, ICollection<Vector2> movablePositions = null)
     {
         movablePositions = movablePositions ?? new HashSet<Vector2>();
@@ -218,6 +248,10 @@ public abstract class Character : ManagedMonoBehavior
         return AttackableSpaces;
     }
 
+    /// <summary>
+    /// Move the Character to the specified position
+    /// </summary>
+    /// <param name="position"></param>
     public void Move(Vector2 position)
     {
         if (transform.position.x == position.x && transform.position.y == position.y)
@@ -238,9 +272,16 @@ public abstract class Character : ManagedMonoBehavior
         }
     }
 
+    public int CalculateMovementCost(Vector2 position)
+    {
+        int cost = position.Equals(transform.position) ? 0 : CalculateMovementCost(position.x, position.y);
+        Debug.LogFormat("Movement cost: {0}", cost);
+        return cost;
+    }
+
     /// <summary>
     /// Calculates the cost for this character to move to the given position.
-    /// TODO add more conditions
+    /// TODO add terrain considerations
     /// </summary>
     /// <param name="position">The position for which to determine the cost</param>
     /// <returns>The cost for this character to move to the given position</returns>
@@ -248,14 +289,16 @@ public abstract class Character : ManagedMonoBehavior
     {
         if (GameManager.CurrentLevel.IsOutOfBounds(x, y))
         {
-            return 100;
+            return int.MaxValue;
         }
 
         MyTerrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
-        int cost = terrain.MovementCost;
-        return cost;
+        return terrain.MovementCost;
     }
 
+    /// <summary>
+    /// Destory attackable transforms
+    /// </summary>
     public void DestroyAttackableTransforms()
     {
         Debug.LogFormat("Destroying {0} attackable spaces", AttackableSpaces.Count);
@@ -266,6 +309,9 @@ public abstract class Character : ManagedMonoBehavior
         AttackableSpaces.Clear();
     }
 
+    /// <summary>
+    /// Destroy movable transforms
+    /// </summary>
     public void DestroyMovableTransforms()
     {
         Debug.LogFormat("Destroying {0} movable spaces", MovableSpaces.Count);
@@ -277,12 +323,19 @@ public abstract class Character : ManagedMonoBehavior
         MovableSpaces.Clear();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public void DestroyMovableAndAttackableTransforms()
     {
         DestroyMovableTransforms();
         DestroyAttackableTransforms();
     }
 
+    /// <summary>
+    /// Calculate tradable spaces for this Character
+    /// </summary>
+    /// <returns></returns>
     public List<Transform> CalculateTradableSpaces()
     {
         List<Transform> tradableSpaces = new List<Transform>();
@@ -297,6 +350,12 @@ public abstract class Character : ManagedMonoBehavior
         return tradableSpaces;
     }
 
+    /// <summary>
+    /// Calculate 
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="tradableSpaces"></param>
     private void CalculateTradableSpace(float x, float y, List<Transform> tradableSpaces)
     {
         Character character = GameManager.CurrentLevel.GetCharacter(x, y);
@@ -306,6 +365,10 @@ public abstract class Character : ManagedMonoBehavior
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public List<Transform> GetAttackableSpacesWithCharacters()
     {
         DestroyAttackableTransforms();
@@ -359,8 +422,14 @@ public abstract class Character : ManagedMonoBehavior
         Debug.LogFormat("Remaining characters: {0}", Player.Characters.Count);
     }
 
-    // TODO make criticals a thing
-    // TODO make speed a thing
+
+    /// <summary>
+    /// Attack the specified Character and apply damage, effects, etc
+    ///
+    /// TODO make criticals a thing
+    /// TODO make speed a thing
+    /// </summary>
+    /// <param name="defenseCharacter">The Character to attack</param>
     public void Attack(Character defenseCharacter)
     {
         AttackInfo attackInfo = CalculateAttackInfo(defenseCharacter);
@@ -413,6 +482,11 @@ public abstract class Character : ManagedMonoBehavior
         AddExperience(attackExperience);
     }
 
+    /// <summary>
+    /// Calculate the attack information for the attack on the specified defense Character
+    /// </summary>
+    /// <param name="defenseCharacter"></param>
+    /// <returns></returns>
     public AttackInfo CalculateAttackInfo(Character defenseCharacter)
     {
         Weapon attackWeapon = GetUsableWeapon();
@@ -451,11 +525,29 @@ public abstract class Character : ManagedMonoBehavior
         return new AttackInfo(attackWeapon, attackHitPercentage, attackDamage, attackCriticalPercentage, defenseWeapon, defenseHitPercentage, defenseDamage, defenseCriticalPercentage, defenseCanAttack);
     }
 
+    /// <summary>
+    /// Calculate the hit percentage
+    ///
+    /// TODO add terrain considerations
+    /// </summary>
+    /// <param name="attackCharacter"></param>
+    /// <param name="attackWeapon"></param>
+    /// <param name="defenseCharacter"></param>
+    /// <returns></returns>
     private int CalculateHitPercentage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
     {
         return Mathf.Clamp(attackCharacter.Skill + attackWeapon.HitPercentage - defenseCharacter.Speed, 0, 100);
     }
 
+    /// <summary>
+    /// Calculate the damage done by the attack Character with the specified weapon and the defense Character
+    ///
+    /// TODO Add terrain considerations
+    /// </summary>
+    /// <param name="attackCharacter"></param>
+    /// <param name="attackWeapon"></param>
+    /// <param name="defenseCharacter"></param>
+    /// <returns></returns>
     private int CalculateDamage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
     {
         int damage = attackWeapon.CalculateDamage(defenseCharacter);
@@ -514,11 +606,14 @@ public abstract class Character : ManagedMonoBehavior
                     return true;
                 }
             }
-
         }
         return false;
     }
 
+    /// <summary>
+    /// Gets a usable weapon for the Character
+    /// </summary>
+    /// <returns></returns>
     public Weapon GetUsableWeapon()
     {
         List<Weapon> weapons = GetUsableWeapons();
@@ -530,6 +625,9 @@ public abstract class Character : ManagedMonoBehavior
         return null;
     }
 
+    /// <summary>
+    /// Represents an attack/defense scenario for two Characters
+    /// </summary>
     public class AttackInfo
     {
         public Weapon AttackWeapon;
