@@ -1,13 +1,13 @@
 ﻿<Properties StartupConfiguration="{C4A65467-6C2E-2CAB-4B68-0FB64A753F84}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UI/Path.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Tests/UI/PathTests.cs">
     <Files>
-      <File FileName="Assets/Scripts/UI/Path.cs" Line="132" Column="14" />
+      <File FileName="Assets/Scripts/UI/Path.cs" Line="113" Column="54" />
       <File FileName="Assets/Scripts/Logic/GameManager.cs" />
       <File FileName="Assets/Scripts/Logic/Levels/Level.cs" />
       <File FileName="Assets/Scripts/UI/Cursor.cs" />
       <File FileName="Assets/Tests/UI/CursorTests.cs" />
-      <File FileName="Assets/Scripts/Characters/Character.cs" />
-      <File FileName="Assets/Tests/UI/PathTests.cs" />
+      <File FileName="Assets/Scripts/Characters/Character.cs" Line="278" Column="1" />
+      <File FileName="Assets/Tests/UI/PathTests.cs" Line="142" Column="30" />
       <File FileName="Assets/Tests/UI/UITest.cs" />
     </Files>
     <Pads>
@@ -20,14 +20,12 @@
                 <Node name="Logic" expanded="True">
                   <Node name="Levels" expanded="True" />
                 </Node>
-                <Node name="UI" expanded="True">
-                  <Node name="Path.cs" selected="True" />
-                </Node>
-              </Node>
-              <Node name="Spritesheets" expanded="True" />
-              <Node name="Tests" expanded="True">
-                <Node name="Logic" expanded="True" />
                 <Node name="UI" expanded="True" />
+              </Node>
+              <Node name="Tests" expanded="True">
+                <Node name="UI" expanded="True">
+                  <Node name="PathTests.cs" selected="True" />
+                </Node>
               </Node>
             </Node>
           </Node>
@@ -35,7 +33,7 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.ItemProperties.GameAssembly PreferredExecutionTarget="48035e75-1e14-4213-b64d-7fe6a64dfa52" />
+  <MonoDevelop.Ide.ItemProperties.GameAssembly PreferredExecutionTarget="06a0c18b-772d-48e6-9609-6dfc8d44903e" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <Debugger.DebugSourceFolders />

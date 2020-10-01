@@ -118,6 +118,7 @@ public class Cursor : FocusableObject
         GameManager.CharacterActionMenu.Hide();
         Focus();
         CurrentState = State.ChoosingMove;
+        Path.Show();
     }
 
     private void CharacterActionMenuAttack(Object[] objects)
@@ -148,7 +149,7 @@ public class Cursor : FocusableObject
     /// Callback when the user selects the wait option from the CharacterActionMenu.
     /// </summary>
     /// <param name="character"></param>
-    public void CharacterActionMenuWait(Object[] objects)
+    private void CharacterActionMenuWait(Object[] objects)
     {
         SelectedCharacter.DestroyMovableAndAttackableTransforms();
         DestroyTradableSpaces();
@@ -259,6 +260,7 @@ public class Cursor : FocusableObject
     {
         character.DestroyMovableAndAttackableTransforms();
         GameManager.CharacterActionMenu.Clear();
+        Path.Hide();
 
         // Attack
         AttackableSpacesWithCharacters.Clear();
@@ -375,7 +377,7 @@ public class Cursor : FocusableObject
     private void ShowMovableAndAttackablePositions(Vector2 position)
     {
         Character character = GameManager.CurrentLevel.GetCharacter(position);
-        
+
         if (character)
         {
             _ = character.CreateAttackableTransforms();
@@ -445,7 +447,7 @@ public class Cursor : FocusableObject
         }
         Move(newPosition);
 
-        if(SelectedCharacter.MovableSpaces.Exists(t => t.position.Equals(newPosition)))
+        if (SelectedCharacter.MovableSpaces.Exists(t => t.position.Equals(newPosition)))
         {
             Debug.LogFormat("Space is in movable spaces");
 

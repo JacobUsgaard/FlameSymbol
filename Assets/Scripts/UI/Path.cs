@@ -108,7 +108,7 @@ namespace UI
         public int CalculateRemainingMoves()
         {
             int remainingMoves = Character.Moves;
-            foreach(Vector2 position in Positions)
+            foreach (Vector2 position in Positions)
             {
                 remainingMoves -= Character.CalculateMovementCost(position);
             }
@@ -122,7 +122,7 @@ namespace UI
             int start = positions.Count - 1;
             for (int i = start; i >= 0; i--)
             {
-               Vector2 previousPosition = positions[i];
+                Vector2 previousPosition = positions[i];
                 positions.RemoveAt(i);
                 Debug.LogFormat("Removing {0}", previousPosition);
 
@@ -137,7 +137,7 @@ namespace UI
 
             Debug.LogFormat("Get new path completely");
             positions.AddRange(CalculatePath(Character.transform.position, newPosition, CalculateRemainingMoves()));
-            
+
             return positions;
         }
 
@@ -212,11 +212,135 @@ namespace UI
             Transforms.ForEach(t => Destroy(t.gameObject));
             Transforms.Clear();
 
-            for(int i = 1; i < Positions.Count; i++)
+            if (Positions.Count == 0)
             {
-                Vector2 position = Positions[i];
-                Transforms.Add(Instantiate(GameManager.PathStraightPrefab, position, Quaternion.identity, GameManager.transform));
+                throw new System.InvalidOperationException(string.Format("Invalid number of path positions: {0}", Positions.Count));
             }
+
+            if (Positions.Count == 1)
+            {
+                return;
+            }
+
+            for (int i = 1; i < Positions.Count - 1; i++)
+            {
+                Vector2 previousPosition = Positions[i - 1];
+                Vector2 currentPosition = Positions[i];
+                Vector2 nextPosition = Positions[i + 1];
+
+                Transform transform;
+                int rotation;
+
+                float previousX = currentPosition.x - previousPosition.x;
+                float previousY = currentPosition.y - previousPosition.y;
+
+                float nextX = nextPosition.x - currentPosition.x;
+                float nextY = nextPosition.y - currentPosition.y;
+                if (previousX == 0f && nextX == 0f)
+                // if there is no change in x position, then we are moving straight up or down
+                {
+                    Debug.Log("Going vertical");
+                    rotation = 0;
+                    transform = GameManager.PathStraightPrefab;
+                }
+                else if (previousY == 0f && nextY == 0f)
+                // if there is no change in y position, then we are moving straight left or right
+                {
+                    Debug.Log("Going horizontal");
+                    rotation = 90;
+                    transform = GameManager.PathStraightPrefab;
+                }
+                else if (previousX == 1f)
+                // coming from the left
+                {
+                    Debug.Log("Coming from the left");
+                    transform = GameManager.PathCornerPrefab;
+
+                    if (nextY == 1f)
+                    // going up
+                    {
+                        Debug.Log("Going up");
+                        rotation = 270;
+                    }
+                    else
+                    // going down
+                    {
+                        Debug.Log("Going down");
+                        rotation = 0;
+                    }
+                }
+                else if (previousX == -1f)
+                // coming from the right
+                {
+                    Debug.Log("Coming from the right");
+                    transform = GameManager.PathCornerPrefab;
+
+                    if (nextY == 1f)
+                    // going up
+                    {
+                        Debug.Log("Going up");
+                        rotation = 180;
+                    }
+                    else
+                    // going down
+                    {
+                        Debug.Log("Going down");
+                        rotation = 90;
+                    }
+                }
+                else if (previousY == 1f)
+                // coming from the bottom
+                {
+                    Debug.Log("Coming from the bottom");
+                    transform = GameManager.PathCornerPrefab;
+
+                    if (nextX == 1f)
+                    // going right
+                    {
+                        Debug.Log("Going right");
+                        rotation = 90;
+                    }
+                    else
+                    // going left
+                    {
+                        Debug.Log("Going left");
+                        rotation = 0;
+                    }
+                }
+                else if (previousY == -1f)
+                // coming from the top
+                {
+                    Debug.Log("Coming from top");
+                    transform = GameManager.PathCornerPrefab;
+
+                    if (nextX == 1f)
+                    // going right
+                    {
+                        Debug.Log("Going right");
+                        rotation = 180;
+                    }
+                    else
+                    // going left
+                    {
+                        Debug.Log("Going left");
+                        rotation = 270;
+                    }
+                }
+                else
+                {
+                    throw new System.InvalidOperationException(string.Format("Invalid movement previous: {0}, current: {1}, next: {2}", previousPosition, currentPosition, nextPosition));
+                }
+
+                Debug.LogFormat("Creating path {0} with rotation {1}", transform, rotation);
+                transform = Instantiate(transform, currentPosition, Quaternion.identity, GameManager.transform);
+                transform.Rotate(Vector3.forward * rotation);
+
+                Transforms.Add(transform);
+            }
+
+            Transform endTransform = Instantiate(GameManager.PathEndPrefab, Positions[Positions.Count - 1], Quaternion.identity, GameManager.transform);
+            RotatePathEnd(endTransform, Positions[Positions.Count - 2], Positions[Positions.Count - 1]);
+            Transforms.Add(endTransform);
         }
 
         public void RotatePathEnd(Transform t, Vector2 previousPosition, Vector2 nextPosition)
@@ -230,11 +354,11 @@ namespace UI
             int rotation;
             if (previousPosition.y > nextPosition.y)
             {
-                rotation = 0;
+                rotation = 180;
             }
             else if (previousPosition.y < nextPosition.y)
             {
-                rotation = 180;
+                rotation = 0;
             }
             else if (previousPosition.x > nextPosition.x)
             {
@@ -275,6 +399,22 @@ namespace UI
         {
             Reset();
             Character = null;
+        }
+
+        /// <summary>
+        /// Hide the path but keep the positions
+        /// </summary>
+        public void Hide()
+        {
+            Transforms.ForEach(t => t.gameObject.SetActive(false));
+        }
+
+        /// <summary>
+        /// Show the path using the existing positions
+        /// </summary>
+        public void Show()
+        {
+            Transforms.ForEach(t => t.gameObject.SetActive(true));
         }
     }
 

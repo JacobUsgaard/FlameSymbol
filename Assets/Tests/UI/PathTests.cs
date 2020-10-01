@@ -40,7 +40,7 @@ namespace Tests.UI
             path.StartPath(character);
 
             Assert.AreEqual(character.Moves, path.CalculateRemainingMoves());
-            Assert.AreEqual(0, path.Positions.Count);
+            Assert.AreEqual(1, path.Positions.Count);
         }
 
         [UnityTest]
@@ -54,7 +54,7 @@ namespace Tests.UI
             path.Add(new Vector2(2, 1));
 
             Assert.AreEqual(character.Moves - 1, path.CalculateRemainingMoves());
-            Assert.AreEqual(1, path.Positions.Count);
+            Assert.AreEqual(2, path.Positions.Count);
         }
 
         [UnityTest]
@@ -70,7 +70,7 @@ namespace Tests.UI
 
 
             Assert.AreEqual(character.Moves - 2, path.CalculateRemainingMoves());
-            Assert.AreEqual(2, path.Positions.Count);
+            Assert.AreEqual(3, path.Positions.Count);
         }
 
         [UnityTest]
@@ -86,7 +86,7 @@ namespace Tests.UI
             path.Add(new Vector2(2, 1));
 
             Assert.AreEqual(character.Moves - 1, path.CalculateRemainingMoves());
-            Assert.AreEqual(1, path.Positions.Count);
+            Assert.AreEqual(2, path.Positions.Count);
         }
 
         [UnityTest]
@@ -103,7 +103,7 @@ namespace Tests.UI
             path.Add(new Vector2(2, 0));
 
             Assert.AreEqual(character.Moves - 2, path.CalculateRemainingMoves());
-            Assert.AreEqual(2, path.Positions.Count);
+            Assert.AreEqual(3, path.Positions.Count);
         }
 
         [UnityTest]
@@ -120,7 +120,7 @@ namespace Tests.UI
             path.Add(new Vector2(2, 2));
 
             Assert.AreEqual(character.Moves, path.CalculateRemainingMoves());
-            Assert.AreEqual(0, path.Positions.Count);
+            Assert.AreEqual(1, path.Positions.Count);
         }
 
         [UnityTest]
@@ -139,8 +139,8 @@ namespace Tests.UI
             path.Add(new Vector2(2, 1));
 
             Assert.AreEqual(character.Moves - 1, path.CalculateRemainingMoves());
-            Assert.AreEqual(1, path.Positions.Count);
-            Assert.AreEqual(path.Positions.Count, path.Transforms.Count);
+            Assert.AreEqual(2, path.Positions.Count);
+            Assert.AreEqual(path.Positions.Count, path.Transforms.Count + 1);
         }
 
         [UnityTest]
@@ -161,7 +161,7 @@ namespace Tests.UI
             cursor.OnArrow(0, -1f);
             yield return null;
 
-            Assert.AreEqual(1, path.Positions.Count);
+            Assert.AreEqual(2, path.Positions.Count);
         }
 
         [UnityTest]

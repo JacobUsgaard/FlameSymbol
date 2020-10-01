@@ -85,21 +85,24 @@ public abstract class Character : ManagedMonoBehavior
         return CalculateMovablePositions(transform.position.x, transform.position.y, Moves);
     }
 
-    private HashSet<Vector2> CalculateMovablePositions(float x, float y, int moves)
+    private HashSet<Vector2> CalculateMovablePositions(float x, float y, int remainingMoves)
     {
         HashSet<Vector2> movableSpaces = new HashSet<Vector2>();
         Character character = GameManager.CurrentLevel.GetCharacter(x, y);
-        if (moves == 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || (character != null && !character.Player.Equals(Player)))
+        if (remainingMoves <= 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || (character != null && !character.Player.Equals(Player)))
         {
             return movableSpaces;
         }
 
-        movableSpaces.Add(new Vector2(x, y));
+        Vector2 position = new Vector2(x, y);
+        remainingMoves -= CalculateMovementCost(position);
 
-        movableSpaces.UnionWith(CalculateMovablePositions(x - 1, y, Mathf.Max(moves - CalculateMovementCost(x - 1, y), 0)));
-        movableSpaces.UnionWith(CalculateMovablePositions(x + 1, y, Mathf.Max(moves - CalculateMovementCost(x + 1, y), 0)));
-        movableSpaces.UnionWith(CalculateMovablePositions(x, y - 1, Mathf.Max(moves - CalculateMovementCost(x, y - 1), 0)));
-        movableSpaces.UnionWith(CalculateMovablePositions(x, y + 1, Mathf.Max(moves - CalculateMovementCost(x, y + 1), 0)));
+        _ = movableSpaces.Add(position);
+
+        movableSpaces.UnionWith(CalculateMovablePositions(x - 1, y, remainingMoves));
+        movableSpaces.UnionWith(CalculateMovablePositions(x + 1, y, remainingMoves));
+        movableSpaces.UnionWith(CalculateMovablePositions(x, y - 1, remainingMoves));
+        movableSpaces.UnionWith(CalculateMovablePositions(x, y + 1, remainingMoves));
         return movableSpaces;
     }
 
@@ -603,7 +606,6 @@ public abstract class Character : ManagedMonoBehavior
                     return true;
                 }
             }
-
         }
         return false;
     }
