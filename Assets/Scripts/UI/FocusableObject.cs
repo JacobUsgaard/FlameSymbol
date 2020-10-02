@@ -1,12 +1,10 @@
 using UnityEngine;
 
-public abstract class FocusableObject :  ManagedMonoBehavior {
-
-    private static FocusableObject currentObject;
-
+public abstract class FocusableObject : ManagedMonoBehavior
+{
     public void Focus()
     {
-        currentObject = this;
+        CurrentObject = this;
         Debug.Log("Focus: " + CurrentObject);
     }
 
@@ -23,14 +21,8 @@ public abstract class FocusableObject :  ManagedMonoBehavior {
 
     public bool IsInFocus()
     {
-        return currentObject.Equals(this);
+        return CurrentObject.Equals(this);
     }
 
-    public static FocusableObject CurrentObject
-    {
-        get
-        {
-            return currentObject;
-        }
-    }
+    public static FocusableObject CurrentObject { get; private set; }
 }

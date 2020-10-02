@@ -78,7 +78,7 @@ public class Cursor : FocusableObject
             {
                 GameManager.CharacterInformationPanel.Hide();
             }
-            MyTerrain terrain = GameManager.CurrentLevel.GetTerrain(transform.position);
+            Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(transform.position);
             GameManager.TerrainInformationPanel.Show(terrain);
         }
         else

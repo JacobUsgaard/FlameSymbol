@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Mountain : MyTerrain {
-
+namespace Terrain
+{
+    public class Mountain : Terrain { }
 }

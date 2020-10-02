@@ -43,7 +43,7 @@ public class Proficiency
 
     public override string ToString()
     {
-        return string.Format("Proficiency:[Type: {0}, Rank: {1}, Rank: {2}]", type, rank, experience);
+        return string.Format("Proficiency:[Type: {0}, Rank: {1}, Experience: {2}]", type, rank, experience);
     }
 
     public enum Rank

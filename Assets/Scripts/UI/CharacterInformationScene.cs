@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class CharacterInformationScene :  FocusableObject {
+public class CharacterInformationScene : FocusableObject
+{
 
-   public Text CharacterNameText;
+    public Text CharacterNameText;
     public Text HpDisplayText;
     public Text LevelText;
     public Text ExperienceText;
@@ -25,7 +24,7 @@ public class CharacterInformationScene :  FocusableObject {
 
     public override void OnArrow(float horizontal, float vertical)
     {
-        
+
     }
 
     public override void OnCancel()
@@ -36,7 +35,7 @@ public class CharacterInformationScene :  FocusableObject {
 
     public override void OnSubmit()
     {
-        
+
     }
 
     void Awake()
@@ -44,7 +43,7 @@ public class CharacterInformationScene :  FocusableObject {
         Debug.Log("Awake");
         Focus();
         Character character = GameManager.CurrentLevel.GetCharacter();
-        if(character == null)
+        if (character == null)
         {
             Debug.LogError("Failed to find character");
             return;
@@ -63,7 +62,7 @@ public class CharacterInformationScene :  FocusableObject {
         SpeedText.text = character.Speed.ToString();
 
         Debug.Log("Adding items");
-        foreach(Item item in character.Items)
+        foreach (Item item in character.Items)
         {
             Text text = Instantiate(item.Text);
             text.text = string.Format("{0}\t{1}/{2}", item.Text.text, item.UsesRemaining, item.UsesTotal);
@@ -75,7 +74,7 @@ public class CharacterInformationScene :  FocusableObject {
         ItemScrollbar.value = 1;
 
         Debug.Log("Adding proficiencies");
-        foreach(Proficiency proficiency in character.Proficiencies) 
+        foreach (Proficiency proficiency in character.Proficiencies)
         {
             Text text = Instantiate(GameManager.AxeTextPrefab);
             text.alignment = TextAnchor.MiddleLeft;

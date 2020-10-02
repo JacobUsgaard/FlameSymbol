@@ -11,7 +11,6 @@ public abstract class Character : ManagedMonoBehavior
 
     public readonly List<Transform> MovableSpaces = new List<Transform>();
     public readonly List<Transform> AttackableSpaces = new List<Transform>();
-    public readonly List<Transform> Path = new List<Transform>();
 
     public string CharacterName;
     public int Strength;
@@ -25,6 +24,7 @@ public abstract class Character : ManagedMonoBehavior
     public int Moves;
     public int Level;
     public int Experience;
+    public bool IsFlyer = false;
 
     public Player Player
     {
@@ -89,7 +89,8 @@ public abstract class Character : ManagedMonoBehavior
     {
         HashSet<Vector2> movableSpaces = new HashSet<Vector2>();
         Character character = GameManager.CurrentLevel.GetCharacter(x, y);
-        if (remainingMoves <= 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || (character != null && !character.Player.Equals(Player)))
+        Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
+        if (remainingMoves <= 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || !terrain.IsPassable(this, x, y) || (character != null && !character.Player.Equals(Player)))
         {
             return movableSpaces;
         }
@@ -274,7 +275,17 @@ public abstract class Character : ManagedMonoBehavior
 
     public int CalculateMovementCost(Vector2 position)
     {
-        int cost = position.Equals(transform.position) ? 0 : CalculateMovementCost(position.x, position.y);
+        int cost;
+        Debug.LogFormat("Calculating movement cost for: {0}", position);
+        if (position.Equals(transform.position))
+        {
+            Debug.LogFormat("The same position");
+            cost = 0;
+        }
+        else
+        {
+            cost = CalculateMovementCost(position.x, position.y);
+        }
         Debug.LogFormat("Movement cost: {0}", cost);
         return cost;
     }
@@ -292,7 +303,8 @@ public abstract class Character : ManagedMonoBehavior
             return int.MaxValue;
         }
 
-        MyTerrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
+        Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
+        Debug.LogFormat("Terrain movement cost: {0}", terrain.DisplayName);
         return terrain.MovementCost;
     }
 
@@ -324,7 +336,7 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// 
+    /// Destroys both movable and attackable transforms
     /// </summary>
     public void DestroyMovableAndAttackableTransforms()
     {
@@ -351,7 +363,7 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// Calculate 
+    /// Calculate the tradable spaces and create the transforms
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
@@ -366,7 +378,7 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// 
+    /// Calculate the attackable spaces that contain characters
     /// </summary>
     /// <returns></returns>
     public List<Transform> GetAttackableSpacesWithCharacters()
@@ -396,7 +408,7 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// Equip an item from the Character's inventory.
+    /// Equip the item from the Character's inventory.
     /// </summary>
     /// <param name="item"></param>
     public void Equip(Item item)
@@ -414,14 +426,13 @@ public abstract class Character : ManagedMonoBehavior
     /// <summary>
     /// Called when a Character dies
     /// </summary>
-    public void Die()
+    public virtual void Die()
     {
-        Debug.Log("Die: " + this);
+        Debug.LogFormat("Die: {0}", this);
         Destroy(gameObject);
         Debug.Assert(Player.Characters.Remove(this));
         Debug.LogFormat("Remaining characters: {0}", Player.Characters.Count);
     }
-
 
     /// <summary>
     /// Attack the specified Character and apply damage, effects, etc
@@ -572,6 +583,10 @@ public abstract class Character : ManagedMonoBehavior
         return Mathf.Clamp((attackCharacter.Skill / 4) + attackWeapon.CriticalPercentage, 0, 100);
     }
 
+    /// <summary>
+    /// Get all weapons that are usable by the Character
+    /// </summary>
+    /// <returns></returns>
     public List<Weapon> GetUsableWeapons()
     {
         List<Weapon> weapons = new List<Weapon>();
@@ -611,7 +626,7 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// Gets a usable weapon for the Character
+    /// Gets the first usable weapon for the Character
     /// </summary>
     /// <returns></returns>
     public Weapon GetUsableWeapon()

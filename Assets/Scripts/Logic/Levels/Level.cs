@@ -4,7 +4,7 @@ using UnityEngine;
 public abstract class Level : ManagedScriptableObject
 {
     public Character[,] CharacterMap;
-    public MyTerrain[,] TerrainMap;
+    public Terrain.Terrain[,] TerrainMap;
     public Player HumanPlayer;
     public Player AiPlayer;
 
@@ -125,7 +125,7 @@ public abstract class Level : ManagedScriptableObject
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns></returns>
-    public MyTerrain GetTerrain(float x, float y)
+    public Terrain.Terrain GetTerrain(float x, float y)
     {
         if (IsOutOfBounds(x, y))
         {
@@ -134,7 +134,7 @@ public abstract class Level : ManagedScriptableObject
         return TerrainMap[(int)x, (int)y];
     }
 
-    public MyTerrain GetTerrain(Vector2 position)
+    public Terrain.Terrain GetTerrain(Vector2 position)
     {
         return GetTerrain(position.x, position.y);
     }

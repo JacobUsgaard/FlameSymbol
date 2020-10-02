@@ -1,6 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Wall : MyTerrain {
+namespace Terrain
+{
+    public class Wall : Terrain
+    {
+        public override bool IsPassable(Character character, float x, float y)
+        {
+            return character.IsFlyer;
+        }
+    }
 }

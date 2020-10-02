@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using NUnit.Framework;
-using UI;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -14,7 +13,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.OnArrow(1f, 0f);
@@ -28,7 +26,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.OnArrow(1f, 0f);
@@ -43,7 +40,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.OnArrow(0f, 1f);
@@ -57,7 +53,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.OnArrow(0f, 1f);
@@ -72,7 +67,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.OnArrow(0f, 1f);
@@ -87,7 +81,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.OnArrow(0f, 1f);
@@ -102,7 +95,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.OnArrow(1f, 0f);
@@ -117,7 +109,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.Move(0, 1);
@@ -131,7 +122,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.Move(1, 0);
@@ -145,7 +135,6 @@ namespace Tests.UI
         {
             yield return null;
             Cursor cursor = GameManager.Cursor;
-            Path path = cursor.Path;
 
             // Move cursor
             cursor.Move(2, 2);
@@ -162,16 +151,21 @@ namespace Tests.UI
             Cursor cursor = GameManager.Cursor;
             Character character = GameManager.CurrentLevel.GetCharacter(cursor.transform.position);
 
-            Assert.AreEqual(3, character.AttackableSpaces.Count);
-            Assert.AreEqual(3, character.MovableSpaces.Count);
+            Assert.AreEqual(4, character.AttackableSpaces.Count);
+            Assert.AreEqual(6, character.MovableSpaces.Count);
         }
 
+        /// <summary>
+        /// Testing a character with no usable weapons
+        /// </summary>
+        /// <returns></returns>
         [UnityTest]
         public IEnumerator AttackablePositionsTest2()
         {
             yield return null;
 
             Cursor cursor = GameManager.Cursor;
+
             cursor.OnArrow(1, 0);
             cursor.OnArrow(0, 1);
             cursor.OnArrow(0, 1);
@@ -181,14 +175,17 @@ namespace Tests.UI
             Character character = GameManager.CurrentLevel.GetCharacter(cursor.transform.position);
 
             Assert.AreEqual(0, character.AttackableSpaces.Count);
-            Assert.AreEqual(9, character.MovableSpaces.Count);
+            Assert.AreEqual(13, character.MovableSpaces.Count);
         }
 
         [UnityTest]
         public IEnumerator OnSubmitTest1()
         {
+            yield return MoveCursor(2, 2);
 
-            yield return null;
+            GameManager.Cursor.OnSubmit();
+
+            Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
         }
     }
 }

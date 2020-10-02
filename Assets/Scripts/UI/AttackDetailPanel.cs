@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AttackDetailPanel :  ManagedMonoBehavior {
-   
+public class AttackDetailPanel : ManagedMonoBehavior
+{
+
     public Text AttackNameText;
     public Text InfoText;
     public Text DefenseNameText;
@@ -45,7 +46,7 @@ public class AttackDetailPanel :  ManagedMonoBehavior {
         DefenseWeaponText.text = CurrentAttackInfo.DefenseWeapon == null ? "--" : CurrentAttackInfo.DefenseWeapon.Text.text;
 
         DefenseHpText.text = defenseCharacter.CurrentHp.ToString();
-        DefenseHitText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseHitPercentage + "%": "--";
+        DefenseHitText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseHitPercentage + "%" : "--";
         DefenseDamageText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseDamage.ToString() : "--";
         DefenseCriticalText.text = CurrentAttackInfo.DefenseCanAttack ? CurrentAttackInfo.DefenseCriticalPercentage + "%" : "--";
 
@@ -59,7 +60,7 @@ public class AttackDetailPanel :  ManagedMonoBehavior {
             x = defenseCharacter.transform.position.x + 3;
         }
 
-        
+
         transform.position = new Vector2(x, defenseCharacter.transform.position.y);
 
         transform.gameObject.SetActive(true);

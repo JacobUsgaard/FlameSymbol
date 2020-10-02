@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class Knight : Character
 {
-    private Knight() { }
     void Start()
     {
         Debug.Log("Creating Knight");
