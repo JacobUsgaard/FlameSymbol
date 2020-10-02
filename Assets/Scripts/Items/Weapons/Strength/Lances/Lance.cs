@@ -1,4 +1,1 @@
-
-public abstract class Lance : Weapon {
- 
-}
+public abstract class Lance : Weapon { }

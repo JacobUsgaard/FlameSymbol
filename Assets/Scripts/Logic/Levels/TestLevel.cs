@@ -11,25 +11,25 @@ public class TestLevel : Level {
     /// </summary>
     protected override void Init()
     {
-        TerrainMap = new MyTerrain[4, 4];
+        TerrainMap = new Terrain.Terrain[4, 4];
         CharacterMap = new Character[4, 4];
 
-        TerrainMap[0, 0] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[0, 1] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[0, 2] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[0, 3] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[1, 0] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[1, 1] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[1, 2] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[1, 3] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[2, 0] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[2, 1] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[2, 2] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[2, 3] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[3, 0] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[3, 1] = Create<MyTerrain>(GameManager.GrassTerrain);
-        TerrainMap[3, 2] = Create<MyTerrain>(GameManager.WallTerrain);
-        TerrainMap[3, 3] = Create<MyTerrain>(GameManager.ForrestTerrain);
+        TerrainMap[0, 0] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[0, 1] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[0, 2] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[0, 3] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[1, 0] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[1, 1] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[1, 2] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[1, 3] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[2, 0] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[2, 1] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[2, 2] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[2, 3] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[3, 0] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[3, 1] = Create<Terrain.Terrain>(GameManager.GrassTerrain);
+        TerrainMap[3, 2] = Create<Terrain.Terrain>(GameManager.WallTerrain);
+        TerrainMap[3, 3] = Create<Terrain.Terrain>(GameManager.ForrestTerrain);
 
         CharacterMap[0, 0] = Create<Character>(GameManager.KnightPrefab);
         CharacterMap[0, 0].Player = AiPlayer;

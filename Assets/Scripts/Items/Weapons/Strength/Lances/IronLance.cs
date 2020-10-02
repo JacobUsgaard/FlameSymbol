@@ -1,5 +1,5 @@
-public class IronLance : Lance {
-
+public class IronLance : Lance
+{
     private IronLance() { }
 
     public static IronLance Create()

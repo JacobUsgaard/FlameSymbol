@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Menu : FocusableObject {
+public class Menu : FocusableObject
+{
 
     protected GameManager.Callback CancelCallback;
 
@@ -17,12 +18,12 @@ public class Menu : FocusableObject {
 
     private void IndicateMenuItem(int newMenuItemIndex)
     {
-        if(CurrentMenuItemIndex >= 0 && CurrentMenuItemIndex < MenuItems.Count)
+        if (CurrentMenuItemIndex >= 0 && CurrentMenuItemIndex < MenuItems.Count)
         {
             Text text = MenuItems[CurrentMenuItemIndex].DisplayText;
             text.text = text.text.Replace(INDICATOR, "");
         }
-        
+
         if (newMenuItemIndex >= 0 && newMenuItemIndex < MenuItems.Count)
         {
             CurrentMenuItemIndex = newMenuItemIndex;
@@ -41,7 +42,7 @@ public class Menu : FocusableObject {
         CancelCallback = cancelCallback;
 
         float x;
-        if(GameManager.Cursor.transform.position.x >= GameManager.CurrentLevel.TerrainMap.GetLength(0) / 2)
+        if (GameManager.Cursor.transform.position.x >= GameManager.CurrentLevel.TerrainMap.GetLength(0) / 2)
         {
             x = GameManager.Cursor.transform.position.x - 1;
         }
@@ -103,7 +104,7 @@ public class Menu : FocusableObject {
         int newMenuItemIndex = (CurrentMenuItemIndex + MenuItems.Count - System.Math.Sign(vertical)) % MenuItems.Count;
         IndicateMenuItem(newMenuItemIndex);
     }
-    
+
     public override void OnSubmit()
     {
         SelectMenuItem();

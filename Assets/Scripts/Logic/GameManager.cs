@@ -63,7 +63,6 @@ public class GameManager : MonoBehaviour
 
     public System.Random Random = new System.Random();
     private bool IsHumanTurn = false;
-    private Player currentPlayer;
     private Player HumanPlayer;
     private AIPlayer AiPlayer;
 
@@ -257,16 +256,5 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public Player CurrentPlayer
-    {
-        get
-        {
-            return currentPlayer;
-        }
-
-        set
-        {
-            currentPlayer = value;
-        }
-    }
+    public Player CurrentPlayer { get; set; }
 }

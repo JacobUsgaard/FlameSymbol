@@ -8,6 +8,4 @@ public class ManagedMonoBehavior : MonoBehaviour, IManagedObject  {
     {
         GameManager = gameManager;
     }
-
-    
 }

@@ -91,9 +91,10 @@
     <Compile Include="Assets\Scripts\Logic\ManagedMonoBehavior.cs" />
     <Compile Include="Assets\Scripts\Logic\ManagedScriptableObject.cs" />
     <Compile Include="Assets\Scripts\Logic\Player.cs" />
+    <Compile Include="Assets\Scripts\Terrain\Forest.cs" />
     <Compile Include="Assets\Scripts\Terrain\Grass.cs" />
     <Compile Include="Assets\Scripts\Terrain\Mountain.cs" />
-    <Compile Include="Assets\Scripts\Terrain\MyTerrain.cs" />
+    <Compile Include="Assets\Scripts\Terrain\Terrain.cs" />
     <Compile Include="Assets\Scripts\Terrain\Wall.cs" />
     <Compile Include="Assets\Scripts\Terrain\Water.cs" />
     <Compile Include="Assets\Scripts\UI\AttackDetailPanel.cs" />
