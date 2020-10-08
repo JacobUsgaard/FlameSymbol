@@ -276,7 +276,7 @@ public abstract class Character : ManagedMonoBehavior
     public int CalculateMovementCost(Vector2 position)
     {
         int cost;
-        Debug.LogFormat("Calculating movement cost for: {0}", position);
+        // Debug.LogFormat("Calculating movement cost for: {0}", position);
         if (position.Equals(transform.position))
         {
             Debug.LogFormat("The same position");
@@ -286,7 +286,7 @@ public abstract class Character : ManagedMonoBehavior
         {
             cost = CalculateMovementCost(position.x, position.y);
         }
-        Debug.LogFormat("Movement cost: {0}", cost);
+        // Debug.LogFormat("Movement cost: {0}", cost);
         return cost;
     }
 
@@ -304,7 +304,7 @@ public abstract class Character : ManagedMonoBehavior
         }
 
         Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
-        Debug.LogFormat("Terrain movement cost: {0}", terrain.DisplayName);
+        // Debug.LogFormat("Terrain movement cost: {0}", terrain.DisplayName);
         return terrain.MovementCost;
     }
 
@@ -388,21 +388,21 @@ public abstract class Character : ManagedMonoBehavior
 
         foreach (int range in ranges)
         {
-            CreateAttackableTransforms(CalculateAttackablePositions(transform.position.x, transform.position.y, range));
+            _ = CreateAttackableTransforms(CalculateAttackablePositions(transform.position.x, transform.position.y, range));
         }
 
-        AttackableSpaces.RemoveAll(attackableSpace =>
-        {
-            Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(attackableSpace.position);
+        _ = AttackableSpaces.RemoveAll(attackableSpace =>
+          {
+              Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(attackableSpace.position);
 
-            if (defendingCharacter == null || defendingCharacter.Player.Equals(Player))
-            {
-                Destroy(attackableSpace.gameObject);
-                return true;
-            }
+              if (defendingCharacter == null || defendingCharacter.Player.Equals(Player))
+              {
+                  Destroy(attackableSpace.gameObject);
+                  return true;
+              }
 
-            return false;
-        });
+              return false;
+          });
 
         return AttackableSpaces;
     }
@@ -431,6 +431,7 @@ public abstract class Character : ManagedMonoBehavior
         Debug.LogFormat("Die: {0}", this);
         Destroy(gameObject);
         Debug.Assert(Player.Characters.Remove(this));
+        GameManager.CurrentLevel.Kill(this);
         Debug.LogFormat("Remaining characters: {0}", Player.Characters.Count);
     }
 
@@ -526,7 +527,6 @@ public abstract class Character : ManagedMonoBehavior
         int defenseCriticalPercentage = 0;
 
         if (defenseCanAttack)
-        //if (defenseWeapon != null)
         {
             defenseHitPercentage = CalculateHitPercentage(defenseCharacter, defenseWeapon, this);
             defenseDamage = CalculateDamage(defenseCharacter, defenseWeapon, this);

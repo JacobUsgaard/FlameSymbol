@@ -179,4 +179,27 @@ public abstract class Level : ManagedScriptableObject
         Debug.LogFormat("Characters found: {0}", characters.Count);
         return characters;
     }
+
+    public ICollection<Character> GetCharacters()
+    {
+        List<Character> characters = new List<Character>();
+        for (int x = 0; x < CharacterMap.GetLength(0); x++)
+        {
+            for (int y = 0; y < CharacterMap.GetLength(1); y++)
+            {
+                Character character = CharacterMap[x, y];
+                if (character != null)
+                {
+                    characters.Add(character);
+                }
+            }
+        }
+        Debug.LogFormat("Characters found: {0}", characters.Count);
+        return characters;
+    }
+
+    public void Kill(Character character)
+    {
+        SetCharacter(null, character.transform.position);
+    }
 }
