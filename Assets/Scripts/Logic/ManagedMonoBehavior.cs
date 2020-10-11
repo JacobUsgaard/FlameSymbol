@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ManagedMonoBehavior : MonoBehaviour, IManagedObject
+public class ManagedMonoBehavior : MonoBehaviour
 {
 
     public static GameManager GameManager { get; set; }
@@ -13,7 +13,7 @@ public class ManagedMonoBehavior : MonoBehaviour, IManagedObject
 
     public void DestroyAll(ICollection<Transform> transforms = default(List<Transform>))
     {
-        foreach(Transform transform in transforms)
+        foreach (Transform transform in transforms)
         {
             Destroy(transform);
         }
