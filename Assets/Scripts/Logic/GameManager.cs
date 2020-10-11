@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
     public Transform PathCornerPrefab;
     public Transform PathEndPrefab;
     public Transform PathStraightPrefab;
-   
+
     [Header("Weapons")]
     public Text FireTextPrefab;
     public Text IronAxeTextPrefab;
@@ -149,7 +149,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        EndTurn:
+    EndTurn:
         CurrentPlayer = HumanPlayer;
         IsHumanTurn = true;
         Cursor.Focus();
@@ -181,21 +181,21 @@ public class GameManager : MonoBehaviour
             System.Threading.Thread.Sleep(50);
         }
 
-        Vector2 mousePosition = Input.mousePosition;
-        if(mousePosition.x < 0 || mousePosition.x > Screen.width || mousePosition.y < 0 || mousePosition.y > Screen.height)
-        {
-            return;
-            //Debug.Log("Mouse outside window");
-        }
+        //Vector2 mousePosition = Input.mousePosition;
+        //if(mousePosition.x < 0 || mousePosition.x > Screen.width || mousePosition.y < 0 || mousePosition.y > Screen.height)
+        //{
+        //    return;
+        //    //Debug.Log("Mouse outside window");
+        //}
 
-        Vector2 mousePositionWorldPoint = TranslateMousePosition(mousePosition);
-        //Debug.LogFormat("Mouse position in world: {0}", mousePositionWorldPoint);
+        //Vector2 mousePositionWorldPoint = TranslateMousePosition(mousePosition);
+        ////Debug.LogFormat("Mouse position in world: {0}", mousePositionWorldPoint);
 
-        if (Input.GetMouseButtonDown(1))
-        {
-            Debug.LogFormat("Right click: {0}", mousePositionWorldPoint);
-            currentFocusableObject.OnRightMouse(mousePositionWorldPoint);
-        }
+        //if (Input.GetMouseButtonDown(1))
+        //{
+        //    Debug.LogFormat("Right click: {0}", mousePositionWorldPoint);
+        //    currentFocusableObject.OnRightMouse(mousePositionWorldPoint);
+        //}
     }
 
     public Vector2 TranslateMousePosition(Vector2 mousePosition)
@@ -204,7 +204,7 @@ public class GameManager : MonoBehaviour
 
         vector2.x += 0.5f;
         vector2.y += 0.5f;
-                
+
         return vector2;
     }
 

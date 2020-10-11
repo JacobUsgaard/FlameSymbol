@@ -13,7 +13,7 @@ public class ManagedScriptableObject : ScriptableObject
 
     protected void DeleteAll(ICollection<Transform> collection)
     {
-        foreach(Transform t in collection)
+        foreach (Transform t in collection)
         {
             Destroy(t.gameObject);
         }

@@ -2,15 +2,7 @@ using System.Collections.Generic;
 
 public class Player : ManagedScriptableObject
 {
-    private readonly HashSet<Character> _characters = new HashSet<Character>();
-
-    public HashSet<Character> Characters
-    {
-        get
-        {
-            return _characters;
-        }
-    }
+    public HashSet<Character> Characters { get; } = new HashSet<Character>();
 
     /// <summary>
     /// Find the first available enemy for attacking.
