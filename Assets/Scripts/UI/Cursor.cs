@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UI;
+using System.Collections;
 
 public class Cursor : FocusableObject
 {
@@ -634,6 +635,16 @@ public class Cursor : FocusableObject
             default:
                 Debug.LogError("Invalid state: " + CurrentState);
                 break;
+        }
+    }
+
+    public override void OnInformation()
+    {
+        Camera.main.GetComponent<AudioListener>().enabled = false;
+        if (CurrentState.Equals(State.Free) && GameManager.CurrentLevel.GetCharacter(transform.position) != null)
+        {
+            Debug.Log("Loading character information scene");
+            SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
         }
     }
 

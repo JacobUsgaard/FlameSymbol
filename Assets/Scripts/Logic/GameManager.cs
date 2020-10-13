@@ -79,8 +79,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Awake()
+    {
+        DontDestroyOnLoad(transform.gameObject);
+    }
+
     public void Start()
     {
+        Debug.Log("Starting GameManager");
         DontDestroyOnLoad(transform.gameObject);
 
         // Initialize both managed objects
@@ -169,6 +175,12 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Cancel");
             currentFocusableObject.OnCancel();
+        }
+
+        if (Input.GetButtonDown("Fire3"))
+        {
+            Debug.Log("Fire3");
+            currentFocusableObject.OnInformation();
         }
 
         float horizontal = Input.GetAxis("Horizontal");

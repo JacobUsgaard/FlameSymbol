@@ -34,9 +34,9 @@ public abstract class Weapon : Item
         weapon.Damage = damage;
         weapon.CriticalPercentage = criticalPercentage;
 
-        if(ranges != null)
+        if (ranges != null)
         {
-            foreach(int range in ranges)
+            foreach (int range in ranges)
             {
                 weapon._ranges.Add(range);
             }
@@ -47,9 +47,9 @@ public abstract class Weapon : Item
 
     public bool IsInRange(Vector2 start, Vector2 end)
     {
-        foreach(int range in _ranges)
+        foreach (int range in _ranges)
         {
-            if(IsInRange(start.x, start.y, end.x, end.y, range))
+            if (IsInRange(start.x, start.y, end.x, end.y, range))
             {
                 return true;
             }
@@ -60,12 +60,12 @@ public abstract class Weapon : Item
 
     private bool IsInRange(float startX, float startY, float endX, float endY, int currentRange)
     {
-        if(currentRange < 0)
+        if (currentRange < 0)
         {
             return false;
         }
 
-        if(currentRange == 0)
+        if (currentRange == 0)
         {
             return startX == endX && startY == endY;
         }

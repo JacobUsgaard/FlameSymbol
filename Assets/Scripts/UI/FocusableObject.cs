@@ -14,9 +14,14 @@ public abstract class FocusableObject : ManagedMonoBehavior
 
     public abstract void OnCancel();
 
+    public virtual void OnInformation()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public virtual void OnRightMouse(Vector2 mousePosition)
     {
-        Debug.LogError("Not yet implemented");
+        throw new System.NotImplementedException();
     }
 
     public bool IsInFocus()

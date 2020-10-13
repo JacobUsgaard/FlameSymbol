@@ -1,6 +1,9 @@
 using System.Collections;
 using NUnit.Framework;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
 
 namespace Tests.UI
 {
@@ -9,16 +12,45 @@ namespace Tests.UI
 
         protected GameManager GameManager;
 
+        public delegate object TestDelegate();
+
+        public void AssertWait(int totalWaitTime, object expected, TestDelegate testDelegate)
+        {
+            int waitTime = totalWaitTime / 10;
+            int currentWaitTime = 0;
+
+            while (currentWaitTime < totalWaitTime)
+            {
+                if (Equals(expected, testDelegate()))
+                {
+                    return;
+                }
+
+                currentWaitTime += waitTime;
+                System.Threading.Thread.Sleep(waitTime);
+            }
+
+            throw new AssertionException(string.Format("{0} and {1} are not equal", expected, testDelegate()));
+        }
+
+        [UnitySetUp]
+        public IEnumerator UnitySetup()
+        {
+            Debug.LogFormat("UnitySetup");
+            yield return SceneManager.LoadSceneAsync("FlameSymbol", LoadSceneMode.Single);
+            //SceneManager.LoadScene("FlameSymbol", LoadSceneMode.Single);
+            //yield return null;
+        }
+
         [SetUp]
         public void Setup()
         {
-            GameObject gameGameObject = Object.Instantiate(Resources.Load<GameObject>("Prefabs/UI/Main Camera"));
-
-            GameManager = gameGameObject.GetComponent<GameManager>();
+            Debug.LogFormat("Setup");
+            GameManager = Object.FindObjectOfType<GameManager>();
         }
 
         [TearDown]
-        public void Destroy()
+        public void TearDown()
         {
             Object.Destroy(GameManager.gameObject);
         }
