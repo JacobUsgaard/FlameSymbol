@@ -2,6 +2,8 @@
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.SceneManagement;
+
 
 namespace Tests.UI
 {
@@ -186,6 +188,68 @@ namespace Tests.UI
             GameManager.Cursor.OnSubmit();
 
             Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
+        }
+
+        /// <summary>
+        /// Test OnInformation on a character
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator OnInformationTest1()
+        {
+            // finish setting up game manager
+            yield return null;
+
+            // cursor starts on character, need to finish loading that (e.g. movable/attackable spaces
+            yield return null;
+
+            GameManager.Cursor.OnInformation();
+
+            yield return null;
+
+            Scene scene = SceneManager.GetSceneByName("CharacterInformation");
+            Assert.IsTrue(scene.isLoaded);
+        }
+
+        /// <summary>
+        /// Test OnInformation on a non-character
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator OnInformationTest2()
+        {
+            // finish setting up game manager
+            yield return null;
+
+            // cursor starts on character, need to finish loading that (e.g. movable/attackable spaces
+            yield return null;
+
+            yield return MoveCursor(1, 0);
+            GameManager.Cursor.OnInformation();
+
+            Assert.AreNotEqual("CharacterInformation", SceneManager.GetActiveScene().name);
+        }
+
+        /// <summary>
+        /// Test OnInformation when Cursor.State is not Free
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator OnInformationTest3()
+        {
+            // finish setting up game manager
+            yield return null;
+
+            // cursor starts on character, need to finish loading that (e.g. movable/attackable spaces
+            yield return null;
+
+            yield return MoveCursor(2, 2);
+
+            yield return Enter();
+
+            GameManager.Cursor.OnInformation();
+
+            Assert.AreNotEqual("CharacterInformation", SceneManager.GetActiveScene().name);
         }
     }
 }

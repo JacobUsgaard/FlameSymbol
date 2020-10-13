@@ -1,6 +1,8 @@
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
 
 namespace Tests.UI
 {
@@ -9,16 +11,24 @@ namespace Tests.UI
 
         protected GameManager GameManager;
 
+        [UnitySetUp]
+        public IEnumerator UnitySetup()
+        {
+            Debug.LogFormat("UnitySetup");
+            yield return SceneManager.LoadSceneAsync("FlameSymbol", LoadSceneMode.Single);
+            //SceneManager.LoadScene("FlameSymbol", LoadSceneMode.Single);
+            //yield return null;
+        }
+
         [SetUp]
         public void Setup()
         {
-            GameObject gameGameObject = Object.Instantiate(Resources.Load<GameObject>("Prefabs/UI/Main Camera"));
-
-            GameManager = gameGameObject.GetComponent<GameManager>();
+            Debug.LogFormat("Setup");
+            GameManager = Object.FindObjectOfType<GameManager>();
         }
 
         [TearDown]
-        public void Destroy()
+        public void TearDown()
         {
             Object.Destroy(GameManager.gameObject);
         }
