@@ -79,11 +79,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Awake()
-    {
-        DontDestroyOnLoad(transform.gameObject);
-    }
-
     public void Start()
     {
         Debug.Log("Starting GameManager");
@@ -161,7 +156,7 @@ public class GameManager : MonoBehaviour
         Cursor.Focus();
     }
 
-    void HandleInput()
+    public void HandleInput()
     {
         FocusableObject currentFocusableObject = FocusableObject.CurrentObject;
 
