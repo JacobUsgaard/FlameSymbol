@@ -36,3 +36,5 @@ ExportedObj/
 *.aab
 *.unitypackage
 
+# Mac OS
+.DS_Store

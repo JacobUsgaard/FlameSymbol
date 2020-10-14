@@ -10,6 +10,8 @@ public abstract class Level : ManagedScriptableObject
 
     public Vector2 StartPosition;
 
+    public static readonly string CharacterColorTag = "CharacterColor";
+
     public void Init(GameManager gameManager, Player humanPlayer, Player aiPlayer)
     {
         GameManager = gameManager;
@@ -33,12 +35,36 @@ public abstract class Level : ManagedScriptableObject
                 Character character = CharacterMap[x, y];
                 if (character != null)
                 {
+                    SpriteRenderer spriteRenderer = FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, CharacterColorTag);
+                    Debug.LogFormat("Sprite Renderer: {0}", spriteRenderer);
+
+                    if (spriteRenderer == null)
+                    {
+                        Debug.LogErrorFormat("Character {0} at {1} does not have sprite renderer with tag '{2}'", character.name, new Vector2(x, y), "CharacterColor");
+                    }
+
+                    spriteRenderer.color = character.Player.Color;
                     character.transform.position = new Vector2(x, y);
                 }
             }
         }
 
         GameManager.Cursor.transform.position = StartPosition;
+    }
+
+    public static T FindComponentInChildWithTag<T>(GameObject parent, string tag) where T : Component
+    {
+        Debug.LogFormat("FindComponentInChildWithTag: {0}, {1}", parent.name, tag);
+
+        foreach (Transform transform in parent.transform)
+        {
+            Debug.LogFormat("Transform: {0}", transform.name);
+            if (transform.CompareTag(tag))
+            {
+                return transform.GetComponent<T>();
+            }
+        }
+        return null;
     }
 
     /// <summary>
