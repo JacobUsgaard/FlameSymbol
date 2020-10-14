@@ -199,6 +199,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Main Camera
       objectReference: {fileID: 0}
+    - target: {fileID: 7232922420159673326, guid: b19f2ca3c8bb04647b858517ad70ef27,
+        type: 3}
+      propertyPath: KnightPrefab
+      value: 
+      objectReference: {fileID: 2351711145067474517, guid: 3196e2b0395f742f480c80ee4d285897,
+        type: 3}
+    - target: {fileID: 7232922420159673326, guid: b19f2ca3c8bb04647b858517ad70ef27,
+        type: 3}
+      propertyPath: WizardPrefab
+      value: 
+      objectReference: {fileID: 2950978508398112323, guid: 5fe2339ff0d0e48369bd93330840a525,
+        type: 3}
     - target: {fileID: 7232922420159673327, guid: b19f2ca3c8bb04647b858517ad70ef27,
         type: 3}
       propertyPath: m_LocalPosition.x

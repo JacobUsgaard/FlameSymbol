@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc1c41012b8d8354a80817041c6efc6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  KnightPrefab: {fileID: 4076159455236090, guid: 804e88fe4a707c24098f4baaf1cb28f9,
+  KnightPrefab: {fileID: 5864426489377006144, guid: 3196e2b0395f742f480c80ee4d285897,
     type: 3}
   WizardPrefab: {fileID: 4834636821682600, guid: 5925f118c2604144397ca8831a364d03,
     type: 3}
@@ -174,36 +174,6 @@ MonoBehaviour:
   SwordTextPrefab: {fileID: 114723863983434472, guid: f12fc59f6b74da14d895914c1fb544c4,
     type: 3}
   _currentLevel: {fileID: 0}
---- !u!114 &7232922420232881082
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7233989196741107970}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 0
-  m_VerticalFit: 2
---- !u!114 &7232922420945917075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7234344617308521329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cb3ba28f4da73041a4355572a8429f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TerrainNameText: {fileID: 7346876833571654857}
-  HitPercentageText: {fileID: 7347549998863049249}
-  DefenseText: {fileID: 7347040999513673011}
-  MovementCostText: {fileID: 7347802018138611157}
 --- !u!1 &7232922421476793517
 GameObject:
   m_ObjectHideFlags: 0
@@ -311,6 +281,36 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &7232922420232881082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7233989196741107970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
+--- !u!114 &7232922420945917075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234344617308521329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb3ba28f4da73041a4355572a8429f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TerrainNameText: {fileID: 7346876833571654857}
+  HitPercentageText: {fileID: 7347549998863049249}
+  DefenseText: {fileID: 7347040999513673011}
+  MovementCostText: {fileID: 7347802018138611157}
 --- !u!1001 &7232922419992089091
 PrefabInstance:
   m_ObjectHideFlags: 0

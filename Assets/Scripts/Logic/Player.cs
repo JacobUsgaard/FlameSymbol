@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Player : ManagedScriptableObject
 {
     public HashSet<Character> Characters { get; } = new HashSet<Character>();
+    public Color Color { get; set; }
 
     /// <summary>
     /// Find the first available enemy for attacking.

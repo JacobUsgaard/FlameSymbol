@@ -89,7 +89,9 @@ public class GameManager : MonoBehaviour
         ManagedScriptableObject.Initialize(this);
 
         HumanPlayer = ScriptableObject.CreateInstance<Player>();
+        HumanPlayer.Color = Color.blue;
         AiPlayer = ScriptableObject.CreateInstance<AIPlayer>();
+        AiPlayer.Color = Color.red;
 
         CurrentLevel = ScriptableObject.CreateInstance<TestLevel>();
         CurrentLevel.Init(this, HumanPlayer, AiPlayer);
