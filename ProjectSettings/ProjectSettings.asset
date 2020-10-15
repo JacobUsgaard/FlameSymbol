@@ -122,7 +122,8 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleVersion: 1.0
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: 0}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -627,9 +628,9 @@ PlayerSettings:
     m_VersionCode: 1
     m_VersionName: 
   apiCompatibilityLevel: 6
-  cloudProjectId: 1c3c59a7-666d-4c80-8103-9c1574b79adf
+  cloudProjectId: c6e5b233-0a84-4bb0-a521-f7b4338b01f9
   framebufferDepthMemorylessMode: 0
-  projectName: Fire Emblem
+  projectName: Flame Symbol
   organizationId: usamagaard
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
