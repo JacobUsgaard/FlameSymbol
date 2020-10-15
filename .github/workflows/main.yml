@@ -32,7 +32,7 @@ jobs:
           unityVersion: ${{ matrix.unityVersion }}
       - uses: actions/upload-artifact@v2
         with:
-          path: ${{ steps.testRunner.outputs.artifactsPath }}
+          path: ${{ steps.tests.outputs.artifactsPath }}
       - uses: webbertakken/unity-builder@v1.4
         with:
           unityVersion: ${{ matrix.unityVersion }}
