@@ -6,12 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: d719f0c5cbda82a47bc9adca5b6f7d27
+  - enabled: 1
     path: Assets/Scenes/FlameSymbol.unity
     guid: 505f00147c6760f4aa99211b9d8de01e
   - enabled: 1
     path: Assets/Scenes/CharacterInformation.unity
     guid: 647c77bbb52666545a90ef6a23e4dfc9
-  - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
-    guid: d719f0c5cbda82a47bc9adca5b6f7d27
   m_configObjects: {}
