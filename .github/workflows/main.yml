@@ -35,8 +35,7 @@ jobs:
         uses: webbertakken/unity-builder@v1.4
         with:
           unityVersion: 2019.4.0f1
-          targetPlatform: 
-            - StandaloneOSX
+          targetPlatform: StandaloneOSX
 
       # Output
       - uses: actions/upload-artifact@v1
