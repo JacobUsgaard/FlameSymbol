@@ -9,35 +9,30 @@ env:
 
 jobs:
   build:
-    name: Build my project
+    name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        unityVersion:
+          - 2019.4.0f1
+        targetPlatform:
+          - WebGL
     steps:
-      # Checkout
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           lfs: true
-
-      # Cache
       - uses: actions/cache@v2.1.2
         with:
           path: Library
           key: Library
-
-      # Test
-      - name: Run tests
-        uses: webbertakken/unity-test-runner@v1.7
+      - uses: webbertakken/unity-test-runner@v1.7
         with:
-          unityVersion: 2019.4.0f1
-
-      # Build
-      - name: Build project
-        uses: webbertakken/unity-builder@v1.4
+          unityVersion: ${{ matrix.unityVersion }}
+      - uses: webbertakken/unity-builder@v1.4
         with:
-          unityVersion: 2019.4.0f1
-          targetPlatform: StandaloneOSX
-
-      # Output
+          unityVersion: ${{ matrix.unityVersion }}
+          targetPlatform: ${{ matrix.targetPlatform }}
       - uses: actions/upload-artifact@v2
         with:
           name: Build
