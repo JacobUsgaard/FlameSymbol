@@ -19,7 +19,7 @@ jobs:
         targetPlatform:
           - StandaloneOSX
         testMode:
-          - playMode
+          - playmode
     steps:
       - uses: actions/checkout@v2
         with:
