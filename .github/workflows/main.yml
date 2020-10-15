@@ -18,6 +18,8 @@ jobs:
           - 2019.4.0f1
         targetPlatform:
           - StandaloneOSX
+        testMode:
+          - playMode
     steps:
       - uses: actions/checkout@v2
         with:
@@ -26,6 +28,11 @@ jobs:
         with:
           path: Library
           key: Library
+      - uses: webbertakken/unity-test-runner@v1.7
+        id: tests
+        with:
+          unityVersion: ${{ matrix.unityVersion }}
+          testMode: ${{ matrix.testMode }}
       - uses: webbertakken/unity-builder@v1.4
         with:
           unityVersion: ${{ matrix.unityVersion }}
