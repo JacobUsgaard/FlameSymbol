@@ -2,7 +2,6 @@ name: Actions
 
 on:
   pull_request: {}
-  push: { branches: [main] }
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -17,8 +16,9 @@ jobs:
         unityVersion:
           - 2019.4.0f1
         targetPlatform:
-          - WebGL
+          - StandaloneOSX
     steps:
+      - uses: webbertakken/unity-activate@v1.3
       - uses: actions/checkout@v2
         with:
           lfs: true
