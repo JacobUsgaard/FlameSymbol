@@ -26,13 +26,6 @@ jobs:
         with:
           path: Library
           key: Library
-      - uses: webbertakken/unity-test-runner@v1.7
-        id: tests
-        with:
-          unityVersion: ${{ matrix.unityVersion }}
-      - uses: actions/upload-artifact@v2
-        with:
-          path: ${{ steps.tests.outputs.artifactsPath }}
       - uses: webbertakken/unity-builder@v1.4
         with:
           unityVersion: ${{ matrix.unityVersion }}
