@@ -26,9 +26,6 @@ jobs:
         with:
           path: Library
           key: Library
-      - uses: webbertakken/unity-test-runner@v1.7
-        with:
-          unityVersion: ${{ matrix.unityVersion }}
       - uses: webbertakken/unity-builder@v1.4
         with:
           unityVersion: ${{ matrix.unityVersion }}
