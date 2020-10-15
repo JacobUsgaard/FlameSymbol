@@ -19,6 +19,8 @@ jobs:
           - StandaloneOSX
     steps:
       - uses: webbertakken/unity-activate@v1.3
+        with:
+          unityVersion: ${{ matrix.unityVersion }}
       - uses: actions/checkout@v2
         with:
           lfs: true
