@@ -15,22 +15,22 @@ jobs:
       fail-fast: false
       matrix:
         unityVersion:
-          - 2019.4.0f1
+          - 2019.2.11f1
         targetPlatform:
           - StandaloneOSX
     steps:
       - uses: actions/checkout@v2
         with:
           lfs: true
-      - uses: actions/cache@v2.1.2
+      - uses: actions/cache@v1.1.0
         with:
           path: Library
           key: Library
-      - uses: webbertakken/unity-builder@v1.4
+      - uses: webbertakken/unity-builder@v0.10
         with:
           unityVersion: ${{ matrix.unityVersion }}
           targetPlatform: ${{ matrix.targetPlatform }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v1
         with:
           name: Build
           path: build
