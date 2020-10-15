@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 
 namespace Tests
 {
-    public class LevelTests : UI.UITest
+    public class LevelTests : GameManagerTest
     {
         [UnityTest]
         public IEnumerator CheckColor()

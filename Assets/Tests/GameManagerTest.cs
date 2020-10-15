@@ -1,34 +1,33 @@
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Tests.UI
+namespace Tests
 {
-    public class UITest
+    /// <summary>
+    /// Test that uses the GameManager
+    /// </summary>
+    public abstract class GameManagerTest
     {
-
         protected GameManager GameManager;
 
         [UnitySetUp]
-        public IEnumerator UnitySetup()
+        public IEnumerator LoadScene()
         {
-            Debug.LogFormat("UnitySetup");
-            yield return SceneManager.LoadSceneAsync("FlameSymbol", LoadSceneMode.Single);
-            //SceneManager.LoadScene("FlameSymbol", LoadSceneMode.Single);
-            //yield return null;
+            yield return SceneManager.LoadSceneAsync(GameManager.SceneNameFlameSymbol, LoadSceneMode.Single);
         }
 
         [SetUp]
-        public void Setup()
+        public void SetGameManager()
         {
-            Debug.LogFormat("Setup");
             GameManager = Object.FindObjectOfType<GameManager>();
         }
 
         [TearDown]
-        public void TearDown()
+        public void DestroyGameManager()
         {
             Object.Destroy(GameManager.gameObject);
         }

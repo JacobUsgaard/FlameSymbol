@@ -7,13 +7,12 @@ using UnityEngine.SceneManagement;
 
 namespace Tests.UI
 {
-    public class CursorTests : UITest
+    public class CursorTests : GameManagerTest
     {
 
         [UnityTest]
         public IEnumerator OnArrowTest1()
         {
-            yield return null;
             Cursor cursor = GameManager.Cursor;
 
             // Move cursor
@@ -26,7 +25,6 @@ namespace Tests.UI
         [UnityTest]
         public IEnumerator OnArrowTest2()
         {
-            yield return null;
             Cursor cursor = GameManager.Cursor;
 
             // Move cursor
@@ -40,7 +38,6 @@ namespace Tests.UI
         [UnityTest]
         public IEnumerator OnArrowTest3()
         {
-            yield return null;
             Cursor cursor = GameManager.Cursor;
 
             // Move cursor
@@ -250,6 +247,116 @@ namespace Tests.UI
             GameManager.Cursor.OnInformation();
 
             Assert.AreNotEqual("CharacterInformation", SceneManager.GetActiveScene().name);
+        }
+
+        /// <summary>
+        /// When the cursor is in free state, the terrain information panel
+        /// should be visible
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TerrainInformationPanelTest1()
+        {
+            yield return MoveCursor(2, 2);
+
+            Assert.True(GameManager.TerrainInformationPanel.gameObject.activeSelf);
+
+            yield return MoveCursor(0, 0);
+
+            Assert.True(GameManager.TerrainInformationPanel.gameObject.activeSelf);
+        }
+
+        /// <summary>
+        /// When the cursor is in choosing move state, the terrain information
+        /// panel should be visible.
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TerrainInformationPanelTest2()
+        {
+            yield return MoveCursor(2, 2);
+
+            yield return Enter();
+
+            Assert.True(GameManager.TerrainInformationPanel.gameObject.activeSelf);
+        }
+
+        /// <summary>
+        /// When the the character action menu is open, the terrain information
+        /// panel should not be visible.
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TerrainInformationPanelTest3()
+        {
+            yield return MoveCursor(2, 2);
+
+            yield return Enter();
+
+            yield return Enter();
+
+            Assert.False(GameManager.TerrainInformationPanel.gameObject.activeSelf);
+        }
+
+        /// <summary>
+        /// When the cursor is in free state and is over a position with a
+        /// character, the character information panel should be visible
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator CharacterInformationPanelTest1()
+        {
+            yield return MoveCursor(2, 2);
+
+            Assert.True(GameManager.CharacterInformationPanel.gameObject.activeSelf);
+
+            yield return MoveCursor(0, 0);
+
+            Assert.True(GameManager.CharacterInformationPanel.gameObject.activeSelf);
+
+            yield return MoveCursor(1, 0);
+
+            Assert.False(GameManager.CharacterInformationPanel.gameObject.activeSelf);
+        }
+
+        /// <summary>
+        /// When a character is choosing a move and the cursor is over a
+        /// character, the character information panel should be visible
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator CharacterInformationPanelTest2()
+        {
+            yield return MoveCursor(2, 2);
+
+            yield return Enter();
+
+            Assert.True(GameManager.CharacterInformationPanel.gameObject.activeSelf);
+
+            yield return MoveCursor(2, 1);
+
+            Assert.False(GameManager.CharacterInformationPanel.gameObject.activeSelf);
+
+            yield return MoveCursor(0, 1);
+
+            Assert.True(GameManager.CharacterInformationPanel.gameObject.activeSelf);
+        }
+
+        /// <summary>
+        /// When the the character action menu is open, the terrain information
+        /// panel should not be visible.
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator CharacterInformationPanelTest3()
+        {
+            yield return MoveCursor(2, 2);
+
+            yield return Enter();
+
+            yield return Enter();
+
+            Assert.False(GameManager.CharacterInformationPanel.gameObject.activeSelf);
         }
     }
 }
