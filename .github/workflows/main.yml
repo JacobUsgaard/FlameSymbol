@@ -33,6 +33,9 @@ jobs:
         with:
           unityVersion: ${{ matrix.unityVersion }}
           testMode: ${{ matrix.testMode }}
+      - uses: actions/upload-artifact@v
+        with:
+          path: ${{ steps.testRunner.outputs.artifactsPath }}
       - uses: webbertakken/unity-builder@v1.4
         with:
           unityVersion: ${{ matrix.unityVersion }}
