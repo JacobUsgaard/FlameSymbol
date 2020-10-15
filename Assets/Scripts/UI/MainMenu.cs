@@ -53,6 +53,13 @@ public class MainMenu : MonoBehaviour
 
     public void NewGameButtonOnClick()
     {
-        SceneManager.LoadScene("Scenes/FlameSymbol");
+        Debug.Log("NewGameButtonOnClick");
+
+        //Scene scene = SceneManager.GetSceneByName(GameManager.SceneNameFlameSymbol);
+        //SceneManager.LoadScene(GameManager.SceneNameFlameSymbol);
+
+        //_ = SceneManager.SetActiveScene(scene);
+        //SceneManager.LoadScene("Scenes/FlameSymbol");
+        SceneManager.LoadScene(GameManager.SceneNameFlameSymbol);
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 
 namespace Tests.Logic
 {
-    public class GameManagerTests : UITest
+    public class GameManagerTests : GameManagerTest
     {
         /// <summary>
         /// Test whether the GameManager instantiates everything correctly.
@@ -15,8 +15,6 @@ namespace Tests.Logic
         [UnityTest]
         public IEnumerator GameManagerTest1()
         {
-            yield return null;
-
             Assert.IsNotNull(GameManager);
 
             Cursor cursor = GameManager.Cursor;
@@ -24,6 +22,8 @@ namespace Tests.Logic
 
             Path path = GameManager.Cursor.Path;
             Assert.IsNotNull(path);
+
+            yield return null;
         }
     }
 }

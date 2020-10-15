@@ -66,34 +66,30 @@ public class Cursor : FocusableObject
         GameManager.TerrainInformationPanel.Hide();
     }
 
+    /// <summary>
+    /// Update the information panels (e.g. character/terrain) based on the current position.
+    /// </summary>
     private void UpdateInformationPanels()
     {
-        if (currentState == State.Free)
+
+        Character character = GameManager.CurrentLevel.GetCharacter(transform.position);
+        if (character != null)
         {
-            Character character = GameManager.CurrentLevel.GetCharacter(transform.position);
-            if (character != null)
-            {
-                GameManager.CharacterInformationPanel.Show(character);
-            }
-            else
-            {
-                GameManager.CharacterInformationPanel.Hide();
-            }
-            Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(transform.position);
-            GameManager.TerrainInformationPanel.Show(terrain);
+            GameManager.CharacterInformationPanel.Show(character);
         }
         else
         {
-            HideInformationPanels();
+            GameManager.CharacterInformationPanel.Hide();
         }
-
+        Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(transform.position);
+        GameManager.TerrainInformationPanel.Show(terrain);
     }
 
     public void Update()
     {
         if (CurrentState != State.Free && GameManager.CharacterInformationPanel.gameObject.activeSelf)
         {
-            GameManager.CharacterInformationPanel.Hide();
+            //GameManager.CharacterInformationPanel.Hide();
         }
     }
 
@@ -446,7 +442,7 @@ public class Cursor : FocusableObject
         {
             return;
         }
-        Move(newPosition);
+        Move(newPosition, true);
 
         if (SelectedCharacter.MovableSpaces.Exists(t => t.position.Equals(newPosition)))
         {
@@ -548,6 +544,7 @@ public class Cursor : FocusableObject
 
                 SelectedCharacterOldPosition = SelectedCharacter.transform.position;
                 SelectedCharacter.Move(transform.position);
+                HideInformationPanels();
                 ShowCharacterActionMenu(SelectedCharacter);
                 return;
             }
@@ -556,7 +553,6 @@ public class Cursor : FocusableObject
         Debug.Log("Enter was pressed outside MovableSpaces");
 
         SelectedCharacter.DestroyMovableAndAttackableTransforms();
-        //GameManager.CurrentState = GameManager.State.Menu;
         CurrentState = State.Free;
     }
 

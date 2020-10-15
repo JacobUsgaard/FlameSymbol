@@ -66,6 +66,9 @@ public class GameManager : MonoBehaviour
     private Player HumanPlayer;
     private AIPlayer AiPlayer;
 
+    public static readonly string SceneNameMainMenu = "MainMenu";
+    public static readonly string SceneNameFlameSymbol = "FlameSymbol";
+
     public Level CurrentLevel
     {
         get

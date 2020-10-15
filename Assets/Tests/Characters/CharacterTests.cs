@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 
 namespace Tests.Characters
 {
-    public class CharacterTests : UI.UITest
+    public class CharacterTests : GameManagerTest
     {
 
         /// <summary>

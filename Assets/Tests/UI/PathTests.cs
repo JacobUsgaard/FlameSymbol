@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Tests.UI
 {
-    public class PathTests : UITest
+    public class PathTests : GameManagerTest
     {
 
         [Test]
