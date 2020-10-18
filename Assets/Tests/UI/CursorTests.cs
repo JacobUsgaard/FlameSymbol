@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.SceneManagement;
-
+using System.Collections.Generic;
 
 namespace Tests.UI
 {
@@ -357,6 +357,29 @@ namespace Tests.UI
             yield return Enter();
 
             Assert.False(GameManager.CharacterInformationPanel.gameObject.activeSelf);
+        }
+
+        /// <summary>
+        /// When submit is pressed outside of movable/attackable spaces, nothing should happen
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator OnSubmitOutsideMovableAndAttackableSpaces()
+        {
+            yield return MoveCursor(2, 2);
+
+            yield return Enter();
+
+            Character character = GameManager.Cursor.SelectedCharacter;
+            List<Transform> movableSpaces = character.MovableSpaces;
+            List<Transform> attackableSpaces = character.AttackableSpaces;
+
+            yield return MoveCursor(0, 3);
+
+
+            Assert.AreEqual(character, GameManager.Cursor.SelectedCharacter);
+            Assert.AreEqual(movableSpaces, character.MovableSpaces);
+            Assert.AreEqual(attackableSpaces, character.AttackableSpaces);
         }
     }
 }
