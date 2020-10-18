@@ -15,7 +15,7 @@ public class Cursor : FocusableObject
     public readonly List<Transform> TradableSpacesWithCharacters = new List<Transform>();
 
     private Vector2 SelectedCharacterOldPosition;
-    private Character SelectedCharacter;
+    public Character SelectedCharacter { get; set; }
 
     public AttackableRange AttackableRange;
 
@@ -551,9 +551,6 @@ public class Cursor : FocusableObject
         }
 
         Debug.Log("Enter was pressed outside MovableSpaces");
-
-        SelectedCharacter.DestroyMovableAndAttackableTransforms();
-        CurrentState = State.Free;
     }
 
     private void OnSubmitFree(Vector2 currentPosition)
