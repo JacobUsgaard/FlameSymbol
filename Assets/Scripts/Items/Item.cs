@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 public abstract class Item : ManagedScriptableObject
 {
-
     public Text Text;
     public int UsesTotal;
     public int UsesRemaining;

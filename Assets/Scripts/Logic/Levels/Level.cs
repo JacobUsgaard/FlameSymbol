@@ -12,6 +12,32 @@ public abstract class Level : ManagedScriptableObject
 
     public static readonly string CharacterColorTag = "CharacterColor";
 
+    public void DrawCharacter(Character character, int x, int y)
+    {
+        if (CharacterMap[x, y] != null)
+        {
+            Debug.LogErrorFormat("Character, {1}, already exists at ({2}, {3})", character.name, x, y);
+            return;
+        }
+
+        CharacterMap[x, y] = character;
+        SpriteRenderer spriteRenderer = FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, CharacterColorTag);
+        Debug.LogFormat("Sprite Renderer: {0}", spriteRenderer);
+
+        if (spriteRenderer == null)
+        {
+            Debug.LogErrorFormat("Character {0} at {1} does not have sprite renderer with tag '{2}'", character.name, new Vector2(x, y), "CharacterColor");
+        }
+
+        spriteRenderer.color = character.Player.Color;
+        character.transform.position = new Vector2(x, y);
+    }
+
+    public void AddCharacter(Character character, int x, int y)
+    {
+
+    }
+
     public void Init(GameManager gameManager, Player humanPlayer, Player aiPlayer)
     {
         GameManager = gameManager;

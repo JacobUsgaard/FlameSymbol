@@ -4,15 +4,20 @@ using UnityEngine.UI;
 
 public abstract class Weapon : Item
 {
-    protected readonly HashSet<int> _ranges = new HashSet<int>();
-
     public int HitPercentage;
     public int Damage;
     public int CriticalPercentage;
-
+    public HashSet<int> Ranges { get; } = new HashSet<int>();
     public Proficiency.Rank RequiredProficiencyRank;
 
-    public virtual int CalculateDamage(Character defendingCharacter)
+
+    /// <summary>
+    /// Calculate the damage done by the attacking character to the defending character using this weapon
+    /// </summary>
+    /// <param name="attackingCharacter"></param>
+    /// <param name="defendingCharacter"></param>
+    /// <returns></returns>
+    public virtual int CalculateDamage(Character attackingCharacter, Character defendingCharacter)
     {
         return Damage;
     }
@@ -38,7 +43,7 @@ public abstract class Weapon : Item
         {
             foreach (int range in ranges)
             {
-                weapon._ranges.Add(range);
+                weapon.Ranges.Add(range);
             }
         }
 
@@ -47,7 +52,7 @@ public abstract class Weapon : Item
 
     public bool IsInRange(Vector2 start, Vector2 end)
     {
-        foreach (int range in _ranges)
+        foreach (int range in Ranges)
         {
             if (IsInRange(start.x, start.y, end.x, end.y, range))
             {
@@ -79,13 +84,5 @@ public abstract class Weapon : Item
             IsInRange(startX, startY - 1, endX, endY, newRange)
             ||
             IsInRange(startX, startY + 1, endX, endY, newRange);
-    }
-
-    public HashSet<int> Ranges
-    {
-        get
-        {
-            return _ranges;
-        }
     }
 }

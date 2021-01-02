@@ -15,7 +15,7 @@ public class ManagedMonoBehavior : MonoBehaviour
     {
         foreach (Transform transform in transforms)
         {
-            Destroy(transform);
+            Destroy(transform.gameObject);
         }
 
         transforms.Clear();

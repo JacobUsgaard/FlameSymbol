@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     public Transform WallTerrain;
 
     [Header("Text")]
+    public Text AssistTextPrefab;
     public Text AttackTextPrefab;
     public Text DropTextPrefab;
     public Text EndTurnTextPrefab;
@@ -33,6 +34,8 @@ public class GameManager : MonoBehaviour
     public Text WaitTextPrefab;
 
     [Header("UI")]
+    public Transform AssistableTransformPrefab;
+    public AssistDetailPanel AssistDetailPanel;
     public Transform AttackableSpacePrefab;
     public AttackDetailPanel AttackDetailPanel;
     public Menu CharacterActionMenu;
@@ -42,19 +45,20 @@ public class GameManager : MonoBehaviour
     public Menu ItemDetailMenu;
     public Menu ItemSelectionMenu;
     public Transform MovableSpacePrefab;
-    public Menu PlayerActionMenu;
-    public TerrainInformationPanel TerrainInformationPanel;
-    public TradeDetailPanel TradeDetailPanel;
     public Transform PathCornerPrefab;
     public Transform PathEndPrefab;
     public Transform PathStraightPrefab;
+    public Menu PlayerActionMenu;
+    public TerrainInformationPanel TerrainInformationPanel;
+    public TradeDetailPanel TradeDetailPanel;
 
     [Header("Weapons")]
-    public Text FireTextPrefab;
-    public Text IronAxeTextPrefab;
-    public Text IronSwordTextPrefab;
-    public Text IronLanceTextPrefab;
     public Text AxeTextPrefab;
+    public Text FireTextPrefab;
+    public Text HealTextPrefab;
+    public Text IronAxeTextPrefab;
+    public Text IronLanceTextPrefab;
+    public Text IronSwordTextPrefab;
     public Text LanceTextPrefab;
     public Text SwordTextPrefab;
 
@@ -140,7 +144,7 @@ public class GameManager : MonoBehaviour
                 }
 
                 character.Move(movablePosition);
-                HashSet<Vector2> attackablePositions = character.CalculateAttackablePositions(movablePosition.x, movablePosition.y, character.GetWeaponRanges());
+                HashSet<Vector2> attackablePositions = character.CalculateAttackablePositions(movablePosition.x, movablePosition.y, character.CalculateRanges<Attackable>());
                 foreach (Vector2 attackablePosition in attackablePositions)
                 {
                     Character defendingCharacter = CurrentLevel.GetCharacter(attackablePosition);

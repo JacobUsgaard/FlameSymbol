@@ -150,8 +150,8 @@ namespace Tests.UI
             Cursor cursor = GameManager.Cursor;
             Character character = GameManager.CurrentLevel.GetCharacter(cursor.transform.position);
 
-            Assert.AreEqual(4, character.AttackableSpaces.Count);
-            Assert.AreEqual(6, character.MovableSpaces.Count);
+            Assert.AreEqual(4, character.AttackableTransforms.Count);
+            Assert.AreEqual(6, character.MovableTransforms.Count);
         }
 
         /// <summary>
@@ -165,16 +165,14 @@ namespace Tests.UI
 
             Cursor cursor = GameManager.Cursor;
 
-            cursor.OnArrow(1, 0);
-            cursor.OnArrow(0, 1);
-            cursor.OnArrow(0, 1);
+            yield return MoveCursor(1, 2);
 
             yield return null;
 
             Character character = GameManager.CurrentLevel.GetCharacter(cursor.transform.position);
 
-            Assert.AreEqual(0, character.AttackableSpaces.Count);
-            Assert.AreEqual(13, character.MovableSpaces.Count);
+            Assert.AreEqual(0, character.AttackableTransforms.Count);
+            Assert.AreEqual(11, character.MovableTransforms.Count);
         }
 
         [UnityTest]
@@ -333,7 +331,7 @@ namespace Tests.UI
 
             Assert.True(GameManager.CharacterInformationPanel.gameObject.activeSelf);
 
-            yield return MoveCursor(2, 1);
+            yield return MoveCursor(2, 0);
 
             Assert.False(GameManager.CharacterInformationPanel.gameObject.activeSelf);
 
@@ -371,15 +369,14 @@ namespace Tests.UI
             yield return Enter();
 
             Character character = GameManager.Cursor.SelectedCharacter;
-            List<Transform> movableSpaces = character.MovableSpaces;
-            List<Transform> attackableSpaces = character.AttackableSpaces;
+            List<Transform> movableSpaces = character.MovableTransforms;
+            List<Transform> attackableSpaces = character.AttackableTransforms;
 
             yield return MoveCursor(0, 3);
 
-
             Assert.AreEqual(character, GameManager.Cursor.SelectedCharacter);
-            Assert.AreEqual(movableSpaces, character.MovableSpaces);
-            Assert.AreEqual(attackableSpaces, character.AttackableSpaces);
+            Assert.AreEqual(movableSpaces, character.MovableTransforms);
+            Assert.AreEqual(attackableSpaces, character.AttackableTransforms);
         }
     }
 }

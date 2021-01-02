@@ -9,8 +9,9 @@ public abstract class Character : ManagedMonoBehavior
     private Player player;
     public List<Item> Items = new List<Item>();
 
-    public readonly List<Transform> MovableSpaces = new List<Transform>();
-    public readonly List<Transform> AttackableSpaces = new List<Transform>();
+    public readonly List<Transform> MovableTransforms = new List<Transform>();
+    public readonly List<Transform> AttackableTransforms = new List<Transform>();
+    public readonly List<Transform> AssistableTransforms = new List<Transform>();
 
     public string CharacterName;
     public int Strength;
@@ -56,24 +57,15 @@ public abstract class Character : ManagedMonoBehavior
         Proficiencies.Add(proficiency);
     }
 
-    /// <summary>
-    /// Calculate ranges based on the character's items.
-    /// </summary>
-    /// <returns></returns>
-    public HashSet<int> GetWeaponRanges()
+    public HashSet<int> CalculateRanges<T>() where T : Weapon
     {
         HashSet<int> ranges = new HashSet<int>();
 
-        foreach (Item item in GetUsableWeapons())
+        foreach (T weapon in GetUsableItems<T>())
         {
-            if (item is Weapon)
+            if (IsProficient(weapon))
             {
-                Weapon weapon = (Weapon)item;
-
-                if (IsProficient(weapon))
-                {
-                    ranges.UnionWith(weapon.Ranges);
-                }
+                ranges.UnionWith(weapon.Ranges);
             }
         }
 
@@ -107,6 +99,11 @@ public abstract class Character : ManagedMonoBehavior
         return movableSpaces;
     }
 
+    public void Heal(int hp)
+    {
+        CurrentHp = Mathf.Clamp(CurrentHp + hp, 0, MaxHp);
+    }
+
     public List<Transform> CreateMovableTransforms()
     {
         return CreateMovableTransforms(CalculateMovablePositions());
@@ -121,10 +118,49 @@ public abstract class Character : ManagedMonoBehavior
     {
         foreach (Vector2 movablePosition in movablePositions)
         {
-            MovableSpaces.Add(Instantiate(GameManager.MovableSpacePrefab, new Vector2(movablePosition.x, movablePosition.y), Quaternion.identity, GameManager.transform));
+            MovableTransforms.Add(Instantiate(GameManager.MovableSpacePrefab, new Vector2(movablePosition.x, movablePosition.y), Quaternion.identity, GameManager.transform));
         }
 
-        return MovableSpaces;
+        return MovableTransforms;
+    }
+
+    public HashSet<Vector2> CalculateAssistablePositions(ISet<Vector2> movablePositions)
+    {
+        HashSet<Vector2> staffablePositions = new HashSet<Vector2>();
+
+        HashSet<int> ranges = CalculateRanges<Assistable>();
+
+        foreach (Vector2 movablePosition in movablePositions)
+        {
+            staffablePositions.UnionWith(CalculateAttackablePositions(movablePosition.x, movablePosition.y, ranges));
+        }
+
+        return staffablePositions;
+    }
+
+    public HashSet<Vector2> CalculateAssistablePositions()
+    {
+        return CalculateAssistablePositions(CalculateMovablePositions());
+    }
+
+    public List<Transform> CreateAssistableTransforms(ICollection<Vector2> staffablePositions, ISet<Vector2> movablePositions = null, ISet<Vector2> attackablePositions = null)
+    {
+        movablePositions = movablePositions ?? new HashSet<Vector2>();
+        attackablePositions = attackablePositions ?? new HashSet<Vector2>();
+
+        AssistableTransforms.Clear();
+
+        foreach (Vector2 staffablePosition in staffablePositions)
+        {
+            if (movablePositions.Contains(staffablePosition) || attackablePositions.Contains(staffablePosition))
+            {
+                continue;
+            }
+
+            AssistableTransforms.Add(Instantiate(GameManager.AssistableTransformPrefab, new Vector2(staffablePosition.x, staffablePosition.y), Quaternion.identity, GameManager.transform));
+        }
+
+        return AssistableTransforms;
     }
 
     /// <summary>
@@ -133,10 +169,13 @@ public abstract class Character : ManagedMonoBehavior
     /// <returns></returns>
     public HashSet<Vector2> CalculateAttackablePositions()
     {
-        HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
-        HashSet<Vector2> movablePositions = CalculateMovablePositions();
+        return CalculateAttackablePositions(CalculateMovablePositions());
+    }
 
-        HashSet<int> ranges = GetWeaponRanges();
+    public HashSet<Vector2> CalculateAttackablePositions(ISet<Vector2> movablePositions)
+    {
+        HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
+        HashSet<int> ranges = CalculateRanges<Attackable>();
 
         foreach (Vector2 movablePosition in movablePositions)
         {
@@ -160,6 +199,35 @@ public abstract class Character : ManagedMonoBehavior
         {
             attackablePositions.UnionWith(CalculateAttackablePositions(x, y, range));
         }
+        return attackablePositions;
+    }
+
+    /// <summary>
+    /// Calculates the attackable positions from the given position using the given range
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="range"></param>
+    /// <returns></returns>
+    private HashSet<Vector2> CalculateAttackablePositions(float x, float y, int range)
+    {
+        HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
+        if (range < 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y))
+        {
+            return attackablePositions;
+        }
+
+        if (range == 0)
+        {
+            attackablePositions.Add(new Vector2(x, y));
+            return attackablePositions;
+        }
+
+        attackablePositions.UnionWith(CalculateAttackablePositions(x + 1, y, range - 1));
+        attackablePositions.UnionWith(CalculateAttackablePositions(x - 1, y, range - 1));
+        attackablePositions.UnionWith(CalculateAttackablePositions(x, y + 1, range - 1));
+        attackablePositions.UnionWith(CalculateAttackablePositions(x, y - 1, range - 1));
+
         return attackablePositions;
     }
 
@@ -191,40 +259,27 @@ public abstract class Character : ManagedMonoBehavior
         MaxHp += GameManager.Random.Next(0, 2);
     }
 
-    public HashSet<Vector2> CalculateAttackablePositions(float x, float y, int range)
-    {
-        HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
-        if (range < 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y))
-        {
-            return attackablePositions;
-        }
-
-        if (range == 0)
-        {
-            attackablePositions.Add(new Vector2(x, y));
-            return attackablePositions;
-        }
-
-        attackablePositions.UnionWith(CalculateAttackablePositions(x + 1, y, range - 1));
-        attackablePositions.UnionWith(CalculateAttackablePositions(x - 1, y, range - 1));
-        attackablePositions.UnionWith(CalculateAttackablePositions(x, y + 1, range - 1));
-        attackablePositions.UnionWith(CalculateAttackablePositions(x, y - 1, range - 1));
-
-        return attackablePositions;
-    }
-
     /// <summary>
     /// Creates the movable and attackable transforms.
     ///
     /// Will not delete previous movable and attackable transforms.
     /// </summary>
-    /// <returns>The list of all attackable transforms</returns>
-    public List<Transform> CreateAttackableTransforms()
+    public void CreateAttackableTransforms()
     {
         HashSet<Vector2> movablePositions = CalculateMovablePositions();
-        CreateMovableTransforms(movablePositions);
+        Debug.LogFormat("Movable positions: {0}", movablePositions.Count);
+        List<Transform> movableTransforms = CreateMovableTransforms(movablePositions);
+        Debug.LogFormat("Movable transforms: {0}", movableTransforms.Count);
 
-        return CreateAttackableTransforms(CalculateAttackablePositions(), movablePositions);
+        HashSet<Vector2> attackablePositions = CalculateAttackablePositions(movablePositions);
+        Debug.LogFormat("Attackable positions: {0}", attackablePositions.Count);
+        List<Transform> attackableTransforms = CreateAttackableTransforms(attackablePositions, movablePositions);
+        Debug.LogFormat("Attackable transforms: {0}", attackableTransforms.Count);
+
+        HashSet<Vector2> staffablePositions = CalculateAssistablePositions(movablePositions);
+        Debug.LogFormat("Assistable positions: {0}", staffablePositions.Count);
+        List<Transform> staffableTransforms = CreateAssistableTransforms(staffablePositions, movablePositions, attackablePositions);
+        Debug.LogFormat("Assistable transforms: {0}", staffableTransforms.Count);
     }
 
     /// <summary>
@@ -243,10 +298,10 @@ public abstract class Character : ManagedMonoBehavior
                 continue;
             }
 
-            AttackableSpaces.Add(Instantiate(GameManager.AttackableSpacePrefab, new Vector2(attackablePosition.x, attackablePosition.y), Quaternion.identity, GameManager.transform));
+            AttackableTransforms.Add(Instantiate(GameManager.AttackableSpacePrefab, new Vector2(attackablePosition.x, attackablePosition.y), Quaternion.identity, GameManager.transform));
         }
 
-        return AttackableSpaces;
+        return AttackableTransforms;
     }
 
     /// <summary>
@@ -304,7 +359,6 @@ public abstract class Character : ManagedMonoBehavior
         }
 
         Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
-        // Debug.LogFormat("Terrain movement cost: {0}", terrain.DisplayName);
         return terrain.MovementCost;
     }
 
@@ -313,12 +367,12 @@ public abstract class Character : ManagedMonoBehavior
     /// </summary>
     public void DestroyAttackableTransforms()
     {
-        Debug.LogFormat("Destroying {0} attackable spaces", AttackableSpaces.Count);
-        foreach (Transform attackableSpace in AttackableSpaces)
+        Debug.LogFormat("Destroying {0} attackable spaces", AttackableTransforms.Count);
+        foreach (Transform attackableSpace in AttackableTransforms)
         {
             Destroy(attackableSpace.gameObject);
         }
-        AttackableSpaces.Clear();
+        AttackableTransforms.Clear();
     }
 
     /// <summary>
@@ -326,22 +380,33 @@ public abstract class Character : ManagedMonoBehavior
     /// </summary>
     public void DestroyMovableTransforms()
     {
-        Debug.LogFormat("Destroying {0} movable spaces", MovableSpaces.Count);
-        foreach (Transform movableSpace in MovableSpaces)
+        Debug.LogFormat("Destroying {0} movable spaces", MovableTransforms.Count);
+        foreach (Transform movableSpace in MovableTransforms)
         {
             Destroy(movableSpace.gameObject);
         }
 
-        MovableSpaces.Clear();
+        MovableTransforms.Clear();
     }
 
     /// <summary>
-    /// Destroys both movable and attackable transforms
+    /// Destroy staffable tranforms
     /// </summary>
-    public void DestroyMovableAndAttackableTransforms()
+    public void DestroyAssistableTransforms()
+    {
+        Debug.LogFormat("Destroying {0} staffable tranforms", AssistableTransforms.Count);
+        AssistableTransforms.ForEach(staffableTransform => Destroy(staffableTransform.gameObject));
+        AssistableTransforms.Clear();
+    }
+
+    /// <summary>
+    /// Destroys all movable, attackable, and assistable transforms
+    /// </summary>
+    public void DestroyMovableAndAttackableAndAssistableTransforms()
     {
         DestroyMovableTransforms();
         DestroyAttackableTransforms();
+        DestroyAssistableTransforms();
     }
 
     /// <summary>
@@ -377,21 +442,45 @@ public abstract class Character : ManagedMonoBehavior
         }
     }
 
+    public List<Transform> GetAssistableTransformsWithCharacters()
+    {
+        DestroyAssistableTransforms();
+
+        foreach (int range in CalculateRanges<Assistable>())
+        {
+            _ = CreateAssistableTransforms(CalculateAttackablePositions(transform.position.x, transform.position.y, range)); ;
+        }
+
+        _ = AssistableTransforms.RemoveAll(staffableTranform =>
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(staffableTranform.position);
+            if (character == null || !character.Player.Equals(Player))
+            {
+                Destroy(staffableTranform.gameObject);
+                return true;
+            }
+
+            return false;
+        });
+
+        return AssistableTransforms;
+    }
+
     /// <summary>
     /// Calculate the attackable spaces that contain characters
     /// </summary>
     /// <returns></returns>
-    public List<Transform> GetAttackableSpacesWithCharacters()
+    public List<Transform> GetAttackableTransformsWithCharacters()
     {
         DestroyAttackableTransforms();
-        HashSet<int> ranges = GetWeaponRanges();
+        HashSet<int> ranges = CalculateRanges<Attackable>();
 
         foreach (int range in ranges)
         {
             _ = CreateAttackableTransforms(CalculateAttackablePositions(transform.position.x, transform.position.y, range));
         }
 
-        _ = AttackableSpaces.RemoveAll(attackableSpace =>
+        _ = AttackableTransforms.RemoveAll(attackableSpace =>
           {
               Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(attackableSpace.position);
 
@@ -404,7 +493,7 @@ public abstract class Character : ManagedMonoBehavior
               return false;
           });
 
-        return AttackableSpaces;
+        return AttackableTransforms;
     }
 
     /// <summary>
@@ -435,6 +524,17 @@ public abstract class Character : ManagedMonoBehavior
         Debug.LogFormat("Remaining characters: {0}", Player.Characters.Count);
     }
 
+    public void UseAssist(Character targetCharacter)
+    {
+        AssistInformation supportInfo = CalculateAssistInformation(targetCharacter);
+
+        int hitPercentage = GameManager.Random.Next(100);
+        if (hitPercentage <= supportInfo.HitPercentage)
+        {
+            supportInfo.Item.Assist(this, targetCharacter);
+        }
+    }
+
     /// <summary>
     /// Attack the specified Character and apply damage, effects, etc
     ///
@@ -444,7 +544,7 @@ public abstract class Character : ManagedMonoBehavior
     /// <param name="defenseCharacter">The Character to attack</param>
     public void Attack(Character defenseCharacter)
     {
-        AttackInfo attackInfo = CalculateAttackInfo(defenseCharacter);
+        AttackInformation attackInfo = CalculateAttackInformation(defenseCharacter);
 
         // TODO use actual hit percentage
         int attackHitPercentage = GameManager.Random.Next(100);
@@ -494,18 +594,25 @@ public abstract class Character : ManagedMonoBehavior
         AddExperience(attackExperience);
     }
 
+    public AssistInformation CalculateAssistInformation(Character targetCharacter)
+    {
+        Assistable supportItem = GetUsableItem<Assistable>();
+
+        return new AssistInformation(supportItem, supportItem.HitPercentage, supportItem.Damage);
+    }
+
     /// <summary>
     /// Calculate the attack information for the attack on the specified defense Character
     /// </summary>
     /// <param name="defenseCharacter"></param>
     /// <returns></returns>
-    public AttackInfo CalculateAttackInfo(Character defenseCharacter)
+    public AttackInformation CalculateAttackInformation(Character defenseCharacter)
     {
-        Weapon attackWeapon = GetUsableWeapon();
+        Weapon attackWeapon = GetUsableItem<Weapon>();
         Debug.LogFormat("Attack weapon: {0}", attackWeapon);
 
         Weapon defenseWeapon = null;
-        List<Weapon> usableWeapons = defenseCharacter.GetUsableWeapons();
+        List<Weapon> usableWeapons = defenseCharacter.GetUsableItems<Weapon>();
         bool defenseCanAttack;
         if (usableWeapons.Count > 0)
         {
@@ -533,7 +640,7 @@ public abstract class Character : ManagedMonoBehavior
             defenseCriticalPercentage = CalculateCriticalPercentage(defenseCharacter, defenseWeapon, this);
         }
 
-        return new AttackInfo(attackWeapon, attackHitPercentage, attackDamage, attackCriticalPercentage, defenseWeapon, defenseHitPercentage, defenseDamage, defenseCriticalPercentage, defenseCanAttack);
+        return new AttackInformation(attackWeapon, attackHitPercentage, attackDamage, attackCriticalPercentage, defenseWeapon, defenseHitPercentage, defenseDamage, defenseCriticalPercentage, defenseCanAttack);
     }
 
     /// <summary>
@@ -561,12 +668,12 @@ public abstract class Character : ManagedMonoBehavior
     /// <returns></returns>
     private int CalculateDamage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
     {
-        int damage = attackWeapon.CalculateDamage(defenseCharacter);
+        int damage = attackWeapon.CalculateDamage(attackCharacter, defenseCharacter);
         if (attackWeapon is StrengthWeapon)
         {
             damage += attackCharacter.Strength - defenseCharacter.Defense;
         }
-        else if (attackWeapon is MagicWeapon)
+        else if (attackWeapon is Magic)
         {
             damage += attackCharacter.Magic - defenseCharacter.Resistance;
         }
@@ -584,21 +691,38 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// Get all weapons that are usable by the Character
+    /// 
     /// </summary>
+    /// <typeparam name="T">The type of items that should be put in the list</typeparam>
     /// <returns></returns>
-    public List<Weapon> GetUsableWeapons()
+    public List<T> GetUsableItems<T>() where T : Weapon
     {
-        List<Weapon> weapons = new List<Weapon>();
+        List<T> items = new List<T>();
         foreach (Item item in Items)
         {
-            if (item is Weapon weapon && IsProficient(weapon))
+            if (item is T t && IsProficient(t))
             {
-                weapons.Add(weapon);
+                items.Add(t);
             }
         }
 
-        return weapons;
+        return items;
+    }
+
+    /// <summary>
+    /// Gets the first usable item
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T GetUsableItem<T>() where T : Weapon
+    {
+        List<T> items = GetUsableItems<T>();
+        if (items.Count > 0)
+        {
+            return items[0];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -626,24 +750,9 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// Gets the first usable weapon for the Character
-    /// </summary>
-    /// <returns></returns>
-    public Weapon GetUsableWeapon()
-    {
-        List<Weapon> weapons = GetUsableWeapons();
-        if (weapons.Count > 0)
-        {
-            return weapons[0];
-        }
-
-        return null;
-    }
-
-    /// <summary>
     /// Represents an attack/defense scenario for two Characters
     /// </summary>
-    public class AttackInfo
+    public class AttackInformation
     {
         public Weapon AttackWeapon;
         public int AttackHitPercentage;
@@ -656,7 +765,7 @@ public abstract class Character : ManagedMonoBehavior
         public int DefenseCriticalPercentage;
         public bool DefenseCanAttack;
 
-        public AttackInfo(Weapon attackWeapon, int attackHitPercentage, int attackDamage, int attackCriticalPercentage, Weapon defenseWeapon, int defenseHitPercentage, int defenseDamage, int defenseCriticalPercentage, bool defenseCanAttack)
+        public AttackInformation(Weapon attackWeapon, int attackHitPercentage, int attackDamage, int attackCriticalPercentage, Weapon defenseWeapon, int defenseHitPercentage, int defenseDamage, int defenseCriticalPercentage, bool defenseCanAttack)
         {
             AttackWeapon = attackWeapon;
             AttackHitPercentage = attackHitPercentage;
@@ -668,6 +777,20 @@ public abstract class Character : ManagedMonoBehavior
             DefenseDamage = defenseDamage;
             DefenseCriticalPercentage = defenseCriticalPercentage;
             DefenseCanAttack = defenseCanAttack;
+        }
+    }
+
+    public class AssistInformation
+    {
+        public Assistable Item;
+        public int HitPercentage;
+        public int Might;
+
+        public AssistInformation(Assistable item, int hitPercentage, int might)
+        {
+            Item = item;
+            HitPercentage = hitPercentage;
+            Might = might;
         }
     }
 }

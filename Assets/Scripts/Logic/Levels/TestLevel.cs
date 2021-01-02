@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class TestLevel : Level {
+public class TestLevel : Level
+{
     public override bool IsLevelOver()
     {
         return HumanPlayer.Characters.Count == 0 || AiPlayer.Characters.Count == 0;
@@ -71,6 +72,14 @@ public class TestLevel : Level {
         CharacterMap[2, 2].Items.Add(IronSword.Create());
         CharacterMap[2, 2].Items.Add(Fire.Create());
         CharacterMap[2, 2].AddProficiency(new Proficiency(typeof(FireMagic), Proficiency.Rank.E));
+        //CharacterMap[2, 2].Items.Add(Heal.Create());
+        //CharacterMap[2, 2].AddProficiency(new Proficiency(typeof(HealingStaff), Proficiency.Rank.E));
+
+        CharacterMap[2, 1] = Create<Character>(GameManager.WizardPrefab);
+        CharacterMap[2, 1].Player = HumanPlayer;
+        CharacterMap[2, 1].CurrentHp = 10;
+        CharacterMap[2, 1].Items.Add(Heal.Create());
+        CharacterMap[2, 1].AddProficiency(new Proficiency(typeof(HealingStaff), Proficiency.Rank.E));
 
         CharacterMap[3, 3] = Create<Character>(GameManager.KnightPrefab);
         CharacterMap[3, 3].Player = AiPlayer;
