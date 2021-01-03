@@ -143,6 +143,10 @@ namespace Tests.Characters
             Assert.True(GameManager.CharacterActionMenu.MenuItems.Exists((Menu.MenuItem<Item> obj) => { return obj.DisplayText.text.Contains("Assist"); })); ; ;
         }
 
+        /// <summary>
+        /// Checking to make sure heal works
+        /// </summary>
+        /// <returns></returns>
         [UnityTest]
         public IEnumerator HealingTest2()
         {
@@ -176,6 +180,21 @@ namespace Tests.Characters
             Assert.IsEmpty(healingCharacter.MovableTransforms);
             Assert.IsEmpty(healingCharacter.AttackableTransforms);
             Assert.AreEqual(hurtCharacter.CurrentHp, hurtCharacter.MaxHp);
+        }
+
+        /// <summary>
+        /// Making sure both attackable and assistable positions show up.
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator HealingTest3()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+
+            yield return MoveCursor(2, 2);
+
+            Assert.AreEqual(8, character.AttackableTransforms.Count);
+            Assert.AreEqual(1, character.AssistableTransforms.Count);
         }
     }
 }
