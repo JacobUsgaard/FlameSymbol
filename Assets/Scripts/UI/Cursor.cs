@@ -2,22 +2,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UI;
-using System.Collections;
 
 public class Cursor : FocusableObject
 {
     public static readonly float cursorSpeed = 10f;
 
-    private int AttackableSpacesWithCharactersIndex = 0;
-    public readonly List<Transform> AttackableSpacesWithCharacters = new List<Transform>();
+    public int AttackableSpacesWithCharactersIndex { get; private set; } = 0;
+    public List<Transform> AttackableSpacesWithCharacters { get; } = new List<Transform>();
 
-    private int TradableSpacesWithCharactersIndex = 0;
-    public readonly List<Transform> TradableSpacesWithCharacters = new List<Transform>();
+    public int TradableSpacesWithCharactersIndex { get; private set; } = 0;
+    public List<Transform> TradableSpacesWithCharacters { get; } = new List<Transform>();
 
-    private Vector2 SelectedCharacterOldPosition;
-    public Character SelectedCharacter { get; set; }
+    public int AssistableTransformsWithCharactersIndex { get; private set; } = 0;
+    public List<Transform> AssistableTransformsWithCharacters { get; private set; } = new List<Transform>();
 
-    public AttackableRange AttackableRange;
+    public Vector2 SelectedCharacterOldPosition { get; private set; }
+    public Character SelectedCharacter { get; private set; }
+
+    public AttackableRange AttackableRange { get; private set; }
 
     public Path Path;
 
@@ -25,6 +27,7 @@ public class Cursor : FocusableObject
     {
         ChoosingAttackTarget,
         ChoosingMove,
+        ChoosingAssistTarget,
         ChoosingTradeTarget,
         Free
     };
@@ -85,14 +88,6 @@ public class Cursor : FocusableObject
         GameManager.TerrainInformationPanel.Show(terrain);
     }
 
-    public void Update()
-    {
-        if (CurrentState != State.Free && GameManager.CharacterInformationPanel.gameObject.activeSelf)
-        {
-            //GameManager.CharacterInformationPanel.Hide();
-        }
-    }
-
     /// <summary>
     /// Callback when the user selects 'Info' from the CharacterActionMenu.
     /// </summary>
@@ -106,9 +101,9 @@ public class Cursor : FocusableObject
     /// Callback when the user cancels from the CharacterActionMenu.
     /// </summary>
     /// <param name="character"></param>
-    public void CharacterActionMenuOnCancel(Object[] objects)
+    public void CharacterActionMenuOnCancel(params Object[] objects)
     {
-        SelectedCharacter.DestroyMovableAndAttackableTransforms();
+        SelectedCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
         DestroyTradableSpaces();
         SelectedCharacter.Move(SelectedCharacterOldPosition);
         SelectedCharacter.CreateAttackableTransforms();
@@ -123,9 +118,25 @@ public class Cursor : FocusableObject
         Debug.Log("OnEnterCharacterActionMenuAttack");
         DestroyTradableSpaces();
         GameManager.ItemSelectionMenu.Clear();
-        foreach (Item item in SelectedCharacter.GetUsableWeapons())
+        foreach (Item item in SelectedCharacter.GetUsableItems<Attackable>())
         {
             GameManager.ItemSelectionMenu.AddMenuItem(item, item.Text, ItemSelectionMenuOnSelect);
+        }
+
+        GameManager.ItemSelectionMenu.Focus();
+        GameManager.CharacterActionMenu.Hide();
+        GameManager.ItemSelectionMenu.Show(ItemSelectionMenuOnCancel);
+    }
+
+    private void CharacterActionMenuAssist(Object[] objects = default)
+    {
+        Debug.Log("OnEnterCharacterActionMenuAssist");
+        DestroyAll(TradableSpacesWithCharacters);
+        GameManager.ItemSelectionMenu.Clear();
+
+        foreach (Item item in SelectedCharacter.GetUsableItems<Assistable>())
+        {
+            GameManager.ItemSelectionMenu.AddMenuItem(item, item.Text, ItemSelectionMenuOnSelectSupportItem);
         }
 
         GameManager.ItemSelectionMenu.Focus();
@@ -148,11 +159,22 @@ public class Cursor : FocusableObject
     /// <param name="character"></param>
     private void CharacterActionMenuWait(Object[] objects)
     {
-        SelectedCharacter.DestroyMovableAndAttackableTransforms();
+        SelectedCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
         DestroyTradableSpaces();
         GameManager.CharacterActionMenu.Hide();
         CurrentState = State.Free;
         Focus();
+    }
+
+    private void ItemSelectionMenuOnSelectSupportItem(Object[] objects)
+    {
+        Item item = GameManager.ItemSelectionMenu.MenuItems[GameManager.ItemSelectionMenu.CurrentMenuItemIndex].ItemObject;
+        SelectedCharacter.Equip(item);
+        CurrentState = State.ChoosingAssistTarget;
+        GameManager.ItemSelectionMenu.Hide();
+        SetAssistableTransformWithCharacter();
+        Focus();
+
     }
 
     private void ItemSelectionMenuOnSelect(Object[] objects)
@@ -248,23 +270,32 @@ public class Cursor : FocusableObject
 
         GameManager.ItemActionMenu.Hide();
         GameManager.ItemDetailMenu.Hide();
-        SelectedCharacter.DestroyMovableAndAttackableTransforms();
+        SelectedCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
         Focus();
         CurrentState = State.Free;
     }
 
     private void ShowCharacterActionMenu(Character character)
     {
-        character.DestroyMovableAndAttackableTransforms();
+        character.DestroyMovableAndAttackableAndAssistableTransforms();
         GameManager.CharacterActionMenu.Clear();
         Path.Hide();
 
         // Attack
         AttackableSpacesWithCharacters.Clear();
-        AttackableSpacesWithCharacters.AddRange(character.GetAttackableSpacesWithCharacters());
+        AttackableSpacesWithCharacters.AddRange(character.GetAttackableTransformsWithCharacters());
         if (AttackableSpacesWithCharacters.Count > 0)
         {
             GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.AttackTextPrefab, CharacterActionMenuAttack);
+        }
+
+        // Assit
+        AssistableTransformsWithCharacters = character.GetAssistableTransformsWithCharacters();
+        Debug.LogFormat("Assistable transforms with characters: {0}", AssistableTransformsWithCharacters.Count);
+        Debug.LogFormat("Attackable transforms for character: {0}", character.AttackableTransforms.Count);
+        if (AssistableTransformsWithCharacters.Count > 0)
+        {
+            GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.AssistTextPrefab, CharacterActionMenuAssist);
         }
 
         // Items
@@ -279,6 +310,7 @@ public class Cursor : FocusableObject
         TradableSpacesWithCharacters.AddRange(character.CalculateTradableSpaces());
         if (TradableSpacesWithCharacters.Count > 0)
         {
+            Debug.LogFormat("Tradable spaces with characters: {0}", TradableSpacesWithCharacters.Count);
             GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.TradeTextPrefab, CharacterActionMenuTrade);
         }
 
@@ -344,6 +376,10 @@ public class Cursor : FocusableObject
                 OnArrowChoosingAttackTarget(horizontal, vertical);
                 break;
 
+            case State.ChoosingAssistTarget:
+                OnArrowChoosingAssistTarget(horizontal, vertical);
+                break;
+
             case State.ChoosingTradeTarget:
                 OnArrowChoosingTradeTarget(horizontal, vertical);
                 break;
@@ -377,7 +413,7 @@ public class Cursor : FocusableObject
 
         if (character)
         {
-            _ = character.CreateAttackableTransforms();
+            character.CreateAttackableTransforms();
         }
     }
 
@@ -399,7 +435,7 @@ public class Cursor : FocusableObject
         Character currentCharacter = GameManager.CurrentLevel.GetCharacter(startPosition);
         if (currentCharacter)
         {
-            currentCharacter.DestroyMovableAndAttackableTransforms();
+            currentCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
         }
 
         Move(newPosition);
@@ -444,7 +480,7 @@ public class Cursor : FocusableObject
         }
         Move(newPosition, true);
 
-        if (SelectedCharacter.MovableSpaces.Exists(t => t.position.Equals(newPosition)))
+        if (SelectedCharacter.MovableTransforms.Exists(t => t.position.Equals(newPosition)))
         {
             Debug.LogFormat("Space is in movable spaces");
 
@@ -467,12 +503,35 @@ public class Cursor : FocusableObject
         }
     }
 
+    private void OnArrowChoosingAssistTarget(float horizontal, float vertical)
+    {
+        if (AssistableTransformsWithCharacters.Count == 1)
+        {
+            return;
+        }
+
+        int direction = System.Math.Sign(Mathf.Abs(vertical) > Mathf.Abs(horizontal) ? vertical : horizontal);
+
+        if (direction != 0f)
+        {
+            SetAssistableTransformWithCharacter((AssistableTransformsWithCharactersIndex + AssistableTransformsWithCharacters.Count + direction) % AssistableTransformsWithCharacters.Count);
+        }
+    }
+
     public void SetAttackableSpaceWithCharacter(int index = 0)
     {
         AttackableSpacesWithCharactersIndex = index;
         transform.position = AttackableSpacesWithCharacters[AttackableSpacesWithCharactersIndex].transform.position;
 
         GameManager.AttackDetailPanel.Show(SelectedCharacter, GameManager.CurrentLevel.GetCharacter(transform.position));
+    }
+
+    public void SetAssistableTransformWithCharacter(int index = 0)
+    {
+        AssistableTransformsWithCharactersIndex = index;
+        transform.position = AssistableTransformsWithCharacters[AssistableTransformsWithCharactersIndex].transform.position;
+
+        GameManager.AssistDetailPanel.Show(SelectedCharacter, GameManager.CurrentLevel.GetCharacter(transform.position));
     }
 
     public void SetTradableSpaceWithCharacter(int index = 0)
@@ -502,23 +561,45 @@ public class Cursor : FocusableObject
                 OnSubmitChoosingTradeTarget();
                 break;
 
+            case State.ChoosingAssistTarget:
+                OnSubmitChoosingAssistTarget();
+                break;
+
             default:
                 Debug.LogError("Invalid state: " + CurrentState);
                 break;
         }
     }
 
+    private void OnSubmitChoosingAssistTarget()
+    {
+        Debug.LogFormat("OnSubmitChoosingAssistTarget");
+
+        Character defender = GameManager.CurrentLevel.GetCharacter(AssistableTransformsWithCharacters[AssistableTransformsWithCharactersIndex].position);
+        Debug.Log("Defender: " + defender);
+
+        Character attacker = SelectedCharacter;
+        Debug.Log("Attacker: " + attacker);
+
+        attacker.UseAssist(defender);
+
+        attacker.DestroyAssistableTransforms();
+        GameManager.AssistDetailPanel.Hide();
+        //GameManager.CharacterActionMenu.Hide();
+
+        CurrentState = State.Free;
+    }
+
     private void OnSubmitChoosingAttackTarget()
     {
         Character defender = GameManager.CurrentLevel.GetCharacter(AttackableSpacesWithCharacters[AttackableSpacesWithCharactersIndex].position);
-        Debug.Log("defender: " + defender);
+        Debug.Log("Defender: " + defender);
 
         Character attacker = SelectedCharacter;
         Debug.Log("Attacker: " + attacker);
 
         attacker.Attack(defender);
 
-        //Destroy(defender.transform.gameObject);
         attacker.DestroyAttackableTransforms();
         GameManager.AttackDetailPanel.Hide();
         GameManager.CharacterActionMenu.Hide();
@@ -529,7 +610,7 @@ public class Cursor : FocusableObject
     private void OnSubmitChoosingMove(Vector2 currentPosition)
     {
         Debug.Log("OnEnterChoosingMove: " + currentPosition);
-        foreach (Transform movableSpace in SelectedCharacter.MovableSpaces)
+        foreach (Transform movableSpace in SelectedCharacter.MovableTransforms)
         {
             if (currentPosition.x == movableSpace.position.x && currentPosition.y == movableSpace.position.y)
             {
@@ -560,14 +641,12 @@ public class Cursor : FocusableObject
         {
             if (SelectedCharacter.Player.Equals(GameManager.CurrentPlayer))
             {
-                // SelectedCharacter.CreateAttackableTransforms();
                 AttackableRange.Clear();
                 CurrentState = State.ChoosingMove;
                 Path.StartPath(SelectedCharacter);
             }
             else
             {
-                //Debug.LogError("Need to implement enemy attackable spaces");
                 AttackableRange.AddCharacter(SelectedCharacter);
             }
         }
@@ -594,7 +673,6 @@ public class Cursor : FocusableObject
 
                 if (character != null && AttackableRange.Characters.Contains(character))
                 {
-                    //character.DestroyMovableAndAttackableSpaces();
                     AttackableRange.RemoveCharacter(character);
                 }
                 else
@@ -605,10 +683,15 @@ public class Cursor : FocusableObject
 
             case State.ChoosingMove: // --> Free
 
-                SelectedCharacter.DestroyAttackableTransforms();
-                SelectedCharacter.DestroyMovableTransforms();
+                SelectedCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
                 Path.Destroy();
                 CurrentState = State.Free;
+                break;
+
+            case State.ChoosingAssistTarget: // --> 
+                transform.position = SelectedCharacter.transform.position;
+                GameManager.AssistDetailPanel.Hide();
+                CharacterActionMenuAssist();
                 break;
 
             case State.ChoosingAttackTarget: // --> ItemSelectionMenu
@@ -616,7 +699,6 @@ public class Cursor : FocusableObject
                 transform.position = SelectedCharacter.transform.position;
                 GameManager.AttackDetailPanel.Hide();
                 CharacterActionMenuAttack(null);
-                //                ShowCharacterActionMenu(character);
                 break;
 
             case State.ChoosingTradeTarget: // --> CharacterActionMenu

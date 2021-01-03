@@ -1,7 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class AttackDetailPanel : ManagedMonoBehavior
+public class AssistDetailPanel : ManagedMonoBehavior
 {
 
     public Text AttackNameText;
@@ -28,26 +28,24 @@ public class AttackDetailPanel : ManagedMonoBehavior
     public Text CriticalText;
     public Text DefenseCriticalText;
 
-
     public void Show(Character attackCharacter, Character defenseCharacter)
     {
         AttackNameText.text = attackCharacter.CharacterName;
         DefenseNameText.text = defenseCharacter.CharacterName;
 
-        Character.AttackInformation AttackInformation = attackCharacter.CalculateAttackInformation(defenseCharacter);
+        Character.AssistInformation AssistInformation = attackCharacter.CalculateAssistInformation(defenseCharacter);
 
-        AttackWeaponText.text = AttackInformation.AttackWeapon.Text.text;
+        AttackWeaponText.text = AssistInformation.Item.Text.text;
         AttackHpText.text = attackCharacter.CurrentHp.ToString();
-        AttackHitText.text = AttackInformation.AttackHitPercentage + "%";
-        AttackDamageText.text = AttackInformation.AttackDamage.ToString();
-        AttackCriticalText.text = AttackInformation.AttackCriticalPercentage + "%";
+        AttackHitText.text = AssistInformation.HitPercentage + "%";
+        AttackDamageText.text = AssistInformation.Might.ToString();
+        AttackCriticalText.text = "0%";
 
-        DefenseWeaponText.text = AttackInformation.DefenseWeapon == null ? "--" : AttackInformation.DefenseWeapon.Text.text;
-
+        DefenseWeaponText.text = "";
         DefenseHpText.text = defenseCharacter.CurrentHp.ToString();
-        DefenseHitText.text = AttackInformation.DefenseCanAttack ? AttackInformation.DefenseHitPercentage + "%" : "--";
-        DefenseDamageText.text = AttackInformation.DefenseCanAttack ? AttackInformation.DefenseDamage.ToString() : "--";
-        DefenseCriticalText.text = AttackInformation.DefenseCanAttack ? AttackInformation.DefenseCriticalPercentage + "%" : "--";
+        DefenseHitText.text = "--";
+        DefenseDamageText.text = "--";
+        DefenseCriticalText.text = "--";
 
         float x;
         if (defenseCharacter.transform.position.x >= GameManager.CurrentLevel.TerrainMap.GetLength(0) / 2)

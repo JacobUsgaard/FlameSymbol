@@ -174,7 +174,7 @@ namespace Tests.UI
 
             Path path = GameManager.Cursor.Path;
 
-            Debug.LogFormat("Attackable positions: {0}", string.Join(",", GameManager.CurrentLevel.GetCharacter().AttackableSpaces.ConvertAll(s => s.position)));
+            Debug.LogFormat("Attackable positions: {0}", string.Join(",", GameManager.CurrentLevel.GetCharacter().AttackableTransforms.ConvertAll(s => s.position)));
 
             List<Vector2> positions = path.CalculatePath(new Vector2(2, 2), new Vector2(1, 1), 3);
             Debug.LogFormat("Positions: {0}", string.Join(",", positions));

@@ -151,7 +151,7 @@ namespace UI
         public List<Vector2> CalculatePath(Vector2 current, Vector2 end, int moves)
         {
             Debug.LogFormat("Current: {0}, end: {1}, moves: {2}", current, end, moves);
-            if (moves == 0 || !Character.MovableSpaces.Exists(t => t.position.x.Equals(current.x) && t.position.y.Equals(current.y)))
+            if (moves == 0 || !Character.MovableTransforms.Exists(t => t.position.x.Equals(current.x) && t.position.y.Equals(current.y)))
             {
                 Debug.LogFormat("Invalid move");
                 return null;
