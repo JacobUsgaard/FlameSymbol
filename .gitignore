@@ -8,6 +8,8 @@
 /[Uu]ser[Ss]ettings/
 /[Aa]ssets/InitTestScene*
 /[Aa]rtifacts/
+/[Cc]ode[Cc]overage/
+/[Tt]est[Rr]esults-*.xml
 
 # Visual Studio
 .vs/

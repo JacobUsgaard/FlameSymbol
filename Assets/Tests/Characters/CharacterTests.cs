@@ -18,23 +18,31 @@ namespace Tests.Characters
         {
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            // Select Character
+            yield return Enter(GameManager.Cursor);
 
-            yield return Enter();
+            // Select Move
+            yield return Enter(GameManager.Cursor);
 
+            // Attack is in the list of actions
             Assert.True(GameManager.CharacterActionMenu.MenuItems.Exists((Menu.MenuItem<Item> obj) => { return obj.DisplayText.text.Contains("Attack"); })); ; ;
 
-            Assert.AreEqual(4, GameManager.Cursor.AttackableSpacesWithCharacters.Count);
-
+            // Select Attack
             GameManager.CharacterActionMenu.OnSubmit();
             yield return null;
 
+            // Character has one option for weapons
             Assert.AreEqual(1, GameManager.ItemSelectionMenu.MenuItems.Count);
 
+            // Select Weapon
             GameManager.ItemSelectionMenu.OnSubmit();
             yield return null;
 
-            yield return Enter();
+            // Character has four spaces with Characters
+            Assert.AreEqual(4, GameManager.Cursor.AttackableSpacesWithCharacters.Count);
+
+            // Select Character to attack
+            yield return Enter(GameManager.Cursor);
 
             Character character = GameManager.CurrentLevel.GetCharacter(1, 2);
             Assert.AreNotEqual(character.MaxHp, character.CurrentHp);
@@ -51,9 +59,9 @@ namespace Tests.Characters
 
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             GameManager.CharacterActionMenu.OnSubmit();
             yield return null;
@@ -61,12 +69,12 @@ namespace Tests.Characters
             GameManager.ItemSelectionMenu.OnSubmit();
             yield return null;
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
+            yield return Enter(GameManager.Cursor);
 
             GameManager.CharacterActionMenu.OnSubmit();
             yield return null;
@@ -74,7 +82,7 @@ namespace Tests.Characters
             GameManager.ItemSelectionMenu.OnSubmit();
             yield return null;
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             Assert.IsNull(GameManager.CurrentLevel.GetCharacter(1, 2));
 
@@ -134,9 +142,9 @@ namespace Tests.Characters
 
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             Assert.IsNotEmpty(GameManager.CharacterActionMenu.MenuItems);
 
@@ -161,10 +169,10 @@ namespace Tests.Characters
             yield return MoveCursor(2, 2);
 
             // select character
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             // select move
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             // select Assist
             GameManager.CharacterActionMenu.OnSubmit();
@@ -190,11 +198,177 @@ namespace Tests.Characters
         public IEnumerator HealingTest3()
         {
             Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+            Heal heal = Heal.Create();
+            _ = heal.Ranges.Add(3);
+            character.Items.Add(heal);
 
             yield return MoveCursor(2, 2);
 
             Assert.AreEqual(8, character.AttackableTransforms.Count);
             Assert.AreEqual(1, character.AssistableTransforms.Count);
+        }
+
+        /// <summary>
+        /// Initial test to make sure everything shows up correctly
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TradingTest1()
+        {
+            Character sourceCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            Character targetCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
+            sourceCharacter.Items.Clear();
+
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Enter(GameManager.Cursor);
+
+            // select move
+            yield return Enter(GameManager.Cursor);
+            Assert.True(GameManager.CharacterActionMenu.IsInFocus());
+
+            // select trade
+            GameManager.CharacterActionMenu.OnSubmit();
+            Assert.AreEqual(Cursor.State.ChoosingTradeTarget, GameManager.Cursor.CurrentState);
+
+            // select trading character
+            yield return Enter(GameManager.Cursor);
+            Assert.True(GameManager.TradeDetailPanel.IsInFocus());
+
+            Assert.AreEqual(sourceCharacter.CharacterName, GameManager.TradeDetailPanel.SourceText.text);
+            Assert.AreEqual(targetCharacter.CharacterName, GameManager.TradeDetailPanel.DestinationText.text);
+
+            sourceCharacter.Items.ForEach(
+                sourceCharacterItem =>
+                {
+                    Debug.LogFormat("Item: {0}", sourceCharacterItem.Text.text);
+                    Assert.True(
+                        GameManager.TradeDetailPanel.TradeSourceMenuItems.Exists(sourceTradeItem => sourceCharacterItem.name.Equals(sourceTradeItem.Text.text)));
+                }
+            );
+        }
+
+        /// <summary>
+        /// Test trading items
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TradingTest2()
+        {
+            Character sourceCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            sourceCharacter.Items.Clear();
+            sourceCharacter.Items.Add(IronSword.Create());
+            sourceCharacter.Items.Add(Fire.Create());
+
+            Character targetCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
+            targetCharacter.Items.Clear();
+            targetCharacter.Items.Add(Fire.Create());
+
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Enter(GameManager.Cursor);
+
+            // select move
+            yield return Enter(GameManager.Cursor);
+
+            // select trade
+            yield return DownArrow(GameManager.CharacterActionMenu);
+            yield return Enter(GameManager.CharacterActionMenu);
+
+            // select trading character
+            yield return Enter(GameManager.Cursor);
+
+            yield return Enter(GameManager.TradeDetailPanel);
+            Assert.AreEqual(1, sourceCharacter.Items.Count);
+            Assert.AreEqual(2, targetCharacter.Items.Count);
+
+            yield return DownArrow(GameManager.TradeDetailPanel);
+            Assert.AreEqual(TradeDetailPanel.Side.SOURCE, GameManager.TradeDetailPanel.CurrentSide);
+
+            // Press right
+            yield return RightArrow(GameManager.TradeDetailPanel);
+            Assert.AreEqual(TradeDetailPanel.Side.DESTINATION, GameManager.TradeDetailPanel.CurrentSide);
+
+            yield return DownArrow(GameManager.TradeDetailPanel);
+            Assert.AreEqual(TradeDetailPanel.Side.DESTINATION, GameManager.TradeDetailPanel.CurrentSide);
+
+            yield return DownArrow(GameManager.TradeDetailPanel);
+            Assert.AreEqual(TradeDetailPanel.Side.DESTINATION, GameManager.TradeDetailPanel.CurrentSide);
+
+            yield return LeftArrow(GameManager.TradeDetailPanel);
+            Assert.AreEqual(TradeDetailPanel.Side.SOURCE, GameManager.TradeDetailPanel.CurrentSide);
+
+            yield return LeftArrow(GameManager.TradeDetailPanel);
+            Assert.AreEqual(TradeDetailPanel.Side.SOURCE, GameManager.TradeDetailPanel.CurrentSide);
+
+            yield return RightArrow(GameManager.TradeDetailPanel);
+            Assert.AreEqual(TradeDetailPanel.Side.DESTINATION, GameManager.TradeDetailPanel.CurrentSide);
+
+            yield return Enter(GameManager.TradeDetailPanel);
+            Assert.AreEqual(2, sourceCharacter.Items.Count);
+            Assert.AreEqual(1, targetCharacter.Items.Count);
+        }
+
+        /// <summary>
+        /// Test canceling the trade
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TradingTest3()
+        {
+            Character sourceCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            sourceCharacter.Items.Clear();
+            sourceCharacter.Items.Add(IronSword.Create());
+            sourceCharacter.Items.Add(Fire.Create());
+
+            Character targetCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
+            targetCharacter.Items.Clear();
+            targetCharacter.Items.Add(Fire.Create());
+
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Enter(GameManager.Cursor);
+
+            // select move
+            yield return Enter(GameManager.Cursor);
+
+            // select trade
+            yield return DownArrow(GameManager.CharacterActionMenu);
+            yield return Enter(GameManager.CharacterActionMenu);
+
+            // select trading character
+            yield return Enter(GameManager.Cursor);
+
+            yield return Cancel(GameManager.TradeDetailPanel);
+            Assert.False(GameManager.TradeDetailPanel.IsInFocus());
+            Assert.True(GameManager.Cursor.IsInFocus());
+            Assert.AreEqual(Cursor.State.ChoosingTradeTarget, GameManager.Cursor.CurrentState);
+        }
+
+        /// <summary>
+        /// Test calling trade when no items are tradable
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TradingTest4()
+        {
+            Character sourceCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            sourceCharacter.Items.Clear();
+
+            Character targetCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
+            targetCharacter.Items.Clear();
+
+            GameManager.TradeDetailPanel.Show(sourceCharacter, targetCharacter);
+
+            LogAssert.Expect(LogType.Error, "Neither character has items to trade.");
+
+            yield return null;
         }
     }
 }

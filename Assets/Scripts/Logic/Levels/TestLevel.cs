@@ -73,9 +73,6 @@ public class TestLevel : Level
         CharacterMap[2, 2].Items.Add(Fire.Create());
         CharacterMap[2, 2].AddProficiency(new Proficiency(typeof(FireMagic), Proficiency.Rank.E));
         CharacterMap[2, 2].AddProficiency(new Proficiency(typeof(HealingStaff), Proficiency.Rank.E));
-        Heal heal = Heal.Create();
-        _ = heal.Ranges.Add(3);
-        CharacterMap[2, 2].Items.Add(heal);
 
         CharacterMap[2, 1] = Create<Character>(GameManager.WizardPrefab);
         CharacterMap[2, 1].Player = HumanPlayer;

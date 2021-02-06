@@ -116,11 +116,11 @@ public class Cursor : FocusableObject
     private void CharacterActionMenuAttack(Object[] objects)
     {
         Debug.Log("OnEnterCharacterActionMenuAttack");
-        DestroyTradableSpaces();
+
         GameManager.ItemSelectionMenu.Clear();
         foreach (Item item in SelectedCharacter.GetUsableItems<Attackable>())
         {
-            GameManager.ItemSelectionMenu.AddMenuItem(item, item.Text, ItemSelectionMenuOnSelect);
+            GameManager.ItemSelectionMenu.AddMenuItem(item, item.Text, ItemSelectionMenuOnSelectAttackItem);
         }
 
         GameManager.ItemSelectionMenu.Focus();
@@ -131,9 +131,8 @@ public class Cursor : FocusableObject
     private void CharacterActionMenuAssist(Object[] objects = default)
     {
         Debug.Log("OnEnterCharacterActionMenuAssist");
-        DestroyAll(TradableSpacesWithCharacters);
-        GameManager.ItemSelectionMenu.Clear();
 
+        GameManager.ItemSelectionMenu.Clear();
         foreach (Item item in SelectedCharacter.GetUsableItems<Assistable>())
         {
             GameManager.ItemSelectionMenu.AddMenuItem(item, item.Text, ItemSelectionMenuOnSelectSupportItem);
@@ -147,8 +146,11 @@ public class Cursor : FocusableObject
     private void CharacterActionMenuTrade(Object[] objects)
     {
         Debug.Log("OnEnterCharacterActionMenuTrade");
+
+        TradableSpacesWithCharacters.Clear();
+        TradableSpacesWithCharacters.AddRange(SelectedCharacter.CreateTradableTransforms(SelectedCharacter.CalculateTradablePositionsWithCharacters()));
+        GameManager.CharacterActionMenu.Hide();
         CurrentState = State.ChoosingTradeTarget;
-        SelectedCharacter.DestroyAttackableTransforms();
         SetTradableSpaceWithCharacter();
         Focus();
     }
@@ -170,22 +172,40 @@ public class Cursor : FocusableObject
     {
         Item item = GameManager.ItemSelectionMenu.MenuItems[GameManager.ItemSelectionMenu.CurrentMenuItemIndex].ItemObject;
         SelectedCharacter.Equip(item);
+
+        AssistableTransformsWithCharacters.Clear();
+        HashSet<Vector2> assistablePositions = SelectedCharacter.CalculateAssistablePositions(transform.position.x, transform.position.y, ((Assistable)item).Ranges);
+
+        AssistableTransformsWithCharacters
+            .AddRange(
+                SelectedCharacter.CreateAssistableTransforms(
+                    SelectedCharacter.ExtractAssistablePositionsWithCharacters(assistablePositions)));
+
+
         CurrentState = State.ChoosingAssistTarget;
         GameManager.ItemSelectionMenu.Hide();
         SetAssistableTransformWithCharacter();
         Focus();
-
     }
 
-    private void ItemSelectionMenuOnSelect(Object[] objects)
+    private void ItemSelectionMenuOnSelectAttackItem(Object[] objects)
     {
-        Focus();
         Item item = GameManager.ItemSelectionMenu.MenuItems[GameManager.ItemSelectionMenu.CurrentMenuItemIndex].ItemObject;
         Debug.Log("Selected a weapon: " + item.Text.text);
         SelectedCharacter.Equip(item);
+
+        AttackableSpacesWithCharacters.Clear();
+        HashSet<Vector2> attackablePositions = SelectedCharacter.CalculateAttackablePositions(transform.position.x, transform.position.y, ((Attackable)item).Ranges);
+
+        AttackableSpacesWithCharacters
+            .AddRange(SelectedCharacter
+                .CreateAttackableTransforms(SelectedCharacter
+                    .ExtractAttackablePositionsWithCharacters(attackablePositions)));
+
         CurrentState = State.ChoosingAttackTarget;
         GameManager.ItemSelectionMenu.Hide();
         SetAttackableSpaceWithCharacter();
+        Focus();
     }
 
     private void ItemSelectionMenuOnCancel(Object[] objects)
@@ -278,40 +298,36 @@ public class Cursor : FocusableObject
     private void ShowCharacterActionMenu(Character character)
     {
         character.DestroyMovableAndAttackableAndAssistableTransforms();
-        GameManager.CharacterActionMenu.Clear();
         Path.Hide();
 
+        GameManager.CharacterActionMenu.Clear();
+
         // Attack
+        HashSet<Vector2> attackablePositions = character.CalculateAttackablePositions();
         AttackableSpacesWithCharacters.Clear();
-        AttackableSpacesWithCharacters.AddRange(character.GetAttackableTransformsWithCharacters());
-        if (AttackableSpacesWithCharacters.Count > 0)
+        if (attackablePositions.Count > 0)
         {
             GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.AttackTextPrefab, CharacterActionMenuAttack);
         }
 
-        // Assit
-        AssistableTransformsWithCharacters = character.GetAssistableTransformsWithCharacters();
-        Debug.LogFormat("Assistable transforms with characters: {0}", AssistableTransformsWithCharacters.Count);
-        Debug.LogFormat("Attackable transforms for character: {0}", character.AttackableTransforms.Count);
-        if (AssistableTransformsWithCharacters.Count > 0)
+        // Assist
+        HashSet<Vector2> assistablePositions = character.CalculateAssistablePositions();
+        if (assistablePositions.Count > 0)
         {
             GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.AssistTextPrefab, CharacterActionMenuAssist);
+        }
+
+        // Trade
+        HashSet<Vector2> tradablePositionsWithCharacters = character.CalculateTradablePositionsWithCharacters();
+        if (tradablePositionsWithCharacters.Count > 0)
+        {
+            GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.TradeTextPrefab, CharacterActionMenuTrade);
         }
 
         // Items
         if (character.Items.Count > 0)
         {
             GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.ItemsTextPrefab, CharacterActionMenuItems);
-        }
-
-        // Trade
-        DestroyTradableSpaces();
-        TradableSpacesWithCharacters.Clear();
-        TradableSpacesWithCharacters.AddRange(character.CalculateTradableSpaces());
-        if (TradableSpacesWithCharacters.Count > 0)
-        {
-            Debug.LogFormat("Tradable spaces with characters: {0}", TradableSpacesWithCharacters.Count);
-            GameManager.CharacterActionMenu.AddMenuItem(null, GameManager.TradeTextPrefab, CharacterActionMenuTrade);
         }
 
         // Wait
@@ -488,6 +504,11 @@ public class Cursor : FocusableObject
         }
     }
 
+    /// <summary>
+    /// Called when one or more arrow keys are pressed during the choosing attack target state
+    /// </summary>
+    /// <param name="horizontal">The horizontal direction being pressed</param>
+    /// <param name="vertical">The vertical direction being pressed</param>
     private void OnArrowChoosingAttackTarget(float horizontal, float vertical)
     {
         if (AttackableSpacesWithCharacters.Count == 1)

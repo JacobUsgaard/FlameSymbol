@@ -240,7 +240,7 @@ namespace Tests.UI
 
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             GameManager.Cursor.OnInformation();
 
@@ -274,7 +274,7 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             Assert.True(GameManager.TerrainInformationPanel.gameObject.activeSelf);
         }
@@ -289,9 +289,9 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             Assert.False(GameManager.TerrainInformationPanel.gameObject.activeSelf);
         }
@@ -327,7 +327,7 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             Assert.True(GameManager.CharacterInformationPanel.gameObject.activeSelf);
 
@@ -350,9 +350,9 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             Assert.False(GameManager.CharacterInformationPanel.gameObject.activeSelf);
         }
@@ -366,7 +366,7 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Enter();
+            yield return Enter(GameManager.Cursor);
 
             Character character = GameManager.Cursor.SelectedCharacter;
             List<Transform> movableSpaces = character.MovableTransforms;
