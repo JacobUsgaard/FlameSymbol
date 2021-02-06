@@ -12,6 +12,7 @@ public abstract class Character : ManagedMonoBehavior
     public readonly List<Transform> MovableTransforms = new List<Transform>();
     public readonly List<Transform> AttackableTransforms = new List<Transform>();
     public readonly List<Transform> AssistableTransforms = new List<Transform>();
+    public readonly List<Transform> TradableTransforms = new List<Transform>();
 
     public string CharacterName;
     public int Strength;
@@ -124,7 +125,7 @@ public abstract class Character : ManagedMonoBehavior
         return MovableTransforms;
     }
 
-    public HashSet<Vector2> CalculateAssistablePositions(ISet<Vector2> movablePositions)
+    public HashSet<Vector2> CalculateAssistablePositions(HashSet<Vector2> movablePositions)
     {
         HashSet<Vector2> staffablePositions = new HashSet<Vector2>();
 
@@ -143,7 +144,15 @@ public abstract class Character : ManagedMonoBehavior
         return CalculateAssistablePositions(CalculateMovablePositions());
     }
 
-    public List<Transform> CreateAssistableTransforms(ICollection<Vector2> staffablePositions, ISet<Vector2> movablePositions = null, ISet<Vector2> attackablePositions = null)
+    /// <summary>
+    /// Create the assistable transforms from the staffable positions excluding
+    /// the provided movable and attackable positions
+    /// </summary>
+    /// <param name="staffablePositions">The assistable positions to create transforms for</param>
+    /// <param name="movablePositions"></param>
+    /// <param name="attackablePositions"></param>
+    /// <returns></returns>
+    public List<Transform> CreateAssistableTransforms(ICollection<Vector2> staffablePositions, HashSet<Vector2> movablePositions = null, HashSet<Vector2> attackablePositions = null)
     {
         movablePositions = movablePositions ?? new HashSet<Vector2>();
         attackablePositions = attackablePositions ?? new HashSet<Vector2>();
@@ -172,7 +181,7 @@ public abstract class Character : ManagedMonoBehavior
         return CalculateAttackablePositions(CalculateMovablePositions());
     }
 
-    public HashSet<Vector2> CalculateAttackablePositions(ISet<Vector2> movablePositions)
+    public HashSet<Vector2> CalculateAttackablePositions(HashSet<Vector2> movablePositions)
     {
         HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
         HashSet<int> ranges = CalculateRanges<Attackable>();
@@ -194,12 +203,26 @@ public abstract class Character : ManagedMonoBehavior
     /// <returns>The list of attackable positions</returns>
     public HashSet<Vector2> CalculateAttackablePositions(float x, float y, HashSet<int> ranges)
     {
+        ranges = ranges ?? CalculateRanges<Attackable>();
+
         HashSet<Vector2> attackablePositions = new HashSet<Vector2>();
         foreach (int range in ranges)
         {
             attackablePositions.UnionWith(CalculateAttackablePositions(x, y, range));
         }
         return attackablePositions;
+    }
+
+    public HashSet<Vector2> CalculateAssistablePositions(float x, float y, HashSet<int> ranges)
+    {
+        ranges = ranges ?? CalculateRanges<Assistable>();
+
+        HashSet<Vector2> assistablePositions = new HashSet<Vector2>();
+        foreach (int range in ranges)
+        {
+            assistablePositions.UnionWith(CalculateAssistablePositions(x, y, range));
+        }
+        return assistablePositions;
     }
 
     /// <summary>
@@ -231,6 +254,88 @@ public abstract class Character : ManagedMonoBehavior
         return attackablePositions;
     }
 
+    private HashSet<Vector2> CalculateAssistablePositions(float x, float y, int range)
+    {
+        HashSet<Vector2> assistablePositions = new HashSet<Vector2>();
+        if (range < 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y))
+        {
+            return assistablePositions;
+        }
+
+        if (range == 0)
+        {
+            assistablePositions.Add(new Vector2(x, y));
+            return assistablePositions;
+        }
+
+        assistablePositions.UnionWith(CalculateAttackablePositions(x + 1, y, range - 1));
+        assistablePositions.UnionWith(CalculateAttackablePositions(x - 1, y, range - 1));
+        assistablePositions.UnionWith(CalculateAttackablePositions(x, y + 1, range - 1));
+        assistablePositions.UnionWith(CalculateAttackablePositions(x, y - 1, range - 1));
+
+        return assistablePositions;
+    }
+
+    public List<Transform> CreateAttackableTransforms(IEnumerable<Vector2> attackablePositions)
+    {
+        foreach (Vector2 attackablePosition in attackablePositions)
+        {
+            AttackableTransforms.Add(Instantiate(GameManager.AttackableSpacePrefab, attackablePosition, Quaternion.identity, GameManager.transform));
+        }
+
+        return AttackableTransforms;
+    }
+
+    /// <summary>
+    /// Calculate tradable spaces with eligible characters for this Character's current position
+    /// </summary>
+    /// <returns></returns>
+    public HashSet<Vector2> CalculateTradablePositionsWithCharacters()
+    {
+        HashSet<Vector2> tradablePositions = new HashSet<Vector2>();
+        float y = transform.position.x;
+        float x = transform.position.y;
+
+        tradablePositions.UnionWith(CalculateTradablePositions(x - 1, y));
+        tradablePositions.UnionWith(CalculateTradablePositions(x + 1, y));
+        tradablePositions.UnionWith(CalculateTradablePositions(x, y - 1));
+        tradablePositions.UnionWith(CalculateTradablePositions(x, y + 1));
+
+        Debug.LogFormat("Tradable spaces with characters: {0}", tradablePositions.Count);
+        return tradablePositions;
+    }
+
+    /// <summary>
+    /// Calculate whether or not this position is a tradable position
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
+    private HashSet<Vector2> CalculateTradablePositions(float x, float y)
+    {
+        HashSet<Vector2> tradablePositions = new HashSet<Vector2>();
+        Character character = GameManager.CurrentLevel.GetCharacter(x, y);
+        if (character != null && character.Player.Equals(Player))
+        {
+            tradablePositions.Add(new Vector2(x, y));
+        }
+
+        return tradablePositions;
+    }
+
+    public List<Transform> CreateTradableTransforms(HashSet<Vector2> tradablePositions)
+    {
+        tradablePositions = tradablePositions ?? CalculateTradablePositions(transform.position.x, transform.position.y);
+
+        foreach (Vector2 tradablePosition in tradablePositions)
+        {
+            TradableTransforms.Add(Instantiate(GameManager.AssistableTransformPrefab, tradablePosition, Quaternion.identity, GameManager.transform));
+        }
+
+        return TradableTransforms;
+    }
+
+
     public void AddExperience(int experience)
     {
         if (experience > 100)
@@ -260,7 +365,7 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// Creates the movable and attackable transforms.
+    /// Creates the movable, attackable, and assistable transforms.
     ///
     /// Will not delete previous movable and attackable transforms.
     /// </summary>
@@ -283,7 +388,7 @@ public abstract class Character : ManagedMonoBehavior
     }
 
     /// <summary>
-    /// 
+    /// Create attackable transforms from the provided attackable positions excluding those already in the provided movable positions
     /// </summary>
     /// <param name="attackablePositions"></param>
     /// <param name="movablePositions"></param>
@@ -409,38 +514,6 @@ public abstract class Character : ManagedMonoBehavior
         DestroyAssistableTransforms();
     }
 
-    /// <summary>
-    /// Calculate tradable spaces for this Character
-    /// </summary>
-    /// <returns></returns>
-    public List<Transform> CalculateTradableSpaces()
-    {
-        List<Transform> tradableSpaces = new List<Transform>();
-        float y = transform.position.x;
-        float x = transform.position.y;
-
-        CalculateTradableSpace(x - 1, y, tradableSpaces);
-        CalculateTradableSpace(x + 1, y, tradableSpaces);
-        CalculateTradableSpace(x, y - 1, tradableSpaces);
-        CalculateTradableSpace(x, y + 1, tradableSpaces);
-
-        return tradableSpaces;
-    }
-
-    /// <summary>
-    /// Calculate the tradable spaces and create the transforms
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="tradableSpaces"></param>
-    private void CalculateTradableSpace(float x, float y, List<Transform> tradableSpaces)
-    {
-        Character character = GameManager.CurrentLevel.GetCharacter(x, y);
-        if (character != null && character.Player.Equals(Player))
-        {
-            tradableSpaces.Add(Instantiate(GameManager.AttackableSpacePrefab, new Vector2(x, y), Quaternion.identity, GameManager.transform));
-        }
-    }
 
     public List<Transform> GetAssistableTransformsWithCharacters()
     {
@@ -494,6 +567,48 @@ public abstract class Character : ManagedMonoBehavior
           });
 
         return AttackableTransforms;
+    }
+
+    /// <summary>
+    /// Get the list of attackable positions that have attackable characters from the provided list of positions
+    /// </summary>
+    /// <param name="attackableTransforms">The list of attackable transforms to look for characters</param>
+    /// <returns>The list of attackable transforms that have attackable characters</returns>
+    public HashSet<Vector2> ExtractAttackablePositionsWithCharacters(ISet<Vector2> attackablePositions)
+    {
+        HashSet<Vector2> list = new HashSet<Vector2>();
+
+        foreach (Vector2 attackablePosition in attackablePositions)
+        {
+            Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(attackablePosition);
+            if (defendingCharacter != null && !defendingCharacter.Player.Equals(Player))
+            {
+                _ = list.Add(attackablePosition);
+            }
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    /// Get the list of positions that have assistable characters from the provided list of positions
+    /// </summary>
+    /// <param name="assistablePositions">The list of positions to look for characters</param>
+    /// <returns>The list of positions that have assistable characters</returns>
+    public HashSet<Vector2> ExtractAssistablePositionsWithCharacters(ISet<Vector2> assistablePositions)
+    {
+        HashSet<Vector2> list = new HashSet<Vector2>();
+
+        foreach (Vector2 assistablePosition in assistablePositions)
+        {
+            Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(assistablePosition);
+            if (defendingCharacter != null && defendingCharacter.Player.Equals(Player))
+            {
+                _ = list.Add(assistablePosition);
+            }
+        }
+
+        return list;
     }
 
     /// <summary>

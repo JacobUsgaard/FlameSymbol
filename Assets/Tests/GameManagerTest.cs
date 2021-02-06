@@ -32,39 +32,39 @@ namespace Tests
             Object.Destroy(GameManager.gameObject);
         }
 
-        public IEnumerator DownArrow()
+        public IEnumerator DownArrow(FocusableObject focusableObject)
         {
-            GameManager.Cursor.OnArrow(0, -1);
+            focusableObject.OnArrow(0, -1);
             yield return null;
         }
 
-        public IEnumerator UpArrow()
+        public IEnumerator UpArrow(FocusableObject focusableObject)
         {
-            GameManager.Cursor.OnArrow(0, 1);
+            focusableObject.OnArrow(0, 1);
             yield return null;
         }
 
-        public IEnumerator RightArrow()
+        public IEnumerator RightArrow(FocusableObject focusableObject)
         {
-            GameManager.Cursor.OnArrow(1, 0);
+            focusableObject.OnArrow(1, 0);
             yield return null;
         }
 
-        public IEnumerator LeftArrow()
+        public IEnumerator LeftArrow(FocusableObject focusableObject)
         {
-            GameManager.Cursor.OnArrow(-1, 0);
+            focusableObject.OnArrow(-1, 0);
             yield return null;
         }
 
-        public IEnumerator Enter()
+        public IEnumerator Enter(FocusableObject focusableObject)
         {
-            GameManager.Cursor.OnSubmit();
+            focusableObject.OnSubmit();
             yield return null;
         }
 
-        public IEnumerator Cancel()
+        public IEnumerator Cancel(FocusableObject focusableObject)
         {
-            GameManager.Cursor.OnCancel();
+            focusableObject.OnCancel();
             yield return null;
         }
 

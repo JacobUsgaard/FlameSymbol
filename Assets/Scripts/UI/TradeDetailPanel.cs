@@ -5,29 +5,61 @@ using UnityEngine.UI;
 public class TradeDetailPanel : FocusableObject
 {
 
+    private static readonly string INDICATOR = " <";
+
+    /// <summary>
+    /// The text that goes above the source items panel
+    /// </summary>
     public Text SourceText;
+
+    /// <summary>
+    /// The source items panel
+    /// </summary>
     public Transform TradeSourcePanel;
+
+    /// <summary>
+    /// The text that goes above the destination items panel
+    /// </summary>
     public Text DestinationText;
+
+    /// <summary>
+    /// The destination items panel
+    /// </summary>
     public Transform TradeDestinationPanel;
 
-    private int SourceItemsIndex = 0;
-    private readonly List<TradeMenuItem> TradeSourceMenuItems = new List<TradeMenuItem>();
+    private int _sourceItemsIndex = 0;
+    public int SourceItemsIndex => _sourceItemsIndex;
 
-    private int DestinationItemsIndex = 0;
-    private readonly List<TradeMenuItem> TradeDestinationMenuItems = new List<TradeMenuItem>();
+    /// <summary>
+    /// The menu items in the source panel
+    /// </summary>
+    public List<TradeMenuItem> TradeSourceMenuItems { get; } = new List<TradeMenuItem>();
 
-    private Character SourceCharacter;
-    private Character DestinationCharacter;
+    private int _destinationItemsIndex;
+    public int DestinationItemsIndex => _destinationItemsIndex;
 
-    private enum Side
+    /// <summary>
+    /// The menu items in the destination panel
+    /// </summary>
+    public List<TradeMenuItem> TradeDestinationMenuItems { get; } = new List<TradeMenuItem>();
+
+    public Character SourceCharacter { get; private set; }
+    public Character DestinationCharacter { get; private set; }
+
+    /// <summary>
+    /// The valid sides that the cursor can be
+    /// </summary>
+    public enum Side
     {
         SOURCE,
         DESTINATION
     }
 
-    private Side CurrentSide = Side.SOURCE;
+    /// <summary>
+    /// Which side the cursor is currently on
+    /// </summary>
+    public Side CurrentSide { get; set; } = Side.SOURCE;
 
-    private static readonly string INDICATOR = " <";
 
     public override void OnArrow(float horizontal, float vertical)
     {
@@ -42,7 +74,7 @@ public class TradeDetailPanel : FocusableObject
                     previousItem.Text.text = previousItem.Text.text.Replace(INDICATOR, "");
                 }
 
-                SetItemsTextsIndex(TradeDestinationMenuItems, ref DestinationItemsIndex);
+                SetItemsTextsIndex(TradeDestinationMenuItems, ref _destinationItemsIndex);
                 CurrentSide = Side.DESTINATION;
             }
             else if (CurrentSide == Side.DESTINATION && TradeSourceMenuItems.Count > 0 && sign == -1)
@@ -53,7 +85,7 @@ public class TradeDetailPanel : FocusableObject
                     previousItem.Text.text = previousItem.Text.text.Replace(INDICATOR, "");
                 }
 
-                SetItemsTextsIndex(TradeSourceMenuItems, ref SourceItemsIndex);
+                SetItemsTextsIndex(TradeSourceMenuItems, ref _sourceItemsIndex);
                 CurrentSide = Side.SOURCE;
             }
             else
@@ -66,11 +98,11 @@ public class TradeDetailPanel : FocusableObject
             int sign = System.Math.Sign(vertical);
             if (CurrentSide == Side.SOURCE)
             {
-                SetItemsTextsIndex(TradeSourceMenuItems, ref SourceItemsIndex, (SourceItemsIndex + TradeSourceMenuItems.Count + sign) % TradeSourceMenuItems.Count);
+                SetItemsTextsIndex(TradeSourceMenuItems, ref _sourceItemsIndex, (SourceItemsIndex + TradeSourceMenuItems.Count + sign) % TradeSourceMenuItems.Count);
             }
             else
             {
-                SetItemsTextsIndex(TradeDestinationMenuItems, ref DestinationItemsIndex, (DestinationItemsIndex + TradeDestinationMenuItems.Count + sign) % TradeDestinationMenuItems.Count);
+                SetItemsTextsIndex(TradeDestinationMenuItems, ref _destinationItemsIndex, (DestinationItemsIndex + TradeDestinationMenuItems.Count + sign) % TradeDestinationMenuItems.Count);
             }
         }
     }
@@ -84,8 +116,6 @@ public class TradeDetailPanel : FocusableObject
         DestinationCharacter = destinationCharacter;
         DestinationText.text = destinationCharacter.CharacterName;
         Debug.Log("Destination character: " + destinationCharacter);
-
-
 
         foreach (TradeMenuItem tradeMenuItem in TradeSourceMenuItems)
         {
@@ -111,17 +141,17 @@ public class TradeDetailPanel : FocusableObject
 
         if (TradeSourceMenuItems.Count > 0)
         {
-            SetItemsTextsIndex(TradeSourceMenuItems, ref SourceItemsIndex);
+            SetItemsTextsIndex(TradeSourceMenuItems, ref _sourceItemsIndex);
             CurrentSide = Side.SOURCE;
         }
         else if (TradeDestinationMenuItems.Count > 0)
         {
-            SetItemsTextsIndex(TradeDestinationMenuItems, ref DestinationItemsIndex);
+            SetItemsTextsIndex(TradeDestinationMenuItems, ref _destinationItemsIndex);
             CurrentSide = Side.DESTINATION;
         }
         else
         {
-            Debug.LogError("Neither character has items to trade. What do");
+            Debug.LogError("Neither character has items to trade.");
         }
 
         transform.position = sourceCharacter.transform.position;
@@ -139,7 +169,7 @@ public class TradeDetailPanel : FocusableObject
         // Update currently selected text
         masterIndex = index;
         TradeMenuItem currentItem = tradeMenuItems[masterIndex];
-        currentItem.Text.text = currentItem.Text.text + INDICATOR;
+        currentItem.Text.text += INDICATOR;
     }
 
     public override void OnCancel()
@@ -167,6 +197,9 @@ public class TradeDetailPanel : FocusableObject
         Show(SourceCharacter, DestinationCharacter);
     }
 
+    /// <summary>
+    /// Information representing an item on the trade menu
+    /// </summary>
     public class TradeMenuItem
     {
         public Item Item;
