@@ -370,5 +370,187 @@ namespace Tests.Characters
 
             yield return null;
         }
+
+        [UnityTest]
+        public IEnumerator CalculateAssistablePositionsTest1()
+        {
+            HashSet<int> ranges = new HashSet<int>();
+            ranges.Add(1);
+            ranges.Add(2);
+
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+
+            HashSet<Vector2> assistablePositions = character.CalculateAssistablePositions(0, 0, ranges);
+            Assert.AreEqual(6, assistablePositions.Count);
+
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator AddExperienceTest1()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+            int currentLevel = character.Level;
+            character.AddExperience(100);
+            Assert.AreEqual(currentLevel + 1, character.Level);
+
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator AddExperienceTest2()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+            character.AddExperience(101);
+
+            LogAssert.Expect(LogType.Error, "Experience cannot be greater than 100: 101");
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// Test to make sure characters don't move on top of each other
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator MoveTest1()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+
+            character.Move(new Vector2(0, 1));
+            LogAssert.Expect(LogType.Error, "Position is already taken: (0.0, 1.0)");
+            yield return null;
+        }
+
+        /// <summary>
+        /// Test to make sure character move actually works
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator MoveTest2()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+
+            character.Move(new Vector2(1, 0));
+
+            Assert.AreEqual(character, GameManager.CurrentLevel.GetCharacter(1, 0));
+            yield return null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator CalculateMovementCostTest1()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+
+            Assert.AreEqual(int.MaxValue, character.CalculateMovementCost(new Vector2(-1, 0)));
+            yield return null;
+        }
+
+        /// <summary>
+        /// Equiping an item that the character does not have in their inventory
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EquipTest1()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+            Item item = IronSword.Create();
+
+            character.Equip(item);
+            LogAssert.Expect(LogType.Error, "Iron Sword does not exist in inventory.");
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// Enemy attacks back
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator AttackTest2()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+
+            GameManager.CurrentLevel.SetCharacter(character, 1, 0);
+
+            character.Attack(GameManager.CurrentLevel.GetCharacter(0, 0));
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// Defending character kills attacking character
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator AttackTest3()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+            character.CurrentHp = 1;
+
+            GameManager.CurrentLevel.SetCharacter(character, 1, 0);
+
+            character.Attack(GameManager.CurrentLevel.GetCharacter(0, 0));
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// Calculate damage with unknown weapon type
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator CalculateDamageTest1()
+        {
+            Character attackCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            Character defenseCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
+
+            Weapon weapon = ScriptableObject.CreateInstance<FakeWeapon>();
+
+            _ = attackCharacter.CalculateDamage(weapon, defenseCharacter);
+            LogAssert.Expect(LogType.Error, "Unknown weapon type: FakeWeapon");
+            yield return null;
+        }
+
+        private class FakeWeapon : Weapon { }
+
+        /// <summary>
+        /// Testing when Character does not have a usable item
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator GetUsableItemTest1()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+            character.Proficiencies.Clear();
+
+            Assert.IsNull(character.GetUsableItem<Attackable>());
+            yield return null;
+        }
+
+        /// <summary>
+        /// Checking to make sure when character has an item's proficiency but is not proficient enough
+        /// then IsProficient returns false.
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator IsProficientTest1()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+            character.Proficiencies.Clear();
+            character.AddProficiency(new Proficiency(typeof(Sword), Proficiency.Rank.A));
+
+            character.Items.Clear();
+            IronLance ironLance = IronLance.Create();
+            ironLance.RequiredProficiencyRank = Proficiency.Rank.S;
+            character.Items.Add(ironLance);
+
+            Assert.False(character.IsProficient(ironLance));
+            yield return null;
+        }
     }
 }

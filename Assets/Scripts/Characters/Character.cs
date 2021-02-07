@@ -105,11 +105,6 @@ public abstract class Character : ManagedMonoBehavior
         CurrentHp = Mathf.Clamp(CurrentHp + hp, 0, MaxHp);
     }
 
-    public List<Transform> CreateMovableTransforms()
-    {
-        return CreateMovableTransforms(CalculateMovablePositions());
-    }
-
     /// <summary>
     /// Creates the movable transforms from the collection of movable positions
     /// </summary>
@@ -268,22 +263,12 @@ public abstract class Character : ManagedMonoBehavior
             return assistablePositions;
         }
 
-        assistablePositions.UnionWith(CalculateAttackablePositions(x + 1, y, range - 1));
-        assistablePositions.UnionWith(CalculateAttackablePositions(x - 1, y, range - 1));
-        assistablePositions.UnionWith(CalculateAttackablePositions(x, y + 1, range - 1));
-        assistablePositions.UnionWith(CalculateAttackablePositions(x, y - 1, range - 1));
+        assistablePositions.UnionWith(CalculateAssistablePositions(x + 1, y, range - 1));
+        assistablePositions.UnionWith(CalculateAssistablePositions(x - 1, y, range - 1));
+        assistablePositions.UnionWith(CalculateAssistablePositions(x, y + 1, range - 1));
+        assistablePositions.UnionWith(CalculateAssistablePositions(x, y - 1, range - 1));
 
         return assistablePositions;
-    }
-
-    public List<Transform> CreateAttackableTransforms(IEnumerable<Vector2> attackablePositions)
-    {
-        foreach (Vector2 attackablePosition in attackablePositions)
-        {
-            AttackableTransforms.Add(Instantiate(GameManager.AttackableSpacePrefab, attackablePosition, Quaternion.identity, GameManager.transform));
-        }
-
-        return AttackableTransforms;
     }
 
     /// <summary>
@@ -514,61 +499,6 @@ public abstract class Character : ManagedMonoBehavior
         DestroyAssistableTransforms();
     }
 
-
-    public List<Transform> GetAssistableTransformsWithCharacters()
-    {
-        DestroyAssistableTransforms();
-
-        foreach (int range in CalculateRanges<Assistable>())
-        {
-            _ = CreateAssistableTransforms(CalculateAttackablePositions(transform.position.x, transform.position.y, range)); ;
-        }
-
-        _ = AssistableTransforms.RemoveAll(staffableTranform =>
-        {
-            Character character = GameManager.CurrentLevel.GetCharacter(staffableTranform.position);
-            if (character == null || !character.Player.Equals(Player))
-            {
-                Destroy(staffableTranform.gameObject);
-                return true;
-            }
-
-            return false;
-        });
-
-        return AssistableTransforms;
-    }
-
-    /// <summary>
-    /// Calculate the attackable spaces that contain characters
-    /// </summary>
-    /// <returns></returns>
-    public List<Transform> GetAttackableTransformsWithCharacters()
-    {
-        DestroyAttackableTransforms();
-        HashSet<int> ranges = CalculateRanges<Attackable>();
-
-        foreach (int range in ranges)
-        {
-            _ = CreateAttackableTransforms(CalculateAttackablePositions(transform.position.x, transform.position.y, range));
-        }
-
-        _ = AttackableTransforms.RemoveAll(attackableSpace =>
-          {
-              Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(attackableSpace.position);
-
-              if (defendingCharacter == null || defendingCharacter.Player.Equals(Player))
-              {
-                  Destroy(attackableSpace.gameObject);
-                  return true;
-              }
-
-              return false;
-          });
-
-        return AttackableTransforms;
-    }
-
     /// <summary>
     /// Get the list of attackable positions that have attackable characters from the provided list of positions
     /// </summary>
@@ -623,7 +553,10 @@ public abstract class Character : ManagedMonoBehavior
             {
                 Debug.LogErrorFormat("{0} does not exist in inventory.", item.Text.text);
             }
-            Items.Insert(0, item);
+            else
+            {
+                Items.Insert(0, item);
+            }
         }
     }
 
@@ -741,7 +674,7 @@ public abstract class Character : ManagedMonoBehavior
         }
 
         int attackHitPercentage = CalculateHitPercentage(this, attackWeapon, defenseCharacter);
-        int attackDamage = CalculateDamage(this, attackWeapon, defenseCharacter);
+        int attackDamage = CalculateDamage(attackWeapon, defenseCharacter);
         int attackCriticalPercentage = CalculateCriticalPercentage(this, attackWeapon, defenseCharacter);
 
         int defenseHitPercentage = 0;
@@ -751,7 +684,7 @@ public abstract class Character : ManagedMonoBehavior
         if (defenseCanAttack)
         {
             defenseHitPercentage = CalculateHitPercentage(defenseCharacter, defenseWeapon, this);
-            defenseDamage = CalculateDamage(defenseCharacter, defenseWeapon, this);
+            defenseDamage = defenseCharacter.CalculateDamage(defenseWeapon, this);
             defenseCriticalPercentage = CalculateCriticalPercentage(defenseCharacter, defenseWeapon, this);
         }
 
@@ -781,20 +714,20 @@ public abstract class Character : ManagedMonoBehavior
     /// <param name="attackWeapon"></param>
     /// <param name="defenseCharacter"></param>
     /// <returns></returns>
-    private int CalculateDamage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
+    public int CalculateDamage(Weapon attackWeapon, Character defenseCharacter)
     {
-        int damage = attackWeapon.CalculateDamage(attackCharacter, defenseCharacter);
+        int damage = attackWeapon.CalculateDamage(this, defenseCharacter);
         if (attackWeapon is StrengthWeapon)
         {
-            damage += attackCharacter.Strength - defenseCharacter.Defense;
+            damage += Strength - defenseCharacter.Defense;
         }
         else if (attackWeapon is Magic)
         {
-            damage += attackCharacter.Magic - defenseCharacter.Resistance;
+            damage += Magic - defenseCharacter.Resistance;
         }
         else
         {
-            Debug.LogError("Unknown weapon type");
+            Debug.LogErrorFormat("Unknown weapon type: {0}", attackWeapon.GetType().Name);
         }
 
         return Mathf.Max(damage, 0);
@@ -851,14 +784,9 @@ public abstract class Character : ManagedMonoBehavior
         foreach (Proficiency proficiency in Proficiencies)
         {
             Debug.LogFormat("Proficiency: {0}", proficiency);
-            if (weapon.GetType().IsSubclassOf(proficiency.type))
+            if (weapon.GetType().IsSubclassOf(proficiency.type) && proficiency.rank >= weapon.RequiredProficiencyRank)
             {
-                Debug.LogFormat("{0} is sub type of {1}", weapon.GetType(), proficiency.type);
-                if (proficiency.rank >= weapon.RequiredProficiencyRank)
-                {
-                    Debug.Log("Yes!");
-                    return true;
-                }
+                return true;
             }
         }
         return false;
