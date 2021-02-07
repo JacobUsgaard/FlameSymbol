@@ -277,9 +277,10 @@ public abstract class Character : ManagedMonoBehavior
     /// <returns></returns>
     public HashSet<Vector2> CalculateTradablePositionsWithCharacters()
     {
+        Debug.LogFormat("CalculateTradablePositionsWithCharacters: {0}", transform.position);
         HashSet<Vector2> tradablePositions = new HashSet<Vector2>();
-        float y = transform.position.x;
-        float x = transform.position.y;
+        float x = transform.position.x;
+        float y = transform.position.y;
 
         tradablePositions.UnionWith(CalculateTradablePositions(x - 1, y));
         tradablePositions.UnionWith(CalculateTradablePositions(x + 1, y));

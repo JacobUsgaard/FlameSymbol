@@ -41,8 +41,20 @@ public class GameManager : MonoBehaviour
     public Menu CharacterActionMenu;
     public CharacterInformationPanel CharacterInformationPanel;
     public Cursor Cursor;
+
+    /// <summary>
+    /// Menu for actions to perform using a specific item
+    /// </summary>
     public Menu ItemActionMenu;
+
+    /// <summary>
+    /// Menu for list of items after 'Items' is selected
+    /// </summary>
     public Menu ItemDetailMenu;
+
+    /// <summary>
+    /// Menu for list of items after 'Attack' or 'Assist' is selected
+    /// </summary>
     public Menu ItemSelectionMenu;
     public Transform MovableSpacePrefab;
     public Transform PathCornerPrefab;

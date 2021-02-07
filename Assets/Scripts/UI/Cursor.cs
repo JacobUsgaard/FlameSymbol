@@ -29,7 +29,8 @@ public class Cursor : FocusableObject
         ChoosingMove,
         ChoosingAssistTarget,
         ChoosingTradeTarget,
-        Free
+        Free,
+        Error
     };
 
     private State currentState;
@@ -43,7 +44,7 @@ public class Cursor : FocusableObject
 
         set
         {
-            Debug.Log("Current state: " + value);
+            Debug.LogFormat("Current state: {0}", value);
             currentState = value;
 
             switch (currentState)
@@ -86,15 +87,6 @@ public class Cursor : FocusableObject
         }
         Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(transform.position);
         GameManager.TerrainInformationPanel.Show(terrain);
-    }
-
-    /// <summary>
-    /// Callback when the user selects 'Info' from the CharacterActionMenu.
-    /// </summary>
-    /// <param name="objects"></param>
-    private void CharacterActionMenuInfo(Object[] objects)
-    {
-        SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
     }
 
     /// <summary>
@@ -191,7 +183,7 @@ public class Cursor : FocusableObject
     private void ItemSelectionMenuOnSelectAttackItem(Object[] objects)
     {
         Item item = GameManager.ItemSelectionMenu.MenuItems[GameManager.ItemSelectionMenu.CurrentMenuItemIndex].ItemObject;
-        Debug.Log("Selected a weapon: " + item.Text.text);
+        Debug.LogFormat("Selected a weapon: {0}", item.Text.text);
         SelectedCharacter.Equip(item);
 
         AttackableSpacesWithCharacters.Clear();
@@ -243,12 +235,15 @@ public class Cursor : FocusableObject
         GameManager.ItemActionMenu.AddMenuItem(item, GameManager.UseTextPrefab, ItemActionMenuUse);
         GameManager.ItemActionMenu.AddMenuItem(item, GameManager.DropTextPrefab, ItemActionMenuDrop);
 
+        GameManager.ItemDetailMenu.Hide();
         GameManager.ItemActionMenu.Show(ItemActionMenuOnCancel);
     }
 
     private void ItemActionMenuOnCancel(Object[] objects)
     {
         GameManager.ItemActionMenu.Hide();
+        CharacterActionMenuItems(objects);
+        //GameManager.ItemDetailMenu.Show(ItemDetailMenuOnCancel);
         GameManager.ItemDetailMenu.Focus();
     }
 
@@ -284,15 +279,7 @@ public class Cursor : FocusableObject
 
     private void ItemActionMenuUse(Object[] objects)
     {
-        Item item = (Item)objects[0];
-
-        SelectedCharacter.Items.Remove(item);
-
-        GameManager.ItemActionMenu.Hide();
-        GameManager.ItemDetailMenu.Hide();
-        SelectedCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
-        Focus();
-        CurrentState = State.Free;
+        throw new System.NotImplementedException();
     }
 
     private void ShowCharacterActionMenu(Character character)
@@ -401,24 +388,11 @@ public class Cursor : FocusableObject
                 break;
 
             default:
-                Debug.LogError("Invalid GameManager.State in OnArrow: " + CurrentState);
+                Debug.LogErrorFormat("Invalid Cursor.State in OnArrow: {0}", CurrentState);
                 break;
         }
     }
 
-    private void OnArrowChoosingTradeTarget(float horizontal, float vertical)
-    {
-        if (TradableSpacesWithCharacters.Count == 0)
-        {
-            return;
-        }
-
-        float direction = Mathf.Max(vertical, horizontal);
-        if (direction != 0f)
-        {
-            SetTradableSpaceWithCharacter((TradableSpacesWithCharactersIndex + TradableSpacesWithCharacters.Count + System.Math.Sign(direction)) % TradableSpacesWithCharacters.Count);
-        }
-    }
     /// <summary>
     /// Shows the movable and attackable positions for the character in the specified position.
     /// </summary>
@@ -517,7 +491,6 @@ public class Cursor : FocusableObject
         }
 
         int direction = System.Math.Sign(Mathf.Abs(vertical) > Mathf.Abs(horizontal) ? vertical : horizontal);
-
         if (direction != 0f)
         {
             SetAttackableSpaceWithCharacter((AttackableSpacesWithCharactersIndex + AttackableSpacesWithCharacters.Count + direction) % AttackableSpacesWithCharacters.Count);
@@ -532,10 +505,23 @@ public class Cursor : FocusableObject
         }
 
         int direction = System.Math.Sign(Mathf.Abs(vertical) > Mathf.Abs(horizontal) ? vertical : horizontal);
-
         if (direction != 0f)
         {
             SetAssistableTransformWithCharacter((AssistableTransformsWithCharactersIndex + AssistableTransformsWithCharacters.Count + direction) % AssistableTransformsWithCharacters.Count);
+        }
+    }
+
+    private void OnArrowChoosingTradeTarget(float horizontal, float vertical)
+    {
+        if (TradableSpacesWithCharacters.Count == 1)
+        {
+            return;
+        }
+
+        int direction = System.Math.Sign(Mathf.Abs(vertical) > Mathf.Abs(horizontal) ? vertical : horizontal);
+        if (direction != 0f)
+        {
+            SetTradableSpaceWithCharacter((TradableSpacesWithCharactersIndex + TradableSpacesWithCharacters.Count + direction) % TradableSpacesWithCharacters.Count);
         }
     }
 
@@ -587,7 +573,7 @@ public class Cursor : FocusableObject
                 break;
 
             default:
-                Debug.LogError("Invalid state: " + CurrentState);
+                Debug.LogErrorFormat("Invalid Cursor.State in OnSubmit: {0}", CurrentState);
                 break;
         }
     }
@@ -597,16 +583,15 @@ public class Cursor : FocusableObject
         Debug.LogFormat("OnSubmitChoosingAssistTarget");
 
         Character defender = GameManager.CurrentLevel.GetCharacter(AssistableTransformsWithCharacters[AssistableTransformsWithCharactersIndex].position);
-        Debug.Log("Defender: " + defender);
+        Debug.LogFormat("Defender: {0}", defender);
 
         Character attacker = SelectedCharacter;
-        Debug.Log("Attacker: " + attacker);
+        Debug.LogFormat("Attacker: {0}", attacker);
 
         attacker.UseAssist(defender);
 
         attacker.DestroyAssistableTransforms();
         GameManager.AssistDetailPanel.Hide();
-        //GameManager.CharacterActionMenu.Hide();
 
         CurrentState = State.Free;
     }
@@ -614,10 +599,10 @@ public class Cursor : FocusableObject
     private void OnSubmitChoosingAttackTarget()
     {
         Character defender = GameManager.CurrentLevel.GetCharacter(AttackableSpacesWithCharacters[AttackableSpacesWithCharactersIndex].position);
-        Debug.Log("Defender: " + defender);
+        Debug.LogFormat("Defender: {0}", defender);
 
         Character attacker = SelectedCharacter;
-        Debug.Log("Attacker: " + attacker);
+        Debug.LogFormat("Attacker: {0}", attacker);
 
         attacker.Attack(defender);
 
@@ -630,7 +615,7 @@ public class Cursor : FocusableObject
 
     private void OnSubmitChoosingMove(Vector2 currentPosition)
     {
-        Debug.Log("OnEnterChoosingMove: " + currentPosition);
+        Debug.LogFormat("OnEnterChoosingMove: {0}", currentPosition);
         foreach (Transform movableSpace in SelectedCharacter.MovableTransforms)
         {
             if (currentPosition.x == movableSpace.position.x && currentPosition.y == movableSpace.position.y)
@@ -662,7 +647,7 @@ public class Cursor : FocusableObject
         {
             if (SelectedCharacter.Player.Equals(GameManager.CurrentPlayer))
             {
-                AttackableRange.Clear();
+                //AttackableRange.Clear();
                 CurrentState = State.ChoosingMove;
                 Path.StartPath(SelectedCharacter);
             }
@@ -686,10 +671,10 @@ public class Cursor : FocusableObject
 
     public override void OnCancel()
     {
+        Debug.LogFormat("OnCancel: {0}", CurrentState);
         switch (CurrentState)
         {
             case State.Free:
-                Debug.Log("Cursor:OnCancel:Free");
                 Character character = GameManager.CurrentLevel.GetCharacter(transform.position);
 
                 if (character != null && AttackableRange.Characters.Contains(character))
@@ -729,7 +714,7 @@ public class Cursor : FocusableObject
                 break;
 
             default:
-                Debug.LogError("Invalid state: " + CurrentState);
+                Debug.LogErrorFormat("Invalid Cursor.State in OnCancel: {0}", CurrentState);
                 break;
         }
     }
@@ -740,15 +725,6 @@ public class Cursor : FocusableObject
         if (CurrentState.Equals(State.Free) && GameManager.CurrentLevel.GetCharacter(transform.position) != null)
         {
             Debug.Log("Loading character information scene");
-            SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
-        }
-    }
-
-    public override void OnRightMouse(Vector2 mousePosition)
-    {
-        Move(mousePosition, false);
-        if (GameManager.CurrentLevel.GetCharacter(mousePosition) != null)
-        {
             SceneManager.LoadScene("Scenes/CharacterInformation", LoadSceneMode.Additive);
         }
     }

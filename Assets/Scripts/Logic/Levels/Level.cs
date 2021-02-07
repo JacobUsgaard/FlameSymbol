@@ -191,10 +191,10 @@ public abstract class Level : ManagedScriptableObject
         return GetTerrain(position.x, position.y);
     }
 
-    protected Character Create<Character>(Transform original)
+    public C Create<C>(Transform original) where C : MonoBehaviour
     {
         Component copy = Instantiate(original, GameManager.transform);
-        return copy.GetComponent<Character>();
+        return copy.GetComponent<C>();
     }
 
     /// <summary>
