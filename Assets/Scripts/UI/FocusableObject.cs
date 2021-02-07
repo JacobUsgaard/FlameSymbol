@@ -8,11 +8,20 @@ public abstract class FocusableObject : ManagedMonoBehavior
         Debug.Log("Focus: " + CurrentObject);
     }
 
-    public abstract void OnArrow(float horizontal, float vertical);
+    public virtual void OnArrow(float horizontal, float vertical)
+    {
+        throw new System.NotImplementedException();
+    }
 
-    public abstract void OnSubmit();
+    public virtual void OnSubmit()
+    {
+        throw new System.NotImplementedException();
+    }
 
-    public abstract void OnCancel();
+    public virtual void OnCancel()
+    {
+        throw new System.NotImplementedException();
+    }
 
     public virtual void OnInformation()
     {
