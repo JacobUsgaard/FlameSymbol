@@ -22,20 +22,10 @@ public class CharacterInformationScene : FocusableObject
     public Scrollbar ItemScrollbar;
     public Scrollbar ProficiencyScrollbar;
 
-    public override void OnArrow(float horizontal, float vertical)
-    {
-
-    }
-
     public override void OnCancel()
     {
         SceneManager.UnloadSceneAsync("Scenes/CharacterInformation");
         GameManager.Cursor.CharacterInformationSceneOnCancel();
-    }
-
-    public override void OnSubmit()
-    {
-
     }
 
     void Awake()
@@ -84,6 +74,5 @@ public class CharacterInformationScene : FocusableObject
             Debug.LogFormat("Added proficiency: {0}", proficiency);
         }
         ProficiencyScrollbar.value = 1;
-
     }
 }
