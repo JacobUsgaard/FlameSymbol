@@ -30,6 +30,8 @@ public class AssistDetailPanel : ManagedMonoBehavior
 
     public void Show(Character attackCharacter, Character defenseCharacter)
     {
+        Debug.LogFormat("{0} assisting {1}", attackCharacter.CharacterName, defenseCharacter.CharacterName);
+
         AttackNameText.text = attackCharacter.CharacterName;
         DefenseNameText.text = defenseCharacter.CharacterName;
 
