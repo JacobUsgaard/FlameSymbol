@@ -62,9 +62,25 @@ namespace Tests
             yield return null;
         }
 
+        public IEnumerator Cancel()
+        {
+            yield return Cancel(FocusableObject.CurrentObject);
+        }
+
         public IEnumerator Cancel(FocusableObject focusableObject)
         {
             focusableObject.OnCancel();
+            yield return null;
+        }
+
+        public IEnumerator Information()
+        {
+            yield return Information(FocusableObject.CurrentObject);
+        }
+
+        public IEnumerator Information(FocusableObject focusableObject)
+        {
+            focusableObject.OnInformation();
             yield return null;
         }
 
