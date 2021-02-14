@@ -24,7 +24,7 @@ public abstract class Item : ManagedScriptableObject
         UsesRemaining--;
         if (UsesRemaining < 0)
         {
-            Debug.LogErrorFormat("Item {0} cannot have negative uses remaining.", name);
+            Debug.LogErrorFormat("Item {0} cannot have negative uses remaining.", Text.text);
         }
         else if (UsesRemaining == 0)
         {
@@ -34,7 +34,7 @@ public abstract class Item : ManagedScriptableObject
 
     public virtual void Break()
     {
-        Debug.LogFormat("Breaking {0}", name);
+        Debug.LogFormat("Breaking {0}", Text.text);
         Destroy(Text);
     }
 }
