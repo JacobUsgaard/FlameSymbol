@@ -116,6 +116,11 @@ public class Menu : FocusableObject
         CancelCallback();
     }
 
+    public override void OnInformation()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public class MenuItem<Item>
     {
         protected readonly Item itemObject;

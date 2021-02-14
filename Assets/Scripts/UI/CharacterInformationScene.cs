@@ -22,10 +22,25 @@ public class CharacterInformationScene : FocusableObject
     public Scrollbar ItemScrollbar;
     public Scrollbar ProficiencyScrollbar;
 
+    public override void OnArrow(float horizontal, float vertical)
+    {
+        Debug.LogFormat("CharacterInformationScene.OnArrow not implemented");
+    }
+
     public override void OnCancel()
     {
         SceneManager.UnloadSceneAsync("Scenes/CharacterInformation");
         GameManager.Cursor.CharacterInformationSceneOnCancel();
+    }
+
+    public override void OnInformation()
+    {
+        Debug.LogFormat("CharacterInformationScene.OnInformation not implemented");
+    }
+
+    public override void OnSubmit()
+    {
+        Debug.LogFormat("CharacterInformationScene.OnSubmit not implemented");
     }
 
     void Awake()

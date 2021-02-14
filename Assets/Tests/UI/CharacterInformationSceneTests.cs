@@ -27,5 +27,67 @@ namespace Tests.UI
 
             LogAssert.Expect(LogType.Error, "Failed to find character");
         }
+
+        /// <summary>
+        /// Given: The CharacterInformationScene is loaded
+        ///     And: The CharacterInformationScene is in focus
+        /// When: The arrow button is pressed
+        /// Then: A message is logged
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator OnArrowTest()
+        {
+
+            yield return Information();
+
+            Scene scene = SceneManager.GetSceneByName("CharacterInformation");
+
+            Assert.AreEqual(typeof(CharacterInformationScene), FocusableObject.CurrentObject.GetType());
+            Assert.True(scene.isLoaded);
+
+            yield return DownArrow();
+            LogAssert.Expect(LogType.Log, "CharacterInformationScene.OnArrow not implemented");
+        }
+
+        /// <summary>
+        /// Given: The CharacterInformationScene is loaded
+        ///     And: The CharacterInformationScene is in focus
+        /// When: The Information button is pressed
+        /// Then: A message is logged
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator OnInformationTest()
+        {
+            yield return Information();
+
+            Assert.AreEqual(typeof(CharacterInformationScene), FocusableObject.CurrentObject.GetType());
+            Scene scene = SceneManager.GetSceneByName("CharacterInformation");
+            Assert.True(scene.isLoaded);
+
+            yield return Information();
+            LogAssert.Expect(LogType.Log, "CharacterInformationScene.OnInformation not implemented");
+        }
+
+        /// <summary>
+        /// Given: The CharacterInformationScene is loaded
+        ///     And: The CharacterInformationScene is in focus
+        /// When: The Submit button is pressed
+        /// Then: A message is logged
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator OnSubmitTest()
+        {
+            yield return Information();
+
+            Assert.AreEqual(typeof(CharacterInformationScene), FocusableObject.CurrentObject.GetType());
+            Scene scene = SceneManager.GetSceneByName("CharacterInformation");
+            Assert.True(scene.isLoaded);
+
+            yield return Submit();
+            LogAssert.Expect(LogType.Log, "CharacterInformationScene.OnSubmit not implemented");
+        }
     }
 }

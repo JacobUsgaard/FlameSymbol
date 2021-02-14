@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Handles are game play aspects.
+/// Handles all game play aspects.
 /// 
 /// Initializes/loads game. Maintains all prefabs including menus, terrains, and UI texts. Directs input to correct handler.
 /// </summary>

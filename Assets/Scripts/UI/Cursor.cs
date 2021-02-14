@@ -3,10 +3,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UI;
 
+/// <summary>
+/// The cursor that handles user input
+/// </summary>
 public class Cursor : FocusableObject
 {
-    public static readonly float cursorSpeed = 10f;
-
     public int AttackableSpacesWithCharactersIndex { get; private set; } = 0;
     public List<Transform> AttackableSpacesWithCharacters { get; } = new List<Transform>();
 

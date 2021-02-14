@@ -19,10 +19,10 @@ namespace Tests.Characters
             yield return MoveCursor(2, 2);
 
             // Select Character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // Select Move
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // Attack is in the list of actions
             Assert.True(GameManager.CharacterActionMenu.MenuItems.Exists((Menu.MenuItem<Item> obj) => { return obj.DisplayText.text.Contains("Attack"); })); ; ;
@@ -42,7 +42,7 @@ namespace Tests.Characters
             Assert.AreEqual(4, GameManager.Cursor.AttackableSpacesWithCharacters.Count);
 
             // Select Character to attack
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             Character character = GameManager.CurrentLevel.GetCharacter(1, 2);
             Assert.AreNotEqual(character.MaxHp, character.CurrentHp);
@@ -59,9 +59,9 @@ namespace Tests.Characters
 
             yield return MoveCursor(2, 2);
 
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             GameManager.CharacterActionMenu.OnSubmit();
             yield return null;
@@ -69,12 +69,12 @@ namespace Tests.Characters
             GameManager.ItemSelectionMenu.OnSubmit();
             yield return null;
 
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             yield return MoveCursor(2, 2);
 
-            yield return Enter(GameManager.Cursor);
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             GameManager.CharacterActionMenu.OnSubmit();
             yield return null;
@@ -82,7 +82,7 @@ namespace Tests.Characters
             GameManager.ItemSelectionMenu.OnSubmit();
             yield return null;
 
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             Assert.IsNull(GameManager.CurrentLevel.GetCharacter(1, 2));
 
@@ -142,9 +142,9 @@ namespace Tests.Characters
 
             yield return MoveCursor(2, 2);
 
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             Assert.IsNotEmpty(GameManager.CharacterActionMenu.MenuItems);
 
@@ -169,10 +169,10 @@ namespace Tests.Characters
             yield return MoveCursor(2, 2);
 
             // select character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // select move
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // select Assist
             GameManager.CharacterActionMenu.OnSubmit();
@@ -223,10 +223,10 @@ namespace Tests.Characters
             yield return MoveCursor(2, 2);
 
             // select character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // select move
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
             Assert.True(GameManager.CharacterActionMenu.IsInFocus());
 
             // select trade
@@ -234,7 +234,7 @@ namespace Tests.Characters
             Assert.AreEqual(Cursor.State.ChoosingTradeTarget, GameManager.Cursor.CurrentState);
 
             // select trading character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
             Assert.True(GameManager.TradeDetailPanel.IsInFocus());
 
             Assert.AreEqual(sourceCharacter.CharacterName, GameManager.TradeDetailPanel.SourceText.text);
@@ -270,19 +270,19 @@ namespace Tests.Characters
             yield return MoveCursor(2, 2);
 
             // select character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // select move
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // select trade
             yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Enter(GameManager.CharacterActionMenu);
+            yield return Submit(GameManager.CharacterActionMenu);
 
             // select trading character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
-            yield return Enter(GameManager.TradeDetailPanel);
+            yield return Submit(GameManager.TradeDetailPanel);
             Assert.AreEqual(1, sourceCharacter.Items.Count);
             Assert.AreEqual(2, targetCharacter.Items.Count);
 
@@ -308,7 +308,7 @@ namespace Tests.Characters
             yield return RightArrow(GameManager.TradeDetailPanel);
             Assert.AreEqual(TradeDetailPanel.Side.DESTINATION, GameManager.TradeDetailPanel.CurrentSide);
 
-            yield return Enter(GameManager.TradeDetailPanel);
+            yield return Submit(GameManager.TradeDetailPanel);
             Assert.AreEqual(2, sourceCharacter.Items.Count);
             Assert.AreEqual(1, targetCharacter.Items.Count);
         }
@@ -333,17 +333,17 @@ namespace Tests.Characters
             yield return MoveCursor(2, 2);
 
             // select character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // select move
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             // select trade
             yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Enter(GameManager.CharacterActionMenu);
+            yield return Submit(GameManager.CharacterActionMenu);
 
             // select trading character
-            yield return Enter(GameManager.Cursor);
+            yield return Submit(GameManager.Cursor);
 
             yield return Cancel(GameManager.TradeDetailPanel);
             Assert.False(GameManager.TradeDetailPanel.IsInFocus());

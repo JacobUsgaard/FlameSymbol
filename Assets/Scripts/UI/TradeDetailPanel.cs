@@ -197,6 +197,11 @@ public class TradeDetailPanel : FocusableObject
         Show(SourceCharacter, DestinationCharacter);
     }
 
+    public override void OnInformation()
+    {
+        throw new System.NotImplementedException();
+    }
+
     /// <summary>
     /// Information representing an item on the trade menu
     /// </summary>
