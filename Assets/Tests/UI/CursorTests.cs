@@ -756,7 +756,7 @@ namespace Tests.UI
             // Adding second character
             Character target = GameManager.CurrentLevel.Create<Character>(GameManager.WizardPrefab);
             target.Player = GameManager.CurrentLevel.HumanPlayer;
-            GameManager.CurrentLevel.DrawCharacter(target, 3, 0);
+            GameManager.CurrentLevel.AddCharacter(target, 3, 0);
 
             yield return MoveCursor(3, 1);
 
@@ -823,7 +823,7 @@ namespace Tests.UI
             // Adding second character
             Character target = GameManager.CurrentLevel.Create<Character>(GameManager.WizardPrefab);
             target.Player = GameManager.CurrentLevel.HumanPlayer;
-            GameManager.CurrentLevel.DrawCharacter(target, 3, 0);
+            GameManager.CurrentLevel.AddCharacter(target, 3, 0);
 
             yield return MoveCursor(3, 1);
 

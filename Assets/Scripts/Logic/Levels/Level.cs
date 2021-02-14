@@ -12,21 +12,21 @@ public abstract class Level : ManagedScriptableObject
 
     public static readonly string CharacterColorTag = "CharacterColor";
 
+    /// <summary>
+    /// Draw the character at the specified position
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
     public void DrawCharacter(Character character, int x, int y)
     {
-        if (CharacterMap[x, y] != null)
-        {
-            Debug.LogErrorFormat("Character, {1}, already exists at ({2}, {3})", character.name, x, y);
-            return;
-        }
-
-        CharacterMap[x, y] = character;
         SpriteRenderer spriteRenderer = FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, CharacterColorTag);
         Debug.LogFormat("Sprite Renderer: {0}", spriteRenderer);
 
         if (spriteRenderer == null)
         {
-            Debug.LogErrorFormat("Character {0} at {1} does not have sprite renderer with tag '{2}'", character.name, new Vector2(x, y), "CharacterColor");
+            Debug.LogErrorFormat("Character {0} at {1} does not have sprite renderer with tag '{2}'", character.name, new Vector2(x, y), CharacterColorTag);
+            return;
         }
 
         spriteRenderer.color = character.Player.Color;
@@ -35,7 +35,14 @@ public abstract class Level : ManagedScriptableObject
 
     public void AddCharacter(Character character, int x, int y)
     {
+        if (CharacterMap[x, y] != null)
+        {
+            Debug.LogErrorFormat("Character, {0}, already exists at ({1}, {2})", character.CharacterName, x, y);
+            return;
+        }
 
+        CharacterMap[x, y] = character;
+        DrawCharacter(character, x, y);
     }
 
     public void Init(GameManager gameManager, Player humanPlayer, Player aiPlayer)
@@ -61,16 +68,7 @@ public abstract class Level : ManagedScriptableObject
                 Character character = CharacterMap[x, y];
                 if (character != null)
                 {
-                    SpriteRenderer spriteRenderer = FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, CharacterColorTag);
-                    Debug.LogFormat("Sprite Renderer: {0}", spriteRenderer);
-
-                    if (spriteRenderer == null)
-                    {
-                        Debug.LogErrorFormat("Character {0} at {1} does not have sprite renderer with tag '{2}'", character.name, new Vector2(x, y), "CharacterColor");
-                    }
-
-                    spriteRenderer.color = character.Player.Color;
-                    character.transform.position = new Vector2(x, y);
+                    DrawCharacter(character, x, y);
                 }
             }
         }
@@ -151,7 +149,8 @@ public abstract class Level : ManagedScriptableObject
     {
         if (IsOutOfBounds(x, y))
         {
-            Debug.LogError("Position is out of bounds: (" + x + "," + y + ")");
+            Debug.LogErrorFormat("Position is out of bounds: ({0},{1})", x, y);
+            return;
         }
 
         CharacterMap[(int)x, (int)y] = character;
@@ -203,34 +202,11 @@ public abstract class Level : ManagedScriptableObject
     /// </summary>
     protected abstract void Init();
 
-    public virtual Level GetNextLevel()
-    {
-        return this;
-    }
-
     /// <summary>
     /// Whether or not the level is complete
     /// </summary>
     /// <returns>True if the level is over. False if not.</returns>
     public abstract bool IsLevelOver();
-
-    public ICollection<Character> GetCharacters(Player player)
-    {
-        List<Character> characters = new List<Character>();
-        for (int x = 0; x < CharacterMap.GetLength(0); x++)
-        {
-            for (int y = 0; y < CharacterMap.GetLength(1); y++)
-            {
-                Character character = CharacterMap[x, y];
-                if (character != null)
-                {
-                    characters.Add(character);
-                }
-            }
-        }
-        Debug.LogFormat("Characters found: {0}", characters.Count);
-        return characters;
-    }
 
     public ICollection<Character> GetCharacters()
     {
