@@ -199,7 +199,7 @@ public class TradeDetailPanel : FocusableObject
 
     public override void OnInformation()
     {
-        throw new System.NotImplementedException();
+        Debug.LogFormat("TradeDetailPanel.OnInformation is not implemented");
     }
 
     /// <summary>
