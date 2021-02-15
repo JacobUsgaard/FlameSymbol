@@ -87,6 +87,7 @@ public class Menu : FocusableObject
     {
         if (index < 0 || index >= MenuItems.Count)
         {
+            Debug.LogErrorFormat("Invalid menu index: {0}", index);
             return;
         }
 
@@ -118,54 +119,22 @@ public class Menu : FocusableObject
 
     public override void OnInformation()
     {
-        throw new System.NotImplementedException();
+        Debug.LogFormat("Menu.OnArrow not implemented");
     }
 
     public class MenuItem<Item>
     {
-        protected readonly Item itemObject;
-        protected readonly GameManager.Callback menuItemCallback;
-        protected readonly Menu menu;
-        protected readonly Text displayText;
+        public Item ItemObject { get; private set; }
+        public GameManager.Callback MenuItemCallback { get; private set; }
+        public Menu Menu { get; private set; }
+        public Text DisplayText { get; private set; }
 
         public MenuItem(Item itemObject, Text displayText, GameManager.Callback callback, Menu menu)
         {
-            this.itemObject = itemObject;
-            this.displayText = Instantiate(displayText, menu.transform);
-            menuItemCallback = callback;
-            this.menu = menu;
-        }
-
-        public Item ItemObject
-        {
-            get
-            {
-                return itemObject;
-            }
-        }
-
-        public GameManager.Callback MenuItemCallback
-        {
-            get
-            {
-                return menuItemCallback;
-            }
-        }
-
-        public Menu Menu
-        {
-            get
-            {
-                return menu;
-            }
-        }
-
-        public Text DisplayText
-        {
-            get
-            {
-                return displayText;
-            }
+            ItemObject = itemObject;
+            DisplayText = Instantiate(displayText, menu.transform);
+            MenuItemCallback = callback;
+            Menu = menu;
         }
     }
 }
