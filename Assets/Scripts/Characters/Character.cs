@@ -48,7 +48,7 @@ public abstract class Character : ManagedMonoBehavior
     {
         foreach (Proficiency p in Proficiencies)
         {
-            if (p.type.Equals(proficiency.type))
+            if (p.Type.Equals(proficiency.Type))
             {
                 Proficiencies.Remove(p);
                 break;
@@ -785,7 +785,7 @@ public abstract class Character : ManagedMonoBehavior
         foreach (Proficiency proficiency in Proficiencies)
         {
             Debug.LogFormat("Proficiency: {0}", proficiency);
-            if (weapon.GetType().IsSubclassOf(proficiency.type) && proficiency.rank >= weapon.RequiredProficiencyRank)
+            if (weapon.GetType().IsSubclassOf(proficiency.Type) && proficiency.ProficiencyRank >= weapon.RequiredProficiencyRank)
             {
                 return true;
             }
