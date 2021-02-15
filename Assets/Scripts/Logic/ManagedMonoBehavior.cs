@@ -11,7 +11,7 @@ public class ManagedMonoBehavior : MonoBehaviour
         GameManager = gameManager;
     }
 
-    public void DestroyAll(ICollection<Transform> transforms = default(List<Transform>))
+    public static void DestroyAll(ICollection<Transform> transforms = default(List<Transform>))
     {
         foreach (Transform transform in transforms)
         {
