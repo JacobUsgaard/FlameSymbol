@@ -13,10 +13,5 @@ namespace Terrain
         {
             return true;
         }
-
-        public bool IsPassable(Character character, Vector2 position)
-        {
-            return IsPassable(character, position.x, position.y);
-        }
     }
 }
