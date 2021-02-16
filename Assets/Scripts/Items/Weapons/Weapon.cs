@@ -63,7 +63,7 @@ public abstract class Weapon : Item
         return false;
     }
 
-    private bool IsInRange(float startX, float startY, float endX, float endY, int currentRange)
+    public static bool IsInRange(float startX, float startY, float endX, float endY, int currentRange)
     {
         if (currentRange < 0)
         {

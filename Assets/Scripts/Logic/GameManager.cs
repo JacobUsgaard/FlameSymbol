@@ -10,6 +10,9 @@ using UnityEngine.UI;
 /// </summary>
 public class GameManager : MonoBehaviour
 {
+    public static readonly string SceneNameMainMenu = "MainMenu";
+    public static readonly string SceneNameFlameSymbol = "FlameSymbol";
+
     [Header("Characters")]
     public Transform KnightPrefab;
     public Transform WizardPrefab;
@@ -82,8 +85,7 @@ public class GameManager : MonoBehaviour
     private Player HumanPlayer;
     private AIPlayer AiPlayer;
 
-    public static readonly string SceneNameMainMenu = "MainMenu";
-    public static readonly string SceneNameFlameSymbol = "FlameSymbol";
+    public Player CurrentPlayer { get; set; }
 
     public Level CurrentLevel
     {
@@ -284,5 +286,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public Player CurrentPlayer { get; set; }
+    public static void DestroyAll(ICollection<Transform> transforms = default(List<Transform>))
+    {
+        foreach (Transform transform in transforms)
+        {
+            Destroy(transform.gameObject);
+        }
+
+        transforms.Clear();
+    }
 }

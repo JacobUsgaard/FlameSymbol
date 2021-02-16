@@ -509,14 +509,12 @@ namespace Tests.Characters
             Character attackCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
             Character defenseCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
 
-            Weapon weapon = ScriptableObject.CreateInstance<FakeWeapon>();
+            Weapon weapon = ScriptableObject.CreateInstance<Tests.Items.Weapons.WeaponTests.FakeWeapon>();
 
             _ = attackCharacter.CalculateDamage(weapon, defenseCharacter);
             LogAssert.Expect(LogType.Error, "Unknown weapon type: FakeWeapon");
             yield return null;
         }
-
-        private class FakeWeapon : Weapon { }
 
         /// <summary>
         /// Testing when Character does not have a usable item

@@ -9,7 +9,6 @@ namespace Tests.UI
 {
     public class PathTests : GameManagerTest
     {
-
         [Test]
         public void GetDistanceTest1()
         {
@@ -164,13 +163,39 @@ namespace Tests.UI
             Assert.AreEqual(2, path.Positions.Count);
         }
 
+        /// <summary>
+        /// Given: Character is choosing move
+        ///     And: Path is full
+        /// When: Cursor is moved to a position in movable positions but not already in Path
+        /// Then: Path is recalculated
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator RecalculateTest9()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+
+            yield return MoveCursor(2, 2);
+            yield return Submit();
+            yield return DownArrow();
+            yield return RightArrow();
+            yield return DownArrow();
+
+            Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
+            Assert.AreEqual(character.Moves + 1, GameManager.Cursor.Path.Positions.Count);
+
+            yield return LeftArrow();
+
+            Assert.AreNotEqual(character.Moves + 1, GameManager.Cursor.Path.Positions.Count);
+        }
+
         [UnityTest]
         public IEnumerator CalculatePathTest1()
         {
             yield return null;
 
             yield return MoveCursor(2, 2);
-            GameManager.Cursor.OnSubmit();
+            yield return Submit();
 
             Path path = GameManager.Cursor.Path;
 
@@ -179,6 +204,133 @@ namespace Tests.UI
             List<Vector2> positions = path.CalculatePath(new Vector2(2, 2), new Vector2(1, 1), 3);
             Debug.LogFormat("Positions: {0}", string.Join(",", positions));
             Assert.AreEqual(3, positions.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator CalculatePathTest2()
+        {
+            yield return MoveCursor(2, 1);
+            yield return Submit();
+            yield return UpArrow();
+
+            Assert.AreEqual(2, GameManager.Cursor.Path.Positions.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator CalculatePathTest3()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 1);
+            yield return MoveCursor(2, 1);
+            yield return Submit();
+            yield return RightArrow();
+            yield return DownArrow();
+            yield return LeftArrow();
+
+            Assert.AreEqual(character.Moves + 1, GameManager.Cursor.Path.Positions.Count);
+
+            yield return LeftArrow();
+
+            Assert.AreNotEqual(character.Moves + 1, GameManager.Cursor.Path.Positions.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator CalculatePathTest4()
+        {
+            yield return MoveCursor(2, 1);
+            yield return Submit();
+
+            List<Vector2> positions = GameManager.Cursor.Path.CalculatePath(new Vector2(2, 1), new Vector2(3, 1), 3);
+            Assert.AreEqual(2, positions.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator CalculatePathTest5()
+        {
+            yield return MoveCursor(2, 1);
+            yield return Submit();
+
+            List<Vector2> positions = GameManager.Cursor.Path.CalculatePath(new Vector2(2, 1), new Vector2(2, 2), 3);
+            Assert.AreEqual(2, positions.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator CalculatePathTest6()
+        {
+            yield return MoveCursor(2, 1);
+            yield return Submit();
+
+            GameManager.Cursor.Path.Positions.Clear();
+            GameManager.Cursor.Path.Redraw();
+
+            LogAssert.Expect(LogType.Error, "Invalid number of path positions: 0");
+        }
+
+        [UnityTest]
+        public IEnumerator CalculatePathTest7()
+        {
+            GameManager.CurrentLevel.SetCharacter(GameManager.CurrentLevel.GetCharacter(2, 1), 3, 0);
+
+            yield return MoveCursor(2, 1);
+            yield return Submit();
+
+            GameManager.Cursor.Path.Positions.Clear();
+            GameManager.Cursor.Path.Redraw();
+
+            LogAssert.Expect(LogType.Error, "Invalid number of path positions: 0");
+        }
+
+        [UnityTest]
+        public IEnumerator RedrawTest1()
+        {
+            GameManager.CurrentLevel.SetCharacter(GameManager.CurrentLevel.GetCharacter(2, 1), 3, 0);
+
+            yield return MoveCursor(3, 0);
+            yield return Submit();
+
+            yield return LeftArrow();
+            yield return LeftArrow();
+            yield return UpArrow();
+            yield return RightArrow();
+            yield return RightArrow();
+            yield return UpArrow();
+        }
+
+        [UnityTest]
+        public IEnumerator RedrawTest2()
+        {
+            GameManager.CurrentLevel.SetCharacter(GameManager.CurrentLevel.GetCharacter(2, 1), 2, 0);
+
+            yield return MoveCursor(2, 0);
+            yield return Submit();
+
+            yield return UpArrow();
+            yield return UpArrow();
+            yield return DownArrow();
+            yield return LeftArrow();
+            yield return RightArrow();
+            yield return RightArrow();
+        }
+
+        [UnityTest]
+        public IEnumerator RedrawTest3()
+        {
+            yield return MoveCursor(2, 2);
+
+            GameManager.Cursor.Path.Positions.Clear();
+            GameManager.Cursor.Path.Positions.AddRange(new List<Vector2>() {
+                new Vector2(0, 0), new Vector2(2, 2), new Vector2(2, 1)
+            });
+
+            GameManager.Cursor.Path.Redraw();
+            LogAssert.Expect(LogType.Error, "Invalid movement previous: (0.0, 0.0), current: (2.0, 2.0), next: (2.0, 1.0)");
+        }
+
+        [Test]
+        public void RotatePathEndTest1()
+        {
+            Path path = ScriptableObject.CreateInstance<Path>();
+            path.RotatePathEnd(null, new Vector2(0, 0), new Vector2(2, 0));
+            LogAssert.Expect(LogType.Error, "Distance too far. Start: (0.0, 0.0), End: (2.0, 0.0)");
         }
     }
 }

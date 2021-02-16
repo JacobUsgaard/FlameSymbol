@@ -20,7 +20,7 @@ public class AttackableRange : ManagedScriptableObject
     private void CreateAttackableTransforms()
     {
         Debug.LogFormat("Creating attackable transforms");
-        DeleteAll(AttackableTransforms);
+        Clear();
         HashSet<Vector2> positions = new HashSet<Vector2>();
         foreach (Character character in Characters)
         {
@@ -41,7 +41,6 @@ public class AttackableRange : ManagedScriptableObject
 
     public void Clear()
     {
-        DeleteAll(AttackableTransforms);
-        Characters.Clear();
+        GameManager.DestroyAll(AttackableTransforms);
     }
 }
