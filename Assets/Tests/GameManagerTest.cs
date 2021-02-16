@@ -1,9 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using Logic;
 using NUnit.Framework;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using Cursor = UI.Cursor;
 
 namespace Tests
 {
@@ -32,10 +34,20 @@ namespace Tests
             Object.Destroy(GameManager.gameObject);
         }
 
+        public IEnumerator DownArrow()
+        {
+            yield return DownArrow(FocusableObject.CurrentObject);
+        }
+
         public IEnumerator DownArrow(FocusableObject focusableObject)
         {
             focusableObject.OnArrow(0, -1);
             yield return null;
+        }
+
+        public IEnumerator UpArrow()
+        {
+            yield return UpArrow(FocusableObject.CurrentObject);
         }
 
         public IEnumerator UpArrow(FocusableObject focusableObject)
@@ -44,10 +56,20 @@ namespace Tests
             yield return null;
         }
 
+        public IEnumerator RightArrow()
+        {
+            yield return RightArrow(FocusableObject.CurrentObject);
+        }
+
         public IEnumerator RightArrow(FocusableObject focusableObject)
         {
             focusableObject.OnArrow(1, 0);
             yield return null;
+        }
+
+        public IEnumerator LeftArrow()
+        {
+            yield return LeftArrow(FocusableObject.CurrentObject);
         }
 
         public IEnumerator LeftArrow(FocusableObject focusableObject)
@@ -56,15 +78,36 @@ namespace Tests
             yield return null;
         }
 
-        public IEnumerator Enter(FocusableObject focusableObject)
+        public IEnumerator Submit()
+        {
+            yield return Submit(FocusableObject.CurrentObject);
+        }
+
+        public IEnumerator Submit(FocusableObject focusableObject)
         {
             focusableObject.OnSubmit();
             yield return null;
         }
 
+        public IEnumerator Cancel()
+        {
+            yield return Cancel(FocusableObject.CurrentObject);
+        }
+
         public IEnumerator Cancel(FocusableObject focusableObject)
         {
             focusableObject.OnCancel();
+            yield return null;
+        }
+
+        public IEnumerator Information()
+        {
+            yield return Information(FocusableObject.CurrentObject);
+        }
+
+        public IEnumerator Information(FocusableObject focusableObject)
+        {
+            focusableObject.OnInformation();
             yield return null;
         }
 

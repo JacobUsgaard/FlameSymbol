@@ -1,1 +1,4 @@
-public abstract class Magic : Attackable { }
+namespace Items.Weapons.Attackable.Magic
+{
+    public abstract class Magic : Attackable { }
+}

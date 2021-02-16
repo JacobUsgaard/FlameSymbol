@@ -1,23 +1,14 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class ManagedMonoBehavior : MonoBehaviour
+namespace Logic
 {
-
-    public static GameManager GameManager { get; set; }
-
-    public static void Initialize(GameManager gameManager)
+    public class ManagedMonoBehavior : MonoBehaviour
     {
-        GameManager = gameManager;
-    }
+        public static GameManager GameManager { get; set; }
 
-    public void DestroyAll(ICollection<Transform> transforms = default(List<Transform>))
-    {
-        foreach (Transform transform in transforms)
+        public static void Initialize(GameManager gameManager)
         {
-            Destroy(transform.gameObject);
+            GameManager = gameManager;
         }
-
-        transforms.Clear();
     }
 }

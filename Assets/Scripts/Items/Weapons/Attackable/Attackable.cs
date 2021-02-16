@@ -1,1 +1,4 @@
-﻿public class Attackable : Weapon { }
+﻿namespace Items.Weapons.Attackable
+{
+    public class Attackable : Weapon { }
+}

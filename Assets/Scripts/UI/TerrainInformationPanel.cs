@@ -1,34 +1,38 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TerrainInformationPanel : MonoBehaviour
+namespace UI
 {
 
-    public Text TerrainNameText;
-    public Text HitPercentageText;
-    public Text DefenseText;
-    public Text MovementCostText;
-
-    public void Show(Terrain.Terrain terrain)
+    public class TerrainInformationPanel : MonoBehaviour
     {
-        TerrainNameText.text = terrain.DisplayName;
-        HitPercentageText.text = "Hit: " + terrain.HitPercentage + "%";
-        DefenseText.text = "Def: " + terrain.DefensePercentage + "%";
-        MovementCostText.text = "Move: " + terrain.MovementCost;
 
-        transform.position = new Vector2(terrain.transform.position.x, terrain.transform.position.y + 1);
+        public Text TerrainNameText;
+        public Text HitPercentageText;
+        public Text DefenseText;
+        public Text MovementCostText;
 
-        if (!transform.gameObject.activeSelf)
+        public void Show(Terrain.Terrain terrain)
         {
-            transform.gameObject.SetActive(true);
+            TerrainNameText.text = terrain.DisplayName;
+            HitPercentageText.text = "Hit: " + terrain.HitPercentage + "%";
+            DefenseText.text = "Def: " + terrain.DefensePercentage + "%";
+            MovementCostText.text = "Move: " + terrain.MovementCost;
+
+            transform.position = new Vector2(terrain.transform.position.x, terrain.transform.position.y + 1);
+
+            if (!transform.gameObject.activeSelf)
+            {
+                transform.gameObject.SetActive(true);
+            }
         }
-    }
 
-    public void Hide()
-    {
-        if (transform.gameObject.activeSelf)
+        public void Hide()
         {
-            transform.gameObject.SetActive(false);
+            if (transform.gameObject.activeSelf)
+            {
+                transform.gameObject.SetActive(false);
+            }
         }
     }
 }

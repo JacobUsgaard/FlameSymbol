@@ -1,16 +1,21 @@
-public class Fire : FireMagic
-{
-    private Fire() { }
+using Characters;
 
-    public static Fire Create()
+namespace Items.Weapons.Attackable.Magic.FireMagic
+{
+    public class Fire : FireMagic
     {
-        return CreateInstance<Fire>(
-            text: Instantiate(GameManager.FireTextPrefab),
-            uses: 30,
-            rank: Proficiency.Rank.E,
-            hitPercentage: 100,
-            damage: 10,
-            criticalPercentage: 3,
-            ranges: new int[] { 1, 2 });
+        private Fire() { }
+
+        public static Fire Create()
+        {
+            return CreateInstance<Fire>(
+                text: Instantiate(GameManager.FireTextPrefab),
+                uses: 30,
+                rank: Proficiency.Rank.E,
+                hitPercentage: 100,
+                damage: 10,
+                criticalPercentage: 3,
+                ranges: new int[] { 1, 2 });
+        }
     }
 }

@@ -1,14 +1,15 @@
 ﻿using System.Collections;
+using Logic;
 using NUnit.Framework;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Tests
+namespace Tests.UI
 {
     public class MainMenuTests
     {
-
         private MainMenu MainMenu;
 
         [UnitySetUp]

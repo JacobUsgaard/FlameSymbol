@@ -1,1 +1,4 @@
-public class Wizard : Character { }
+namespace Characters
+{
+    public class Wizard : Character { }
+}

@@ -1,1 +1,4 @@
-public interface IManagedObject { }
+namespace Logic
+{
+    public interface IManagedObject { }
+}

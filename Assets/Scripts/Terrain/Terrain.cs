@@ -1,3 +1,4 @@
+using Characters;
 using UnityEngine;
 
 namespace Terrain
@@ -12,11 +13,6 @@ namespace Terrain
         public virtual bool IsPassable(Character character, float x, float y)
         {
             return true;
-        }
-
-        public bool IsPassable(Character character, Vector2 position)
-        {
-            return IsPassable(character, position.x, position.y);
         }
     }
 }

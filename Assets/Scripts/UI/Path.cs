@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using Characters;
+using Logic;
 using UnityEngine;
 
 namespace UI
 {
-
     /// <summary>
     /// Abstraction of the pathing
     /// </summary>
@@ -60,16 +61,6 @@ namespace UI
                 return;
             }
 
-            Vector2 previousPosition;
-            if (Positions.Count == 0)
-            {
-                previousPosition = Character.transform.position;
-            }
-            else
-            {
-                previousPosition = Positions[Positions.Count - 1];
-            }
-
             /*
              * If the position is already in the list, we just revert to the path at that point. No need to recalculate.
              */
@@ -83,7 +74,7 @@ namespace UI
                 Positions.RemoveRange(index + 1, positionsRemoved);
                 //RemainingMoves = Character.Moves - Positions.Count;
             }
-            else if (CalculateRemainingMoves() > 0 && GetDistance(previousPosition, newPosition) == 1f)
+            else if (CalculateRemainingMoves() > 0 && GetDistance(Positions[Positions.Count - 1], newPosition) == 1f)
             {
                 /*
                  * If there are moves remaining and it's only a space away, let them move.
@@ -131,12 +122,9 @@ namespace UI
                 if (newPath != null)
                 {
                     positions.AddRange(newPath);
-                    return positions;
+                    break;
                 }
             }
-
-            Debug.LogFormat("Get new path completely");
-            positions.AddRange(CalculatePath(Character.transform.position, newPosition, CalculateRemainingMoves()));
 
             return positions;
         }
@@ -209,12 +197,12 @@ namespace UI
         /// </summary>
         public void Redraw()
         {
-            Transforms.ForEach(t => Destroy(t.gameObject));
-            Transforms.Clear();
+            GameManager.DestroyAll(Transforms);
 
             if (Positions.Count == 0)
             {
-                throw new System.InvalidOperationException(string.Format("Invalid number of path positions: {0}", Positions.Count));
+                Debug.LogErrorFormat("Invalid number of path positions: {0}", Positions.Count);
+                return;
             }
 
             if (Positions.Count == 1)
@@ -328,7 +316,8 @@ namespace UI
                 }
                 else
                 {
-                    throw new System.InvalidOperationException(string.Format("Invalid movement previous: {0}, current: {1}, next: {2}", previousPosition, currentPosition, nextPosition));
+                    Debug.LogErrorFormat("Invalid movement previous: {0}, current: {1}, next: {2}", previousPosition, currentPosition, nextPosition);
+                    return;
                 }
 
                 Debug.LogFormat("Creating path {0} with rotation {1}", transform, rotation);
@@ -364,14 +353,9 @@ namespace UI
             {
                 rotation = 90;
             }
-            else if (previousPosition.x < nextPosition.x)
-            {
-                rotation = 270;
-            }
             else
             {
-                Debug.LogErrorFormat("Not moving? Start: {0}, End: {1}", previousPosition, nextPosition);
-                return;
+                rotation = 270;
             }
 
             t.Rotate(Vector3.forward * rotation);
@@ -388,8 +372,7 @@ namespace UI
         public void Reset()
         {
             Positions.Clear();
-            Transforms.ForEach(t => Destroy(t.gameObject));
-            Transforms.Clear();
+            GameManager.DestroyAll(Transforms);
         }
 
         /// <summary>

@@ -1,23 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class ManagedScriptableObject : ScriptableObject
+namespace Logic
 {
-
-    public static GameManager GameManager { get; set; }
-
-    public static void Initialize(GameManager gameManager)
+    public class ManagedScriptableObject : ScriptableObject
     {
-        GameManager = gameManager;
-    }
+        public static GameManager GameManager { get; set; }
 
-    protected void DeleteAll(ICollection<Transform> collection)
-    {
-        foreach (Transform t in collection)
+        public static void Initialize(GameManager gameManager)
         {
-            Destroy(t.gameObject);
+            GameManager = gameManager;
         }
-
-        collection.Clear();
     }
 }
