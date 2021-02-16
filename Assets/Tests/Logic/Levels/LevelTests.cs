@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using Characters;
+using Logic.Levels;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using UnityEngine.UI;
 
-namespace Tests
+namespace Tests.Logic.Levels
 {
     public class LevelTests : GameManagerTest
     {

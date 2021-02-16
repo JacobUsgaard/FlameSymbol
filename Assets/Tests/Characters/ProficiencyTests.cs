@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Characters;
+using Items.Weapons.Attackable.Magic.FireMagic;
 
 namespace Tests.Characters
 {
@@ -19,7 +21,7 @@ namespace Tests.Characters
         public void ProficiencyTest2()
         {
             _ = new Proficiency(typeof(Fire), Proficiency.Rank.A);
-            LogAssert.Expect(LogType.Error, "Created Proficiency for non-abstract: Fire");
+            LogAssert.Expect(LogType.Error, "Created Proficiency for non-abstract: Items.Weapons.Attackable.Magic.FireMagic.Fire");
         }
 
         [Test]

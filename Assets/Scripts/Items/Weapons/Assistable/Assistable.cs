@@ -1,4 +1,9 @@
-﻿public abstract class Assistable : Weapon
+﻿using Characters;
+
+namespace Items.Weapons.Assistable
 {
-    public abstract void Assist(Character sourceCharacter, Character targetCharacter);
+    public abstract class Assistable : Weapon
+    {
+        public abstract void Assist(Character sourceCharacter, Character targetCharacter);
+    }
 }

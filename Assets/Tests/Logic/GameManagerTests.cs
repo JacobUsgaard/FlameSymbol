@@ -4,6 +4,8 @@ using NUnit.Framework;
 using UI;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Logic;
+using Cursor = UI.Cursor;
 
 namespace Tests.Logic
 {

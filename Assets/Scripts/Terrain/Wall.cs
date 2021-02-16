@@ -1,3 +1,5 @@
+using Characters;
+
 namespace Terrain
 {
     public class Wall : Terrain

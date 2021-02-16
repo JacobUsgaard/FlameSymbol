@@ -1,8 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Characters;
+using Items;
+using Items.Weapons;
+using Items.Weapons.Assistable.HealingStaffs;
+using Items.Weapons.Attackable;
+using Items.Weapons.Attackable.Magic.FireMagic;
+using Items.Weapons.Attackable.Strength.Lance;
+using Items.Weapons.Attackable.Strength.Sword;
+using Logic;
 using NUnit.Framework;
+using UI;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Cursor = UI.Cursor;
 
 namespace Tests.Characters
 {
@@ -509,7 +520,7 @@ namespace Tests.Characters
             Character attackCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
             Character defenseCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
 
-            Weapon weapon = ScriptableObject.CreateInstance<Tests.Items.Weapons.WeaponTests.FakeWeapon>();
+            Weapon weapon = ScriptableObject.CreateInstance<Items.Weapons.WeaponTests.FakeWeapon>();
 
             _ = attackCharacter.CalculateDamage(weapon, defenseCharacter);
             LogAssert.Expect(LogType.Error, "Unknown weapon type: FakeWeapon");

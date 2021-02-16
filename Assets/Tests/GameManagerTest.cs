@@ -1,9 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using Logic;
 using NUnit.Framework;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using Cursor = UI.Cursor;
 
 namespace Tests
 {

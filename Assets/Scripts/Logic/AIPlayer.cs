@@ -1,2 +1,4 @@
-
-public class AIPlayer : Player { }
+namespace Logic
+{
+    public class AIPlayer : Player { }
+}

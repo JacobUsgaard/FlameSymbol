@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using UnityEngine.TestTools;
 using NUnit.Framework;
+using Characters;
+using Items.Weapons.Assistable.HealingStaffs;
 
 namespace Tests.UI
 {
     public class AssistDetailPanelTests : GameManagerTest
     {
-
         /// <summary>
         /// Validate that the AssistDetailPanel shows up on the left when the
         /// characters are on the right side of the screen

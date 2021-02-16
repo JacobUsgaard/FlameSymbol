@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine.TestTools;
 using NUnit.Framework;
+using Characters;
+using Items.Weapons.Attackable.Strength.Sword;
 
 namespace Tests.UI
 {

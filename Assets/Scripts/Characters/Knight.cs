@@ -1,12 +1,18 @@
+using Items.Weapons.Attackable.Strength.Axe;
+using Items.Weapons.Attackable.Strength.Lance;
+using Items.Weapons.Attackable.Strength.Sword;
 using UnityEngine;
 
-public class Knight : Character
+namespace Characters
 {
-    void Start()
+    public class Knight : Character
     {
-        Debug.Log("Creating Knight");
-        AddProficiency(new Proficiency(typeof(Sword), Proficiency.Rank.E));
-        AddProficiency(new Proficiency(typeof(Lance), Proficiency.Rank.E));
-        AddProficiency(new Proficiency(typeof(Axe), Proficiency.Rank.E));
+        void Start()
+        {
+            Debug.Log("Creating Knight");
+            AddProficiency(new Proficiency(typeof(Sword), Proficiency.Rank.E));
+            AddProficiency(new Proficiency(typeof(Lance), Proficiency.Rank.E));
+            AddProficiency(new Proficiency(typeof(Axe), Proficiency.Rank.E));
+        }
     }
 }

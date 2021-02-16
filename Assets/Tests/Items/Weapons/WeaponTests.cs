@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Items.Weapons;
+using NUnit.Framework;
 
 namespace Tests.Items.Weapons
 {

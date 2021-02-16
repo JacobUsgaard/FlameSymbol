@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using Cursor = UI.Cursor;
+using Characters;
+using Items;
+using Items.Weapons.Assistable.HealingStaffs;
+using Items.Weapons.Attackable.Magic.FireMagic;
 
 namespace Tests.UI
 {

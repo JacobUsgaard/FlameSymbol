@@ -1,1 +1,4 @@
-public class Aptitude { }
+namespace Characters
+{
+    public class Aptitude { }
+}

@@ -1,1 +1,4 @@
-public class HumanPlayer : ManagedMonoBehavior { }
+namespace Logic
+{
+    public class HumanPlayer : ManagedMonoBehavior { }
+}

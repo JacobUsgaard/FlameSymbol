@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using Characters;
+using Logic;
 using UnityEngine;
 
 namespace UI
 {
-
     /// <summary>
     /// Abstraction of the pathing
     /// </summary>
