@@ -10,29 +10,30 @@ namespace Logic
     /// </summary>
     public class AttackableRange : ManagedScriptableObject
     {
-        public readonly List<Character> Characters = new List<Character>();
+        public readonly HashSet<Character> Characters = new HashSet<Character>();
         public readonly List<Transform> AttackableTransforms = new List<Transform>();
 
         public void AddCharacter(Character character)
         {
             Debug.LogFormat("Adding character to attackable range");
-            Characters.Add(character);
-            CreateAttackableTransforms();
-
-            Debug.LogFormat("Total attackable transforms: {0}", AttackableTransforms.Count);
+            if (!Characters.Contains(character) && Characters.Add(character))
+            {
+                CreateAttackableTransforms();
+            }
+            Debug.LogFormat("Total attackable transforms: {0} for {1} characters", AttackableTransforms.Count, Characters.Count); ;
         }
 
         private void CreateAttackableTransforms()
         {
             Debug.LogFormat("Creating attackable transforms");
-            Clear();
-            HashSet<Vector2> positions = new HashSet<Vector2>();
+            GameManager.DestroyAll(AttackableTransforms);
+            HashSet<Vector2> AttackablePositions = new HashSet<Vector2>();
             foreach (Character character in Characters)
             {
-                positions.UnionWith(character.CalculateAttackablePositions());
+                AttackablePositions.UnionWith(character.CalculateAttackablePositions());
             }
 
-            foreach (Vector2 position in positions)
+            foreach (Vector2 position in AttackablePositions)
             {
                 AttackableTransforms.Add(Instantiate(GameManager.AttackableSpacePrefab, new Vector2(position.x, position.y), Quaternion.identity, GameManager.transform));
             }
@@ -40,12 +41,18 @@ namespace Logic
 
         public void RemoveCharacter(Character character)
         {
-            Characters.Remove(character);
+            if (!Characters.Remove(character))
+            {
+                Debug.LogErrorFormat("Cannot remove character {0} from AttackableRange at {1}", character.CharacterName, character.transform.position);
+                return;
+            }
+
             CreateAttackableTransforms();
         }
 
         public void Clear()
         {
+            Characters.Clear();
             GameManager.DestroyAll(AttackableTransforms);
         }
     }
