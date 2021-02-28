@@ -10,15 +10,16 @@ namespace Items.Weapons.Assistable.HealingStaffs
                 text: Instantiate(GameManager.HealTextPrefab),
                 uses: 30,
                 rank: Proficiency.Rank.E,
-                damage: 10,
+                might: 10,
                 hitPercentage: 100,
                 criticalPercentage: 0,
+                weight: 4,
                 ranges: 1);
         }
 
         public override void Assist(Character sourceCharacter, Character targetCharacter)
         {
-            targetCharacter.Heal(Damage);
+            targetCharacter.Heal(Might);
         }
     }
 }

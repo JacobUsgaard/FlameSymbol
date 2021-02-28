@@ -5,33 +5,44 @@ using UnityEngine.UI;
 
 namespace Items.Weapons
 {
+    /// <summary>
+    /// Base weapon class
+    /// </summary>
     public abstract class Weapon : Item
     {
         public int HitPercentage;
-        public int Damage;
+        public int Might;
         public int CriticalPercentage;
+        public int Weight;
         public HashSet<int> Ranges { get; } = new HashSet<int>();
         public Proficiency.Rank RequiredProficiencyRank;
 
-
         /// <summary>
         /// Calculate the damage done by the attacking character to the defending character using this weapon
+        /// Damage = Strength + Might - Defense
         /// </summary>
         /// <param name="attackingCharacter"></param>
         /// <param name="defendingCharacter"></param>
+        /// <param name="defendingWeapon"></param>
         /// <returns></returns>
-        public virtual int CalculateDamage(Character attackingCharacter, Character defendingCharacter)
+        public virtual int CalculateDamage(Character attackingCharacter, Character defendingCharacter, Weapon defendingWeapon)
         {
-            return Damage;
+            return Might;
         }
 
         public override string ToString()
         {
-            return Text.text + "=[HitPercentage: " + HitPercentage + ", Damage: " + Damage + ", CriticalPercentage: " + CriticalPercentage + ", RequiredProficiencyRank: " + RequiredProficiencyRank + "]";
+            return string.Format("{0}=[HitPercentage: {1}, Might: {2}, CriticalPercentage: {3}, RequiredProficiencyRank: {4}, Weight: {5}]",
+                Text.text,
+                HitPercentage,
+                Might,
+                CriticalPercentage,
+                RequiredProficiencyRank,
+                Weight);
         }
 
         // TODO figure out how to do defaults for weapons better
-        public static Type CreateInstance<Type>(Text text, int uses, Proficiency.Rank rank, int hitPercentage, int damage, int criticalPercentage, params int[] ranges) where Type : Weapon
+        public static Type CreateInstance<Type>(Text text, int uses, Proficiency.Rank rank, int hitPercentage, int might, int criticalPercentage, int weight, params int[] ranges) where Type : Weapon
         {
             Type weapon = CreateInstance<Type>();
             weapon.Text = text;
@@ -39,8 +50,9 @@ namespace Items.Weapons
             weapon.UsesRemaining = uses;
             weapon.RequiredProficiencyRank = rank;
             weapon.HitPercentage = hitPercentage;
-            weapon.Damage = damage;
+            weapon.Might = might;
             weapon.CriticalPercentage = criticalPercentage;
+            weapon.Weight = weight;
 
             if (ranges != null)
             {

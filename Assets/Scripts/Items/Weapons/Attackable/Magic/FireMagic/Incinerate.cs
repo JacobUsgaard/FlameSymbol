@@ -11,8 +11,9 @@ namespace Items.Weapons.Attackable.Magic.FireMagic
                 uses: 20,
                 rank: Proficiency.Rank.D,
                 hitPercentage: 100,
-                damage: 20,
+                might: 20,
                 criticalPercentage: 3,
+                weight: 8,
                 ranges: new int[] { 1, 2 });
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Characters;
 using Logic;
 using NUnit.Framework;
 using UnityEngine.TestTools;
@@ -56,6 +57,17 @@ namespace Tests.Logic
             yield return Submit();
             Assert.AreEqual(1, attackableRange.Characters.Count);
             Assert.AreEqual(0, attackableRange.AttackableTransforms.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator AttackableRangeTest3()
+        {
+            AttackableRange attackableRange = GameManager.Cursor.AttackableRange;
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+
+            attackableRange.RemoveCharacter(character);
+            LogAssert.Expect(UnityEngine.LogType.Error, "Cannot remove character Wizard from AttackableRange at (2.0, 2.0, 0.0)");
+            yield return null;
         }
     }
 }

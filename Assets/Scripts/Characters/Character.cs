@@ -463,50 +463,13 @@ namespace Characters
         }
 
         /// <summary>
-        /// Destory attackable transforms
-        /// </summary>
-        public void DestroyAttackableTransforms()
-        {
-            Debug.LogFormat("Destroying {0} attackable spaces", AttackableTransforms.Count);
-            foreach (Transform attackableSpace in AttackableTransforms)
-            {
-                Destroy(attackableSpace.gameObject);
-            }
-            AttackableTransforms.Clear();
-        }
-
-        /// <summary>
-        /// Destroy movable transforms
-        /// </summary>
-        public void DestroyMovableTransforms()
-        {
-            Debug.LogFormat("Destroying {0} movable spaces", MovableTransforms.Count);
-            foreach (Transform movableSpace in MovableTransforms)
-            {
-                Destroy(movableSpace.gameObject);
-            }
-
-            MovableTransforms.Clear();
-        }
-
-        /// <summary>
-        /// Destroy staffable tranforms
-        /// </summary>
-        public void DestroyAssistableTransforms()
-        {
-            Debug.LogFormat("Destroying {0} staffable tranforms", AssistableTransforms.Count);
-            AssistableTransforms.ForEach(staffableTransform => Destroy(staffableTransform.gameObject));
-            AssistableTransforms.Clear();
-        }
-
-        /// <summary>
         /// Destroys all movable, attackable, and assistable transforms
         /// </summary>
         public void DestroyMovableAndAttackableAndAssistableTransforms()
         {
-            DestroyMovableTransforms();
-            DestroyAttackableTransforms();
-            DestroyAssistableTransforms();
+            GameManager.DestroyAll(MovableTransforms);
+            GameManager.DestroyAll(AttackableTransforms);
+            GameManager.DestroyAll(AssistableTransforms);
         }
 
         /// <summary>
@@ -656,7 +619,7 @@ namespace Characters
         {
             Assistable supportItem = GetUsableItem<Assistable>();
 
-            return new AssistInformation(supportItem, supportItem.HitPercentage, supportItem.Damage);
+            return new AssistInformation(supportItem, supportItem.HitPercentage, supportItem.Might);
         }
 
         /// <summary>
@@ -669,36 +632,45 @@ namespace Characters
             Weapon attackWeapon = GetUsableItem<Weapon>();
             Debug.LogFormat("Attack weapon: {0}", attackWeapon);
 
-            Weapon defenseWeapon = null;
-            List<Weapon> usableWeapons = defenseCharacter.GetUsableItems<Weapon>();
-            bool defenseCanAttack;
-            if (usableWeapons.Count > 0)
+            Weapon defenseWeapon = defenseCharacter.GetUsableItem<Weapon>();
+            Debug.LogFormat("Defense weapon: {0}", defenseWeapon);
+
+            bool defenseCanAttack = false;
+            if (defenseWeapon != null)
             {
-                defenseWeapon = usableWeapons[0];
-                Debug.LogFormat("Defense weapon: {0}", defenseWeapon);
                 defenseCanAttack = defenseWeapon.IsInRange(defenseCharacter.transform.position, transform.position);
             }
-            else
-            {
-                defenseCanAttack = false;
-            }
 
-            int attackHitPercentage = CalculateHitPercentage(this, attackWeapon, defenseCharacter);
-            int attackDamage = CalculateDamage(attackWeapon, defenseCharacter);
-            int attackCriticalPercentage = CalculateCriticalPercentage(this, attackWeapon, defenseCharacter);
+            int attackHitPercentage = CalculateHitPercentage(attackWeapon, defenseCharacter, defenseWeapon);
+            int attackDamage = CalculateDamage(attackWeapon, defenseCharacter, defenseWeapon);
+            int attackCriticalPercentage = CalculateCriticalPercentage(attackWeapon, defenseCharacter, defenseWeapon);
+            int attackNumberOfAttacks = CalculateNumberOfAttacks(attackWeapon, defenseCharacter, defenseWeapon);
 
             int defenseHitPercentage = 0;
             int defenseDamage = 0;
             int defenseCriticalPercentage = 0;
+            int defenseNumberOfAttacks = 0;
 
             if (defenseCanAttack)
             {
-                defenseHitPercentage = CalculateHitPercentage(defenseCharacter, defenseWeapon, this);
-                defenseDamage = defenseCharacter.CalculateDamage(defenseWeapon, this);
-                defenseCriticalPercentage = CalculateCriticalPercentage(defenseCharacter, defenseWeapon, this);
+                defenseHitPercentage = defenseCharacter.CalculateHitPercentage(defenseWeapon, this, attackWeapon);
+                defenseDamage = defenseCharacter.CalculateDamage(defenseWeapon, this, attackWeapon);
+                defenseCriticalPercentage = defenseCharacter.CalculateCriticalPercentage(defenseWeapon, this, attackWeapon);
+                defenseNumberOfAttacks = defenseCharacter.CalculateNumberOfAttacks(defenseWeapon, this, attackWeapon);
             }
 
-            return new AttackInformation(attackWeapon, attackHitPercentage, attackDamage, attackCriticalPercentage, defenseWeapon, defenseHitPercentage, defenseDamage, defenseCriticalPercentage, defenseCanAttack);
+            return new AttackInformation(
+                attackWeapon: attackWeapon,
+                attackHitPercentage: attackHitPercentage,
+                attackDamage: attackDamage,
+                attackCriticalPercentage: attackCriticalPercentage,
+                attackNumberOfAttacks: attackNumberOfAttacks,
+                defenseWeapon: defenseWeapon,
+                defenseHitPercentage: defenseHitPercentage,
+                defenseDamage: defenseDamage,
+                defenseCriticalPercentage: defenseCriticalPercentage,
+                defenseCanAttack: defenseCanAttack,
+                defenseNumberOfAttacks: defenseNumberOfAttacks);
         }
 
         /// <summary>
@@ -710,9 +682,14 @@ namespace Characters
         /// <param name="attackWeapon"></param>
         /// <param name="defenseCharacter"></param>
         /// <returns></returns>
-        private int CalculateHitPercentage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
+        private int CalculateHitPercentage(Weapon attackWeapon, Character defenseCharacter, Weapon defenseWeapon)
         {
-            return Mathf.Clamp(attackCharacter.Skill + attackWeapon.HitPercentage - defenseCharacter.Speed, 0, 100);
+            int damage =
+                attackWeapon.HitPercentage
+                + Skill
+                - defenseCharacter.Speed
+                + (defenseWeapon == null ? 0 : defenseWeapon.Weight);
+            return Mathf.Clamp(damage, 0, 100);
         }
 
         /// <summary>
@@ -724,9 +701,9 @@ namespace Characters
         /// <param name="attackWeapon"></param>
         /// <param name="defenseCharacter"></param>
         /// <returns></returns>
-        public int CalculateDamage(Weapon attackWeapon, Character defenseCharacter)
+        public int CalculateDamage(Weapon attackWeapon, Character defenseCharacter, Weapon defenseWeapon)
         {
-            int damage = attackWeapon.CalculateDamage(this, defenseCharacter);
+            int damage = attackWeapon.CalculateDamage(this, defenseCharacter, defenseWeapon);
             if (attackWeapon is StrengthWeapon)
             {
                 damage += Strength - defenseCharacter.Defense;
@@ -743,9 +720,20 @@ namespace Characters
             return Mathf.Max(damage, 0);
         }
 
-        private int CalculateCriticalPercentage(Character attackCharacter, Weapon attackWeapon, Character defenseCharacter)
+        public virtual int CalculateNumberOfAttacks(Weapon attackWeapon, Character defenseCharacter, Weapon defenseWeapon)
         {
-            return Mathf.Clamp((attackCharacter.Skill / 4) + attackWeapon.CriticalPercentage, 0, 100);
+            int calculation = Speed - attackWeapon.Weight - defenseCharacter.Speed + (defenseWeapon == null ? 0 : defenseWeapon.Weight);
+            if (calculation >= 4)
+            {
+                return 2;
+            }
+
+            return 1;
+        }
+
+        private int CalculateCriticalPercentage(Weapon attackWeapon, Character defenseCharacter, Weapon defenseWeapon)
+        {
+            return Mathf.Clamp((Skill / 4) + attackWeapon.CriticalPercentage, 0, 100);
         }
 
         /// <summary>
@@ -811,25 +799,40 @@ namespace Characters
             public int AttackHitPercentage;
             public int AttackDamage;
             public int AttackCriticalPercentage;
+            public int AttackNumberOfAttacks;
 
             public Weapon DefenseWeapon;
             public int DefenseHitPercentage;
             public int DefenseDamage;
             public int DefenseCriticalPercentage;
             public bool DefenseCanAttack;
+            public int DefenseNumberOfAttacks;
 
-            public AttackInformation(Weapon attackWeapon, int attackHitPercentage, int attackDamage, int attackCriticalPercentage, Weapon defenseWeapon, int defenseHitPercentage, int defenseDamage, int defenseCriticalPercentage, bool defenseCanAttack)
+            public AttackInformation(
+                Weapon attackWeapon,
+                int attackHitPercentage,
+                int attackDamage,
+                int attackCriticalPercentage,
+                int attackNumberOfAttacks,
+                Weapon defenseWeapon,
+                int defenseHitPercentage,
+                int defenseDamage,
+                int defenseCriticalPercentage,
+                bool defenseCanAttack,
+                int defenseNumberOfAttacks)
             {
                 AttackWeapon = attackWeapon;
                 AttackHitPercentage = attackHitPercentage;
                 AttackDamage = attackDamage;
                 AttackCriticalPercentage = attackCriticalPercentage;
+                AttackNumberOfAttacks = attackNumberOfAttacks;
 
                 DefenseWeapon = defenseWeapon;
                 DefenseHitPercentage = defenseHitPercentage;
                 DefenseDamage = defenseDamage;
                 DefenseCriticalPercentage = defenseCriticalPercentage;
                 DefenseCanAttack = defenseCanAttack;
+                DefenseNumberOfAttacks = defenseNumberOfAttacks;
             }
         }
 

@@ -221,7 +221,7 @@ namespace UI
                 GameManager.ItemDetailMenu.AddMenuItem(item, item.Text, ItemDetailMenuOnSelect);
             }
 
-            SelectedCharacter.DestroyAttackableTransforms();
+            GameManager.DestroyAll(SelectedCharacter.AttackableTransforms);
             DestroyTradableSpaces();
 
             GameManager.CharacterActionMenu.Hide();
@@ -596,8 +596,7 @@ namespace UI
             Debug.LogFormat("Attacker: {0}", attacker);
 
             attacker.UseAssist(defender);
-
-            attacker.DestroyAssistableTransforms();
+            GameManager.DestroyAll(attacker.AssistableTransforms);
             GameManager.AssistDetailPanel.Hide();
 
             CurrentState = State.Free;
@@ -612,8 +611,7 @@ namespace UI
             Debug.LogFormat("Attacker: {0}", attacker);
 
             attacker.Attack(defender);
-
-            attacker.DestroyAttackableTransforms();
+            GameManager.DestroyAll(attacker.AttackableTransforms);
             GameManager.AttackDetailPanel.Hide();
             GameManager.CharacterActionMenu.Hide();
 
