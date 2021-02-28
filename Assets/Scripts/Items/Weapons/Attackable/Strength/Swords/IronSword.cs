@@ -13,8 +13,9 @@ namespace Items.Weapons.Attackable.Strength.Sword
                 uses: 30,
                 rank: Proficiency.Rank.E,
                 hitPercentage: 100,
-                damage: 5,
+                might: 5,
                 criticalPercentage: 5,
+                weight: 5,
                 ranges: new int[] { 1 });
         }
     }

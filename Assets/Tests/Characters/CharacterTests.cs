@@ -522,7 +522,7 @@ namespace Tests.Characters
 
             Weapon weapon = ScriptableObject.CreateInstance<Items.Weapons.WeaponTests.FakeWeapon>();
 
-            _ = attackCharacter.CalculateDamage(weapon, defenseCharacter);
+            _ = attackCharacter.CalculateDamage(weapon, defenseCharacter, null);
             LogAssert.Expect(LogType.Error, "Unknown weapon type: FakeWeapon");
             yield return null;
         }
@@ -559,6 +559,20 @@ namespace Tests.Characters
             character.Items.Add(ironLance);
 
             Assert.False(character.IsProficient(ironLance));
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator CalculateNumberOfAttacksTest1()
+        {
+            Character attackCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            attackCharacter.Speed = 30;
+
+            Character defenseCharacter = GameManager.CurrentLevel.GetCharacter(1, 2);
+
+            int numberOfAttacks = attackCharacter.CalculateNumberOfAttacks(attackCharacter.GetUsableItem<Weapon>(), defenseCharacter, null);
+            Assert.AreEqual(2, numberOfAttacks);
+
             yield return null;
         }
     }

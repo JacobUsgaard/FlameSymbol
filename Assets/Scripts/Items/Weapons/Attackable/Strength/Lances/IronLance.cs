@@ -13,8 +13,9 @@ namespace Items.Weapons.Attackable.Strength.Lance
                 uses: 30,
                 rank: Proficiency.Rank.E,
                 hitPercentage: 90,
-                damage: 6,
+                might: 6,
                 criticalPercentage: 5,
+                weight: 6,
                 ranges: new int[] { 1 });
         }
     }

@@ -44,6 +44,11 @@ namespace UI
             AttackHpText.text = attackCharacter.CurrentHp.ToString();
             AttackHitText.text = AttackInformation.AttackHitPercentage + "%";
             AttackDamageText.text = AttackInformation.AttackDamage.ToString();
+            if (AttackInformation.AttackNumberOfAttacks > 1)
+            {
+                AttackDamageText.text += " x" + AttackInformation.AttackNumberOfAttacks;
+            }
+
             AttackCriticalText.text = AttackInformation.AttackCriticalPercentage + "%";
 
             DefenseWeaponText.text = AttackInformation.DefenseWeapon == null ? "--" : AttackInformation.DefenseWeapon.Text.text;
@@ -51,6 +56,11 @@ namespace UI
             DefenseHpText.text = defenseCharacter.CurrentHp.ToString();
             DefenseHitText.text = AttackInformation.DefenseCanAttack ? AttackInformation.DefenseHitPercentage + "%" : "--";
             DefenseDamageText.text = AttackInformation.DefenseCanAttack ? AttackInformation.DefenseDamage.ToString() : "--";
+            if (AttackInformation.DefenseCanAttack && AttackInformation.DefenseNumberOfAttacks > 1)
+            {
+                DefenseDamageText.text += " x" + AttackInformation.DefenseNumberOfAttacks;
+            }
+
             DefenseCriticalText.text = AttackInformation.DefenseCanAttack ? AttackInformation.DefenseCriticalPercentage + "%" : "--";
 
             float x;

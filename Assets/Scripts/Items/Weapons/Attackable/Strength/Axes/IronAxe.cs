@@ -14,8 +14,9 @@ namespace Items.Weapons.Attackable.Strength.Axe
                 uses: 30,
                 rank: Proficiency.Rank.E,
                 hitPercentage: 80,
-                damage: 8,
+                might: 8,
                 criticalPercentage: 1,
+                weight: 7,
                 ranges: new int[] { 1 });
         }
     }
