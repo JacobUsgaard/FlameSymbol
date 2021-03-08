@@ -23,7 +23,7 @@ namespace Logic.Levels
         /// <param name="y"></param>
         public void DrawCharacter(Character character, int x, int y)
         {
-            SpriteRenderer spriteRenderer = FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, CharacterColorTag);
+            SpriteRenderer spriteRenderer = GameManager.FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, CharacterColorTag);
             Debug.LogFormat("Sprite Renderer: {0}", spriteRenderer);
 
             if (spriteRenderer == null)
@@ -77,21 +77,6 @@ namespace Logic.Levels
             }
 
             GameManager.Cursor.transform.position = StartPosition;
-        }
-
-        public static T FindComponentInChildWithTag<T>(GameObject parent, string tag) where T : Component
-        {
-            Debug.LogFormat("FindComponentInChildWithTag: {0}, {1}", parent.name, tag);
-
-            foreach (Transform transform in parent.transform)
-            {
-                Debug.LogFormat("Transform: {0}", transform.name);
-                if (transform.CompareTag(tag))
-                {
-                    return transform.GetComponent<T>();
-                }
-            }
-            return null;
         }
 
         /// <summary>
@@ -232,6 +217,28 @@ namespace Logic.Levels
         public void Kill(Character character)
         {
             SetCharacter(null, character.transform.position);
+        }
+
+        public void MoveCharacter(Character character, Vector2 newPosition)
+        {
+            Vector2 oldPosition = character.transform.position;
+            Debug.LogFormat("Moving {0} from {1} to {2}", character.CharacterName, oldPosition, newPosition);
+
+            if (character.transform.position.x == newPosition.x && character.transform.position.y == newPosition.y)
+            {
+                return;
+            }
+
+            if (GameManager.CurrentLevel.GetCharacter(newPosition) != null)
+            {
+                Debug.LogErrorFormat("Position is already taken: {0}", newPosition);
+            }
+            GameManager.CurrentLevel.SetCharacter(character, newPosition);
+
+            if (newPosition.x != oldPosition.x || newPosition.y != oldPosition.y)
+            {
+                GameManager.CurrentLevel.SetCharacter(null, oldPosition);
+            }
         }
     }
 }

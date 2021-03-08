@@ -104,12 +104,22 @@ namespace UI
         {
             SelectedCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
             DestroyTradableSpaces();
-            SelectedCharacter.Move(SelectedCharacterOldPosition);
-            SelectedCharacter.CreateAttackableTransforms();
+
+            if (SelectedCharacter.HasTraded)
+            {
+                SelectedCharacter.EndAction();
+                CurrentState = State.Free;
+            }
+            else
+            {
+                SelectedCharacter.Move(SelectedCharacterOldPosition);
+                SelectedCharacter.CreateAttackableTransforms();
+                CurrentState = State.ChoosingMove;
+                Path.Show();
+            }
+
             GameManager.CharacterActionMenu.Hide();
             Focus();
-            CurrentState = State.ChoosingMove;
-            Path.Show();
         }
 
         private void CharacterActionMenuAttack(Object[] objects)
@@ -164,6 +174,7 @@ namespace UI
             DestroyTradableSpaces();
             GameManager.CharacterActionMenu.Hide();
             CurrentState = State.Free;
+            SelectedCharacter.EndAction();
             Focus();
         }
 
@@ -599,6 +610,7 @@ namespace UI
             GameManager.DestroyAll(attacker.AssistableTransforms);
             GameManager.AssistDetailPanel.Hide();
 
+            attacker.EndAction();
             CurrentState = State.Free;
         }
 
@@ -614,6 +626,7 @@ namespace UI
             GameManager.DestroyAll(attacker.AttackableTransforms);
             GameManager.AttackDetailPanel.Hide();
             GameManager.CharacterActionMenu.Hide();
+            attacker.EndAction();
 
             CurrentState = State.Free;
         }
@@ -648,11 +661,10 @@ namespace UI
         private void OnSubmitFree(Vector2 currentPosition)
         {
             SelectedCharacter = GameManager.CurrentLevel.GetCharacter(currentPosition);
-            if (SelectedCharacter != null)
+            if (SelectedCharacter != null && !SelectedCharacter.HasMoved)
             {
                 if (SelectedCharacter.Player.Equals(GameManager.CurrentPlayer))
                 {
-                    //AttackableRange.Clear();
                     CurrentState = State.ChoosingMove;
                     Path.StartPath(SelectedCharacter);
                 }

@@ -302,5 +302,20 @@ namespace Logic
 
             transforms.Clear();
         }
+
+        public static T FindComponentInChildWithTag<T>(GameObject parent, string tag) where T : Component
+        {
+            Debug.LogFormat("FindComponentInChildWithTag: {0}, {1}", parent.name, tag);
+
+            foreach (Transform transform in parent.transform)
+            {
+                Debug.LogFormat("Transform: {0}", transform.name);
+                if (transform.CompareTag(tag))
+                {
+                    return transform.GetComponent<T>();
+                }
+            }
+            return null;
+        }
     }
 }

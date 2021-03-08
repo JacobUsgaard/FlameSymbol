@@ -184,7 +184,8 @@ namespace UI
 
         public override void OnSubmit()
         {
-
+            SourceCharacter.HasTraded = true;
+            SourceCharacter.HasMoved = true;
             if (CurrentSide == Side.SOURCE)
             {
                 TradeMenuItem tradeMenuItem = TradeSourceMenuItems[SourceItemsIndex];

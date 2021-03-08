@@ -765,15 +765,15 @@ namespace Tests.UI
 
             yield return MoveCursor(3, 1);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.ItemSelectionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingAssistTarget, GameManager.Cursor.CurrentState);
 
             Character originalAssistTarget = GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position);
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
 
             Assert.AreNotSame(originalAssistTarget, GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position));
         }
@@ -1126,6 +1126,12 @@ namespace Tests.UI
             Assert.True(GameManager.CharacterActionMenu.IsInFocus());
         }
 
+        /// <summary>
+        /// Given: Cursor.CurrentState is in unhandled state
+        /// When: Cancel is pressed
+        /// Then: An error is logged
+        /// </summary>
+        /// <returns></returns>
         [UnityTest]
         public IEnumerator OnCancelUnknownState()
         {
@@ -1134,5 +1140,7 @@ namespace Tests.UI
 
             LogAssert.Expect(LogType.Error, "Invalid Cursor.State in OnCancel: Error");
         }
+
+
     }
 }

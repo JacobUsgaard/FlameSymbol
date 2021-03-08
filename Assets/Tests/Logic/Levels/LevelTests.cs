@@ -4,6 +4,7 @@ using Logic.Levels;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Logic;
 
 namespace Tests.Logic.Levels
 {
@@ -16,7 +17,7 @@ namespace Tests.Logic.Levels
 
             Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
 
-            SpriteRenderer spriteRenderer = Level.FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, Level.CharacterColorTag);
+            SpriteRenderer spriteRenderer = GameManager.FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, Level.CharacterColorTag);
             Assert.AreEqual(Color.red, spriteRenderer.color);
         }
 
@@ -32,7 +33,7 @@ namespace Tests.Logic.Levels
         public IEnumerator DrawCharacterTest1()
         {
             Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
-            SpriteRenderer spriteRenderer = Level.FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, Level.CharacterColorTag);
+            SpriteRenderer spriteRenderer = GameManager.FindComponentInChildWithTag<SpriteRenderer>(character.gameObject, Level.CharacterColorTag);
             Assert.NotNull(spriteRenderer);
             Object.Destroy(spriteRenderer);
             yield return null;
@@ -61,7 +62,7 @@ namespace Tests.Logic.Levels
             GameObject gameObject = new GameObject("Test");
             GameObject childObject = new GameObject("Child");
             childObject.transform.parent = gameObject.transform;
-            SpriteRenderer spriteRenderer = Level.FindComponentInChildWithTag<SpriteRenderer>(gameObject, Level.CharacterColorTag);
+            SpriteRenderer spriteRenderer = GameManager.FindComponentInChildWithTag<SpriteRenderer>(gameObject, Level.CharacterColorTag);
             Assert.Null(spriteRenderer);
             yield return null;
         }
