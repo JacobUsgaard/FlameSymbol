@@ -68,32 +68,19 @@ namespace Tests.Characters
         {
             ICollection<Character> beforeCharacters = GameManager.CurrentLevel.GetCharacters();
 
-            yield return MoveCursor(2, 2);
-
-            yield return Submit(GameManager.Cursor);
-
-            yield return Submit(GameManager.Cursor);
-
-            GameManager.CharacterActionMenu.OnSubmit();
-            yield return null;
-
-            GameManager.ItemSelectionMenu.OnSubmit();
-            yield return null;
-
-            yield return Submit(GameManager.Cursor);
+            Character defendingCharacter = GameManager.CurrentLevel.GetCharacter(1, 2);
+            defendingCharacter.CurrentHp = 1;
 
             yield return MoveCursor(2, 2);
 
             yield return Submit(GameManager.Cursor);
             yield return Submit(GameManager.Cursor);
 
-            GameManager.CharacterActionMenu.OnSubmit();
-            yield return null;
+            yield return Submit();
 
-            GameManager.ItemSelectionMenu.OnSubmit();
-            yield return null;
+            yield return Submit();
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.IsNull(GameManager.CurrentLevel.GetCharacter(1, 2));
 
@@ -574,6 +561,209 @@ namespace Tests.Characters
             Assert.AreEqual(2, numberOfAttacks);
 
             yield return null;
+        }
+
+        /// <summary>
+        /// When a character waits, they shouldn't be able to move again
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EndActionTest1()
+        {
+            yield return MoveCursor(2, 2);
+            yield return Submit();
+            yield return DownArrow();
+            yield return RightArrow();
+            yield return Submit();
+            yield return UpArrow();
+            yield return Submit();
+
+            Assert.AreEqual(Cursor.State.Free, GameManager.Cursor.CurrentState);
+            Assert.True(GameManager.CurrentLevel.GetCharacter(3, 1).HasMoved);
+        }
+
+        /// <summary>
+        /// When a character attacks, they shouldn't be able to move again
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EndActionTest2()
+        {
+            yield return MoveCursor(2, 2);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+
+            Assert.AreEqual(Cursor.State.Free, GameManager.Cursor.CurrentState);
+            Assert.True(GameManager.CurrentLevel.GetCharacter(2, 2).HasMoved);
+        }
+
+        /// <summary>
+        /// When a character assists, they shouldn't be able to move again
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EndActionTest3()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+            character.Items.Clear();
+            character.Items.Add(Heal.Create());
+            character.AddProficiency(new Proficiency(typeof(HealingStaff), Proficiency.Rank.A));
+
+            yield return MoveCursor(2, 2);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+
+            Assert.AreEqual(Cursor.State.Free, GameManager.Cursor.CurrentState);
+            Assert.True(GameManager.CurrentLevel.GetCharacter(2, 2).HasMoved);
+        }
+
+        /// <summary>
+        /// When a character trades, they shouldn't be able to move again
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EndActionTest4()
+        {
+            Character sourceCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            sourceCharacter.Items.Clear();
+            sourceCharacter.Items.Add(IronSword.Create());
+            sourceCharacter.Items.Add(Fire.Create());
+
+            Character targetCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
+            targetCharacter.Items.Clear();
+            targetCharacter.Items.Add(Fire.Create());
+
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Submit();
+
+            // select move
+            yield return Submit();
+
+            // select trade
+            yield return DownArrow();
+            yield return Submit();
+
+            // select trading character
+            yield return Submit();
+
+            // trade item
+            yield return Submit();
+
+            Assert.AreEqual(1, sourceCharacter.Items.Count);
+            Assert.AreEqual(2, targetCharacter.Items.Count);
+
+            //Assert.AreEqual(Cursor.State.Free, GameManager.Cursor.CurrentState);
+            Assert.True(GameManager.CurrentLevel.GetCharacter(2, 2).HasMoved);
+            Assert.True(GameManager.CurrentLevel.GetCharacter(2, 2).HasTraded);
+            Assert.False(GameManager.CurrentLevel.GetCharacter(2, 1).HasMoved);
+            Assert.False(GameManager.CurrentLevel.GetCharacter(2, 1).HasTraded);
+        }
+
+        /// <summary>
+        /// Given a character has moved
+        /// And Cursor.CurrentState is Free
+        /// When Submit is pressed on character
+        /// Then the player action menu should appear
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EndActionTest5()
+        {
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Submit();
+
+            // select move
+            yield return Submit();
+
+            // select Wait
+            yield return UpArrow();
+            yield return Submit();
+
+            Assert.True(GameManager.CurrentLevel.GetCharacter(2, 2).HasMoved);
+
+            yield return Submit();
+
+            Assert.True(GameManager.PlayerActionMenu.IsInFocus());
+        }
+
+        /// <summary>
+        /// Given a character has traded
+        /// And the character action menu is in focus
+        /// When the player presses Cancel 
+        /// Then the character should not be able to move again
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EndActionTest6()
+        {
+            Character sourceCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            sourceCharacter.Items.Clear();
+            sourceCharacter.Items.Add(IronSword.Create());
+            sourceCharacter.Items.Add(Fire.Create());
+
+            Character targetCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
+            targetCharacter.Items.Clear();
+            targetCharacter.Items.Add(Fire.Create());
+
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Submit();
+
+            // select move
+            yield return Submit();
+
+            // select trade
+            yield return DownArrow();
+            yield return Submit();
+
+            // select trading character
+            yield return Submit();
+
+            // trade item
+            yield return Submit();
+
+            Assert.AreEqual(1, sourceCharacter.Items.Count);
+            Assert.AreEqual(2, targetCharacter.Items.Count);
+
+            yield return Cancel();
+            yield return Cancel();
+        }
+
+        /// <summary>
+        /// Given a character has selected a move
+        /// When the player presses Cancel 
+        /// Then the character should be able to move again
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator EndActionTest7()
+        {
+            yield return MoveCursor(2, 2);
+            yield return Submit();
+
+            yield return DownArrow();
+            yield return RightArrow();
+            yield return Submit();
+
+            yield return Cancel();
+            yield return Cancel();
+
+            Assert.AreEqual(Cursor.State.Free, GameManager.Cursor.CurrentState);
+            Assert.False(GameManager.CurrentLevel.GetCharacter(2, 2).HasMoved);
         }
     }
 }

@@ -36,6 +36,8 @@ namespace Characters
         public int Level;
         public int Experience;
         public bool IsFlyer = false;
+        public bool HasMoved = false;
+        public bool HasTraded = false;
 
         public Player Player
         {
@@ -410,28 +412,12 @@ namespace Characters
         /// <param name="position"></param>
         public void Move(Vector2 position)
         {
-            if (transform.position.x == position.x && transform.position.y == position.y)
-            {
-                return;
-            }
-
-            if (GameManager.CurrentLevel.GetCharacter(position) != null)
-            {
-                Debug.LogErrorFormat("Position is already taken: {0}", position);
-            }
-            Vector2 oldPosition = transform.position;
-            GameManager.CurrentLevel.SetCharacter(this, position);
-
-            if (position.x != oldPosition.x || position.y != oldPosition.y)
-            {
-                GameManager.CurrentLevel.SetCharacter(null, oldPosition);
-            }
+            GameManager.CurrentLevel.MoveCharacter(this, position);
         }
 
         public int CalculateMovementCost(Vector2 position)
         {
             int cost;
-            // Debug.LogFormat("Calculating movement cost for: {0}", position);
             if (position.Equals(transform.position))
             {
                 Debug.LogFormat("The same position");
@@ -441,7 +427,6 @@ namespace Characters
             {
                 cost = CalculateMovementCost(position.x, position.y);
             }
-            // Debug.LogFormat("Movement cost: {0}", cost);
             return cost;
         }
 
@@ -788,6 +773,20 @@ namespace Characters
                 }
             }
             return false;
+        }
+
+        public SpriteRenderer GetSpriteRenderer()
+        {
+            return GameManager.FindComponentInChildWithTag<SpriteRenderer>(gameObject, Logic.Levels.Level.CharacterColorTag);
+        }
+
+        public void EndAction()
+        {
+            SpriteRenderer spriteRenderer = GetSpriteRenderer();
+            var currentColor = Player.Color;
+
+            spriteRenderer.color = new Color(currentColor.r * .5f, currentColor.g * .5f, currentColor.b * .5f);
+            HasMoved = true;
         }
 
         /// <summary>
