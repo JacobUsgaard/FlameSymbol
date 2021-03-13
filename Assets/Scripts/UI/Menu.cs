@@ -13,7 +13,7 @@ namespace Logic
 
         public readonly List<MenuItem<Item>> MenuItems;
         public int CurrentMenuItemIndex = -1;
-        private static readonly string INDICATOR = " <";
+        public static readonly string INDICATOR = " <";
 
         public Menu()
         {
@@ -32,7 +32,7 @@ namespace Logic
             {
                 CurrentMenuItemIndex = newMenuItemIndex;
                 Text text = MenuItems[CurrentMenuItemIndex].DisplayText;
-                text.text = text.text + INDICATOR;
+                text.text += INDICATOR;
             }
         }
 
