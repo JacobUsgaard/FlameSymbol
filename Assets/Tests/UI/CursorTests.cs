@@ -166,13 +166,9 @@ namespace Tests.UI
         [UnityTest]
         public IEnumerator AttackablePositionsTest2()
         {
-            yield return null;
-
             Cursor cursor = GameManager.Cursor;
 
             yield return MoveCursor(1, 2);
-
-            yield return null;
 
             Character character = GameManager.CurrentLevel.GetCharacter(cursor.transform.position);
 
@@ -228,7 +224,7 @@ namespace Tests.UI
             yield return null;
 
             yield return MoveCursor(1, 0);
-            GameManager.Cursor.OnInformation();
+            yield return Information();
 
             Assert.AreNotEqual("CharacterInformation", SceneManager.GetActiveScene().name);
         }
@@ -248,7 +244,7 @@ namespace Tests.UI
 
             yield return MoveCursor(2, 2);
 
-            yield return Information(GameManager.Cursor);
+            yield return Information();
 
             Assert.AreNotEqual("CharacterInformation", SceneManager.GetActiveScene().name);
         }
@@ -280,7 +276,7 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.True(GameManager.TerrainInformationPanel.gameObject.activeSelf);
         }
@@ -295,9 +291,9 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.False(GameManager.TerrainInformationPanel.gameObject.activeSelf);
         }
@@ -333,7 +329,7 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.True(GameManager.CharacterInformationPanel.gameObject.activeSelf);
 
@@ -356,9 +352,9 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.False(GameManager.CharacterInformationPanel.gameObject.activeSelf);
         }
@@ -372,7 +368,7 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Character character = GameManager.Cursor.SelectedCharacter;
             List<Transform> movableSpaces = character.MovableTransforms;
@@ -390,14 +386,14 @@ namespace Tests.UI
         {
             yield return MoveCursor(0, 0);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
             Assert.AreEqual(10, GameManager.Cursor.AttackableRange.AttackableTransforms.Count);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
             Assert.AreEqual(10, GameManager.Cursor.AttackableRange.AttackableTransforms.Count);
 
             yield return MoveCursor(0, 1);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
             Assert.AreEqual(12, GameManager.Cursor.AttackableRange.AttackableTransforms.Count);
 
             yield return Cancel(GameManager.Cursor);
@@ -412,9 +408,9 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.True(GameManager.CharacterActionMenu.IsInFocus());
 
@@ -426,21 +422,66 @@ namespace Tests.UI
         }
 
         [UnityTest]
+        public IEnumerator CharacterActionMenuOnCancelHasTradedTest()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+
+            character.Items.Clear();
+            character.Items.Add(Heal.Create());
+
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Submit();
+
+            // select move
+            yield return Submit();
+
+            // select trade
+            yield return DownArrow();
+            yield return Submit();
+
+            // select trading character
+            yield return Submit();
+
+            Assert.True(GameManager.TradeDetailPanel.IsInFocus());
+
+            // trade item
+            yield return Submit();
+            yield return Cancel();
+
+            Assert.True(GameManager.Cursor.IsInFocus());
+            Assert.AreEqual(Cursor.State.ChoosingTradeTarget, GameManager.Cursor.CurrentState);
+
+            yield return Cancel();
+
+            Assert.True(GameManager.CharacterActionMenu.IsInFocus());
+
+            yield return Cancel();
+
+            Assert.True(GameManager.Cursor.IsInFocus());
+            Assert.AreEqual(Cursor.State.Free, GameManager.Cursor.CurrentState);
+            Assert.True(character.HasMoved);
+            Assert.True(character.HasTraded);
+        }
+
+        [UnityTest]
         public IEnumerator CharacterActionMenuWaitTest()
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.True(GameManager.CharacterActionMenu.IsInFocus());
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return DownArrow();
 
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return Submit();
 
             Assert.True(GameManager.Cursor.IsInFocus());
             Assert.False(GameManager.CharacterActionMenu.gameObject.activeSelf);
@@ -452,17 +493,17 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.True(GameManager.CharacterActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.CharacterActionMenu.IsInFocus());
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
 
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return Submit();
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
             Assert.False(GameManager.CharacterActionMenu.gameObject.activeSelf);
 
@@ -477,13 +518,13 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.True(GameManager.ItemSelectionMenu.gameObject.activeSelf);
 
-            yield return Cancel(GameManager.ItemSelectionMenu);
+            yield return Cancel();
 
             Assert.False(GameManager.ItemSelectionMenu.gameObject.activeSelf);
             Assert.True(GameManager.CharacterActionMenu.gameObject.activeSelf);
@@ -494,17 +535,17 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
+            yield return Submit();
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.False(GameManager.CharacterActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
 
-            yield return Submit(GameManager.ItemDetailMenu);
+            yield return Submit();
 
             Assert.False(GameManager.ItemDetailMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemActionMenu.gameObject.activeSelf);
@@ -517,17 +558,17 @@ namespace Tests.UI
 
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
+            yield return Submit();
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.False(GameManager.CharacterActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
 
-            yield return Submit(GameManager.ItemDetailMenu);
+            yield return Submit();
 
             Assert.False(GameManager.ItemDetailMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemActionMenu.gameObject.activeSelf);
@@ -544,12 +585,12 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
+            yield return Submit();
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.False(GameManager.CharacterActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
@@ -560,12 +601,12 @@ namespace Tests.UI
 
             yield return DownArrow(GameManager.ItemDetailMenu);
 
-            yield return Submit(GameManager.ItemDetailMenu);
+            yield return Submit();
 
             Assert.False(GameManager.ItemDetailMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemActionMenu.gameObject.activeSelf);
 
-            yield return Submit(GameManager.ItemActionMenu);
+            yield return Submit();
 
             Assert.False(GameManager.ItemActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
@@ -579,12 +620,12 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
+            yield return Submit();
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.False(GameManager.CharacterActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
@@ -596,14 +637,14 @@ namespace Tests.UI
 
             Item equippedItem = character.Items[0];
 
-            yield return Submit(GameManager.ItemDetailMenu);
+            yield return Submit();
 
             Assert.False(GameManager.ItemDetailMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemActionMenu.gameObject.activeSelf);
 
-            yield return DownArrow(GameManager.ItemActionMenu);
-            yield return DownArrow(GameManager.ItemActionMenu);
-            yield return Submit(GameManager.ItemActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.False(GameManager.ItemActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
@@ -626,26 +667,26 @@ namespace Tests.UI
 
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
+            yield return Submit();
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.False(GameManager.CharacterActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemDetailMenu.gameObject.activeSelf);
 
             Assert.True(character.Items.Count == 1);
 
-            yield return Submit(GameManager.ItemDetailMenu);
+            yield return Submit();
 
             Assert.False(GameManager.ItemDetailMenu.gameObject.activeSelf);
             Assert.True(GameManager.ItemActionMenu.gameObject.activeSelf);
 
-            yield return DownArrow(GameManager.ItemActionMenu);
-            yield return DownArrow(GameManager.ItemActionMenu);
-            yield return Submit(GameManager.ItemActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.False(GameManager.ItemActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.CharacterActionMenu.gameObject.activeSelf);
@@ -658,15 +699,15 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
+            yield return Submit();
 
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return DownArrow();
+            yield return DownArrow();
+            yield return Submit();
 
-            yield return Submit(GameManager.ItemDetailMenu);
-            yield return DownArrow(GameManager.ItemActionMenu);
+            yield return Submit();
+            yield return DownArrow();
 
             _ = Assert.Throws<System.NotImplementedException>(() =>
               {
@@ -701,16 +742,16 @@ namespace Tests.UI
         {
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.ItemSelectionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingAttackTarget, GameManager.Cursor.CurrentState);
 
             Character originalTarget = GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position);
 
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
 
             Assert.AreNotSame(originalTarget, GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position));
         }
@@ -728,16 +769,16 @@ namespace Tests.UI
             GameManager.CurrentLevel.SetCharacter(GameManager.CurrentLevel.GetCharacter(2, 2), 2, 0);
 
             yield return MoveCursor(2, 0);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.ItemSelectionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingAttackTarget, GameManager.Cursor.CurrentState);
 
             Character originalTarget = GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position);
 
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
 
             Assert.AreSame(originalTarget, GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position));
         }
@@ -796,15 +837,15 @@ namespace Tests.UI
 
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.ItemSelectionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingAssistTarget, GameManager.Cursor.CurrentState);
 
             Character originalAssistTarget = GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position);
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
 
             Assert.AreSame(originalAssistTarget, GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position));
         }
@@ -832,19 +873,19 @@ namespace Tests.UI
 
             yield return MoveCursor(3, 1);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
+            yield return Submit();
             Debug.LogFormat("Menu item: {0}", GameManager.CharacterActionMenu.MenuItems[GameManager.CharacterActionMenu.CurrentMenuItemIndex].DisplayText.text);
-            yield return DownArrow(GameManager.CharacterActionMenu);
+            yield return DownArrow();
             Debug.LogFormat("Menu item: {0}", GameManager.CharacterActionMenu.MenuItems[GameManager.CharacterActionMenu.CurrentMenuItemIndex].DisplayText.text);
 
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return Submit();
 
 
             Assert.AreEqual(Cursor.State.ChoosingTradeTarget, GameManager.Cursor.CurrentState);
 
             Character originalAssistTarget = GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position);
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
 
             Assert.AreNotSame(originalAssistTarget, GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position));
         }
@@ -866,15 +907,15 @@ namespace Tests.UI
 
             yield return MoveCursor(2, 2);
 
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return DownArrow(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return DownArrow();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingTradeTarget, GameManager.Cursor.CurrentState);
 
             Character originalAssistTarget = GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position);
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
 
             Assert.AreSame(originalAssistTarget, GameManager.CurrentLevel.GetCharacter(GameManager.Cursor.transform.position));
 
@@ -891,7 +932,7 @@ namespace Tests.UI
         public IEnumerator OnArrowUnknownStateTest()
         {
             GameManager.Cursor.CurrentState = Cursor.State.Error;
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
 
             LogAssert.Expect(LogType.Error, "Invalid Cursor.State in OnArrow: Error");
         }
@@ -906,7 +947,7 @@ namespace Tests.UI
         public IEnumerator OnSubmitUnknownStateTest()
         {
             GameManager.Cursor.CurrentState = Cursor.State.Error;
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             LogAssert.Expect(LogType.Error, "Invalid Cursor.State in OnSubmit: Error");
         }
@@ -921,7 +962,7 @@ namespace Tests.UI
         public IEnumerator OnArrowFreeTest()
         {
             Vector3 originalPosition = GameManager.Cursor.transform.position;
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
             Assert.AreEqual(originalPosition, GameManager.Cursor.transform.position);
         }
 
@@ -935,12 +976,12 @@ namespace Tests.UI
         public IEnumerator OnArrowChoosingMoveTest()
         {
             yield return MoveCursor(2, 2);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
             yield return MoveCursor(0, 0);
             Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
 
             Vector3 originalPosition = GameManager.Cursor.transform.position;
-            yield return DownArrow(GameManager.Cursor);
+            yield return DownArrow();
             Assert.AreEqual(originalPosition, GameManager.Cursor.transform.position);
         }
 
@@ -956,7 +997,7 @@ namespace Tests.UI
         public IEnumerator OnSubmitChoosingMoveTest1()
         {
             yield return MoveCursor(2, 2);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
             yield return MoveCursor(2, 1);
 
             Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
@@ -965,7 +1006,7 @@ namespace Tests.UI
             Character currentCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
             Character targetCharacter = GameManager.CurrentLevel.GetCharacter(2, 1);
             Vector3 originalPosition = GameManager.Cursor.transform.position;
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
             Assert.AreEqual(originalPosition, GameManager.Cursor.transform.position);
@@ -985,7 +1026,7 @@ namespace Tests.UI
         public IEnumerator OnSubmitChoosingMoveTest2()
         {
             yield return MoveCursor(2, 2);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
             yield return MoveCursor(1, 2);
 
             Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
@@ -994,7 +1035,7 @@ namespace Tests.UI
             Character currentCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
             Character targetCharacter = GameManager.CurrentLevel.GetCharacter(1, 2);
             Vector3 originalPosition = GameManager.Cursor.transform.position;
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingMove, GameManager.Cursor.CurrentState);
             Assert.AreEqual(originalPosition, GameManager.Cursor.transform.position);
@@ -1014,7 +1055,7 @@ namespace Tests.UI
         public IEnumerator OnSubmitFreeTest()
         {
             yield return MoveCursor(1, 0);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
 
             Assert.True(GameManager.PlayerActionMenu.gameObject.activeSelf);
             Assert.True(GameManager.PlayerActionMenu.IsInFocus());
@@ -1030,7 +1071,7 @@ namespace Tests.UI
         public IEnumerator OnCancelChoosingMoveTest()
         {
             yield return MoveCursor(2, 2);
-            yield return Submit(GameManager.Cursor);
+            yield return Submit();
             yield return Cancel();
 
             Assert.AreEqual(0, GameManager.Cursor.Path.Positions.Count);
@@ -1053,10 +1094,10 @@ namespace Tests.UI
             character.Items.Add(Heal.Create());
 
             yield return MoveCursor(2, 2);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.ItemSelectionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingAssistTarget, GameManager.Cursor.CurrentState);
             Assert.True(GameManager.Cursor.IsInFocus());
@@ -1083,10 +1124,10 @@ namespace Tests.UI
             character.Items.Add(Fire.Create());
 
             yield return MoveCursor(2, 2);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
-            yield return Submit(GameManager.ItemSelectionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingAttackTarget, GameManager.Cursor.CurrentState);
             Assert.True(GameManager.Cursor.IsInFocus());
@@ -1113,9 +1154,9 @@ namespace Tests.UI
             character.Items.Add(Fire.Create());
 
             yield return MoveCursor(2, 2);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.Cursor);
-            yield return Submit(GameManager.CharacterActionMenu);
+            yield return Submit();
+            yield return Submit();
+            yield return Submit();
 
             Assert.AreEqual(Cursor.State.ChoosingTradeTarget, GameManager.Cursor.CurrentState);
             Assert.True(GameManager.Cursor.IsInFocus());
@@ -1140,7 +1181,5 @@ namespace Tests.UI
 
             LogAssert.Expect(LogType.Error, "Invalid Cursor.State in OnCancel: Error");
         }
-
-
     }
 }
