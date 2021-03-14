@@ -130,8 +130,6 @@ namespace Logic
             IsHumanTurn = true;
             Cursor.Focus();
             Cursor.CurrentState = UI.Cursor.State.Free;
-
-            //CurrentPlayer = AiPlayer;
         }
 
         public delegate void Callback(params Object[] objects);

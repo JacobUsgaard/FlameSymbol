@@ -41,7 +41,6 @@ namespace Items.Weapons
                 Weight);
         }
 
-        // TODO figure out how to do defaults for weapons better
         public static Type CreateInstance<Type>(Text text, int uses, Proficiency.Rank rank, int hitPercentage, int might, int criticalPercentage, int weight, params int[] ranges) where Type : Weapon
         {
             Type weapon = CreateInstance<Type>();

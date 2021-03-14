@@ -58,5 +58,21 @@ namespace Tests.UI
             MainMenu mainMenu = Object.FindObjectOfType<MainMenu>();
             Assert.Null(mainMenu);
         }
+
+        [UnityTest]
+        public IEnumerator ContinueButtonOnClickTest()
+        {
+            yield return null;
+            MainMenu.ContinueButtonOnClick();
+            LogAssert.Expect(LogType.Error, "ContinueButtonOnClick not yet implemented");
+        }
+
+        [UnityTest]
+        public IEnumerator CopyButtonOnClickTest()
+        {
+            yield return null;
+            MainMenu.CopyButtonOnClick();
+            LogAssert.Expect(LogType.Error, "CopyButtonOnClick not yet implemented");
+        }
     }
 }
