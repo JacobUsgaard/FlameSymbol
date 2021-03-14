@@ -10,9 +10,6 @@ using UnityEngine;
 namespace Characters
 {
 
-    /// <summary>
-    /// TODO weapon Proficiencies
-    /// </summary>
     public abstract class Character : ManagedMonoBehavior
     {
         private Player player;
@@ -432,7 +429,6 @@ namespace Characters
 
         /// <summary>
         /// Calculates the cost for this character to move to the given position.
-        /// TODO add terrain considerations
         /// </summary>
         /// <param name="position">The position for which to determine the cost</param>
         /// <returns>The cost for this character to move to the given position</returns>
@@ -544,15 +540,12 @@ namespace Characters
         /// <summary>
         /// Attack the specified Character and apply damage, effects, etc
         ///
-        /// TODO make criticals a thing
-        /// TODO make speed a thing
         /// </summary>
         /// <param name="defenseCharacter">The Character to attack</param>
         public void Attack(Character defenseCharacter)
         {
             AttackInformation attackInfo = CalculateAttackInformation(defenseCharacter);
 
-            // TODO use actual hit percentage
             int attackHitPercentage = GameManager.Random.Next(100);
 
             int attackExperience = 1;
@@ -661,7 +654,6 @@ namespace Characters
         /// <summary>
         /// Calculate the hit percentage
         ///
-        /// TODO add terrain considerations
         /// </summary>
         /// <param name="attackCharacter"></param>
         /// <param name="attackWeapon"></param>
@@ -680,7 +672,6 @@ namespace Characters
         /// <summary>
         /// Calculate the damage done by the attack Character with the specified weapon and the defense Character
         ///
-        /// TODO Add terrain considerations
         /// </summary>
         /// <param name="attackCharacter"></param>
         /// <param name="attackWeapon"></param>

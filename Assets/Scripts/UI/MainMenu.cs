@@ -46,23 +46,17 @@ namespace UI
 
         public void ContinueButtonOnClick()
         {
-            throw new System.NotImplementedException();
+            Debug.LogError("ContinueButtonOnClick not yet implemented");
         }
 
         public void CopyButtonOnClick()
         {
-            throw new System.NotImplementedException();
+            Debug.LogError("CopyButtonOnClick not yet implemented");
         }
 
         public void NewGameButtonOnClick()
         {
             Debug.Log("NewGameButtonOnClick");
-
-            //Scene scene = SceneManager.GetSceneByName(GameManager.SceneNameFlameSymbol);
-            //SceneManager.LoadScene(GameManager.SceneNameFlameSymbol);
-
-            //_ = SceneManager.SetActiveScene(scene);
-            //SceneManager.LoadScene("Scenes/FlameSymbol");
             SceneManager.LoadScene(GameManager.SceneNameFlameSymbol);
         }
     }
