@@ -19,27 +19,30 @@ jobs:
           - 2019.4.0f1
         targetPlatform:
           - StandaloneOSX
+          - StandaloneWindows
+          - StandaloneWindows64
+          - StandaloneLinux64
     steps:
       - uses: actions/checkout@v2
         with:
           lfs: true
-      - uses: actions/cache@v1.1.0
+      - uses: actions/cache@v2
         with:
           path: Library
           key: Library
-      - uses: webbertakken/unity-test-runner@v1.3
+      - uses: game-ci/unity-test-runner@v2
         id: testRunner
         with:
           unityVersion: ${{ matrix.unityVersion }}
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         with:
           name: Test results (all modes)
           path: ${{ steps.testRunner.outputs.artifactsPath }}
-      - uses: webbertakken/unity-builder@v0.10
+      - uses: game-ci/unity-builder@v2
         with:
           unityVersion: ${{ matrix.unityVersion }}
           targetPlatform: ${{ matrix.targetPlatform }}
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         with:
           name: Build
           path: build
