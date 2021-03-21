@@ -173,8 +173,8 @@ namespace UI
             SelectedCharacter.DestroyMovableAndAttackableAndAssistableTransforms();
             DestroyTradableSpaces();
             GameManager.CharacterActionMenu.Hide();
-            CurrentState = State.Free;
             SelectedCharacter.EndAction();
+            CurrentState = State.Free;
             Focus();
         }
 
@@ -417,9 +417,10 @@ namespace UI
         /// <param name="position"></param>
         private void ShowMovableAndAttackablePositions(Vector2 position)
         {
+            Debug.LogFormat("ShowMovableAndAttackablePositions: {0}", position);
             Character character = GameManager.CurrentLevel.GetCharacter(position);
 
-            if (character)
+            if (character && !character.HasMoved)
             {
                 character.CreateAttackableTransforms();
             }
