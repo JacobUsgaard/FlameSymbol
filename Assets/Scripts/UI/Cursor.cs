@@ -616,13 +616,14 @@ namespace UI
 
         private void OnSubmitChoosingAttackTarget()
         {
+            Debug.Log("OnSubmitChoosingAttackTarget");
             Character defender = GameManager.CurrentLevel.GetCharacter(AttackableSpacesWithCharacters[AttackableSpacesWithCharactersIndex].position);
             Debug.LogFormat("Defender: {0}", defender);
 
             Character attacker = SelectedCharacter;
             Debug.LogFormat("Attacker: {0}", attacker);
 
-            attacker.Attack(defender);
+            attacker.CompleteAttack(defender);
             GameManager.DestroyAll(attacker.AttackableTransforms);
             GameManager.AttackDetailPanel.Hide();
             GameManager.CharacterActionMenu.Hide();

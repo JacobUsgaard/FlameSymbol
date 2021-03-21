@@ -537,27 +537,52 @@ namespace Characters
             }
         }
 
-        /// <summary>
-        /// Attack the specified Character and apply damage, effects, etc
-        ///
-        /// </summary>
-        /// <param name="defenseCharacter">The Character to attack</param>
-        public void Attack(Character defenseCharacter)
+        public class AttackResult
         {
-            AttackInformation attackInfo = CalculateAttackInformation(defenseCharacter);
+            public Character AttackCharacter;
+            public int AttackExperience;
 
-            int attackHitPercentage = GameManager.Random.Next(100);
+            public Character DefenseCharacter;
+            public int DefenseExperience;
+
+            public AttackResult(int attackExperience, int defenseExperience)
+            {
+                AttackExperience = attackExperience;
+                DefenseExperience = defenseExperience;
+            }
+
+            public void Add(AttackResult attackResult)
+            {
+                AttackExperience += attackResult.AttackExperience;
+                DefenseExperience += attackResult.DefenseExperience;
+            }
+        }
+
+        /// <summary>
+        /// Apply attack from this character using the given parameters
+        /// </summary>
+        /// <param name="attackWeapon"></param>
+        /// <param name="attackHitPercentage"></param>
+        /// <param name="attackDamage"></param>
+        /// <param name="defenseCharacter"></param>
+        /// <returns></returns>
+        public AttackResult ApplyAttack(Weapon attackWeapon, int attackHitPercentage, int attackDamage, Character defenseCharacter)
+        {
+            Debug.LogFormat("ApplyAttack: {0}, {1}, {2}, {3}", attackWeapon, attackHitPercentage, attackDamage, defenseCharacter);
+            int attackHitChance = GameManager.Random.Next(100);
+            Debug.LogFormat("Attack hit chance: {0}", attackHitChance);
+
 
             int attackExperience = 1;
-            int defenseExperience = 0;
+            int defenseExperience = 1;
 
-            if (attackHitPercentage <= attackInfo.AttackHitPercentage)
+            if (attackHitChance <= attackHitPercentage)
             {
-                attackInfo.AttackWeapon.Use();
-                if (attackInfo.AttackDamage != 0)
+                attackWeapon.Use();
+                if (attackDamage != 0)
                 {
                     attackExperience += 9;
-                    defenseCharacter.CurrentHp = Mathf.Max(0, defenseCharacter.CurrentHp - attackInfo.AttackDamage);
+                    defenseCharacter.CurrentHp = Mathf.Max(0, defenseCharacter.CurrentHp - attackDamage);
                 }
             }
 
@@ -566,31 +591,66 @@ namespace Characters
                 attackExperience += 10;
                 defenseCharacter.Die();
             }
-            else
-            {
-                defenseExperience += 1;
 
-                int defenseHitPercentage = GameManager.Random.Next(100);
-                if (defenseHitPercentage <= attackInfo.DefenseHitPercentage)
-                {
-                    attackInfo.DefenseWeapon.Use();
-                    if (attackInfo.DefenseDamage != 0)
-                    {
-                        defenseExperience += 9;
-                        CurrentHp = Mathf.Max(0, CurrentHp - attackInfo.DefenseDamage);
-                    }
-                }
+            return new AttackResult(attackExperience, defenseExperience);
+        }
+
+        /// <summary>
+        /// Attack the specified Character and apply damage, effects, etc
+        ///
+        /// </summary>
+        /// <param name="defenseCharacter">The Character to attack</param>
+        public void CompleteAttack(Character defenseCharacter)
+        {
+            AttackResult attackResult = Attack(defenseCharacter);
+            AddExperience(attackResult.AttackExperience);
+            AddExperience(attackResult.DefenseExperience);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="defenseCharacter"></param>
+        /// <returns></returns>
+        private AttackResult Attack(Character defenseCharacter)
+        {
+            AttackInformation attackInformation = CalculateAttackInformation(defenseCharacter);
+
+            AttackResult attackResult = ApplyAttack(
+                attackInformation.AttackWeapon,
+                attackInformation.AttackHitPercentage,
+                attackInformation.AttackDamage,
+                defenseCharacter);
+
+            if (defenseCharacter.CurrentHp == 0)
+            {
+                return attackResult;
+            }
+
+            if (attackInformation.DefenseCanAttack)
+            {
+                attackResult.Add(defenseCharacter.ApplyAttack(
+                    attackInformation.DefenseWeapon,
+                    attackInformation.DefenseHitPercentage,
+                    attackInformation.DefenseDamage,
+                    this));
 
                 if (CurrentHp == 0)
                 {
-                    defenseExperience += 10;
-                    defenseCharacter.AddExperience(defenseExperience);
-                    Die();
-                    return;
+                    return attackResult;
                 }
             }
 
-            AddExperience(attackExperience);
+            if (attackInformation.AttackNumberOfAttacks == 2)
+            {
+                attackResult.Add(ApplyAttack(
+                    attackInformation.AttackWeapon,
+                    attackInformation.AttackHitPercentage,
+                    attackInformation.AttackDamage,
+                    defenseCharacter));
+            }
+
+            return attackResult;
         }
 
         public AssistInformation CalculateAssistInformation(Character targetCharacter)
@@ -607,6 +667,7 @@ namespace Characters
         /// <returns></returns>
         public AttackInformation CalculateAttackInformation(Character defenseCharacter)
         {
+            Debug.LogFormat("CalculateAttackInformation: {0}", defenseCharacter);
             Weapon attackWeapon = GetUsableItem<Weapon>();
             Debug.LogFormat("Attack weapon: {0}", attackWeapon);
 
@@ -637,7 +698,7 @@ namespace Characters
                 defenseNumberOfAttacks = defenseCharacter.CalculateNumberOfAttacks(defenseWeapon, this, attackWeapon);
             }
 
-            return new AttackInformation(
+            AttackInformation attackInformation = new AttackInformation(
                 attackWeapon: attackWeapon,
                 attackHitPercentage: attackHitPercentage,
                 attackDamage: attackDamage,
@@ -649,6 +710,10 @@ namespace Characters
                 defenseCriticalPercentage: defenseCriticalPercentage,
                 defenseCanAttack: defenseCanAttack,
                 defenseNumberOfAttacks: defenseNumberOfAttacks);
+
+            Debug.Log(attackInformation);
+
+            return attackInformation;
         }
 
         /// <summary>

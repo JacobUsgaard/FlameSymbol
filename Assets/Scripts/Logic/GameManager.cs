@@ -172,7 +172,7 @@ namespace Logic
                             continue;
                         }
 
-                        character.Attack(defendingCharacter);
+                        character.CompleteAttack(defendingCharacter);
                         goto EndTurn;
                     }
                 }

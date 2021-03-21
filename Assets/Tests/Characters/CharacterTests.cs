@@ -473,7 +473,7 @@ namespace Tests.Characters
 
             GameManager.CurrentLevel.SetCharacter(character, 1, 0);
 
-            character.Attack(GameManager.CurrentLevel.GetCharacter(0, 0));
+            character.CompleteAttack(GameManager.CurrentLevel.GetCharacter(0, 0));
 
             yield return null;
         }
@@ -490,7 +490,7 @@ namespace Tests.Characters
 
             GameManager.CurrentLevel.SetCharacter(character, 1, 0);
 
-            character.Attack(GameManager.CurrentLevel.GetCharacter(0, 0));
+            character.CompleteAttack(GameManager.CurrentLevel.GetCharacter(0, 0));
 
             yield return null;
         }
@@ -762,6 +762,21 @@ namespace Tests.Characters
 
             Assert.AreEqual(Cursor.State.Free, GameManager.Cursor.CurrentState);
             Assert.False(GameManager.CurrentLevel.GetCharacter(2, 2).HasMoved);
+        }
+
+        [UnityTest]
+        public IEnumerator DoubleAttackTest1()
+        {
+            Character attackCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            attackCharacter.Speed = 30;
+
+            Character defenseCharacter = GameManager.CurrentLevel.GetCharacter(1, 2);
+
+            attackCharacter.CompleteAttack(defenseCharacter);
+
+            Assert.AreEqual(0, defenseCharacter.CurrentHp);
+
+            yield return null;
         }
     }
 }
