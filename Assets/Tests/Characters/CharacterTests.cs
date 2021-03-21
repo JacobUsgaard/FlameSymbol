@@ -792,5 +792,36 @@ namespace Tests.Characters
             LogAssert.Expect(LogType.Log, "Critical attack");
             yield return null;
         }
+
+        /// <summary>
+        /// Given a character has moved
+        /// And Cursor.CurrentState is Free
+        /// When Cursor is over character
+        /// Then movable and attackable transforms should not show
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator CharacterHasMovedTest()
+        {
+            // Move cursor
+            yield return MoveCursor(2, 2);
+
+            // select character
+            yield return Submit();
+
+            // select move
+            yield return Submit();
+
+            // select Wait
+            yield return UpArrow();
+            yield return Submit();
+
+            Character character = GameManager.CurrentLevel.GetCharacter(2, 2);
+
+            Assert.True(character.HasMoved);
+
+            Assert.IsEmpty(character.AttackableTransforms);
+            Assert.IsEmpty(character.MovableTransforms);
+        }
     }
 }
