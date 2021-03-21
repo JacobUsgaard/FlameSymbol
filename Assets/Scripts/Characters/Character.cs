@@ -564,9 +564,10 @@ namespace Characters
         /// <param name="attackWeapon"></param>
         /// <param name="attackHitPercentage"></param>
         /// <param name="attackDamage"></param>
+        /// <param name="attackCriticalPercentage"></param>
         /// <param name="defenseCharacter"></param>
         /// <returns></returns>
-        public AttackResult ApplyAttack(Weapon attackWeapon, int attackHitPercentage, int attackDamage, Character defenseCharacter)
+        public AttackResult ApplyAttack(Weapon attackWeapon, int attackHitPercentage, int attackDamage, int attackCriticalPercentage, Character defenseCharacter)
         {
             Debug.LogFormat("ApplyAttack: {0}, {1}, {2}, {3}", attackWeapon, attackHitPercentage, attackDamage, defenseCharacter);
             int attackHitChance = GameManager.Random.Next(100);
@@ -578,6 +579,13 @@ namespace Characters
 
             if (attackHitChance <= attackHitPercentage)
             {
+                int criticalHitChance = GameManager.Random.Next(100);
+                if (criticalHitChance <= attackCriticalPercentage)
+                {
+                    Debug.Log("Critical attack");
+                    attackDamage *= 3;
+                }
+
                 attackWeapon.Use();
                 if (attackDamage != 0)
                 {
@@ -620,6 +628,7 @@ namespace Characters
                 attackInformation.AttackWeapon,
                 attackInformation.AttackHitPercentage,
                 attackInformation.AttackDamage,
+                attackInformation.AttackCriticalPercentage,
                 defenseCharacter);
 
             if (defenseCharacter.CurrentHp == 0)
@@ -633,6 +642,7 @@ namespace Characters
                     attackInformation.DefenseWeapon,
                     attackInformation.DefenseHitPercentage,
                     attackInformation.DefenseDamage,
+                    attackInformation.DefenseCriticalPercentage,
                     this));
 
                 if (CurrentHp == 0)
@@ -647,6 +657,7 @@ namespace Characters
                     attackInformation.AttackWeapon,
                     attackInformation.AttackHitPercentage,
                     attackInformation.AttackDamage,
+                    attackInformation.AttackCriticalPercentage,
                     defenseCharacter));
             }
 

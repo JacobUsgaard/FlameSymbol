@@ -778,5 +778,19 @@ namespace Tests.Characters
 
             yield return null;
         }
+
+        [UnityTest]
+        public IEnumerator CriticalAttackTest1()
+        {
+            Character attackCharacter = GameManager.CurrentLevel.GetCharacter(2, 2);
+            attackCharacter.Skill = 10000;
+
+            Character defenseCharacter = GameManager.CurrentLevel.GetCharacter(1, 2);
+
+            attackCharacter.CompleteAttack(defenseCharacter);
+
+            LogAssert.Expect(LogType.Log, "Critical attack");
+            yield return null;
+        }
     }
 }
