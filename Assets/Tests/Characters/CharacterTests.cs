@@ -27,6 +27,8 @@ namespace Tests.Characters
         [UnityTest]
         public IEnumerator AttackTest1()
         {
+            Character character = GameManager.CurrentLevel.GetCharacter(1, 2);
+
             yield return MoveCursor(2, 2);
 
             // Select Character
@@ -53,7 +55,6 @@ namespace Tests.Characters
             // Select Character to attack
             yield return Submit();
 
-            Character character = GameManager.CurrentLevel.GetCharacter(1, 2);
             Assert.AreNotEqual(character.MaxHp, character.CurrentHp);
         }
 
