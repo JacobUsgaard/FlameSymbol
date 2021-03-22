@@ -173,7 +173,7 @@ namespace Tests.UI
             Character character = GameManager.CurrentLevel.GetCharacter(cursor.transform.position);
 
             Assert.AreEqual(0, character.AttackableTransforms.Count);
-            Assert.AreEqual(11, character.MovableTransforms.Count);
+            Assert.AreEqual(10, character.MovableTransforms.Count);
         }
 
         [UnityTest]

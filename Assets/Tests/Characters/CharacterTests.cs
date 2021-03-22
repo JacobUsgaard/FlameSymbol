@@ -823,5 +823,24 @@ namespace Tests.Characters
             Assert.IsEmpty(character.AttackableTransforms);
             Assert.IsEmpty(character.MovableTransforms);
         }
+
+        [UnityTest]
+        public IEnumerator TerrainMovementTest1()
+        {
+            Character character = GameManager.CurrentLevel.GetCharacter(0, 0);
+            character.Moves = 2;
+
+
+            yield return MoveCursor(0, 0);
+
+            Assert.True(character.MovableTransforms.Exists(c => c.position.x == 2 && c.position.y == 0));
+
+            GameManager.CurrentLevel.SetTerrain(GameManager.ForrestTerrain, 2, 0);
+
+            yield return MoveCursor(1, 0);
+            yield return MoveCursor(0, 0);
+
+            Assert.False(character.MovableTransforms.Exists(c => c.position.x == 2 && c.position.y == 0));
+        }
     }
 }

@@ -74,19 +74,27 @@ namespace Tests.Logic.Levels
             LogAssert.Expect(LogType.Error, "Position is out of bounds: (-1,0)");
             yield return null;
         }
-    }
 
-    public class BadLevel : Level
-    {
-        public override bool IsLevelOver()
+        [UnityTest]
+        public IEnumerator SetTerrainTest1()
         {
-            throw new System.NotImplementedException();
+            GameManager.CurrentLevel.SetTerrain(null, -1, 0);
+            LogAssert.Expect(LogType.Error, "Position is out of bounds: (-1,0)");
+            yield return null;
         }
 
-        protected override void Init()
+        public class BadLevel : Level
         {
-            CharacterMap = new Character[1, 1];
-            TerrainMap = new Terrain.Terrain[2, 2];
+            public override bool IsLevelOver()
+            {
+                throw new System.NotImplementedException();
+            }
+
+            protected override void Init()
+            {
+                CharacterMap = new Character[1, 1];
+                TerrainMap = new Terrain.Terrain[2, 2];
+            }
         }
     }
 }
