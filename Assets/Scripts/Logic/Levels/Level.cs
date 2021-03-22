@@ -58,7 +58,7 @@ namespace Logic.Levels
 
             if (TerrainMap.GetLength(0) != CharacterMap.GetLength(0) || TerrainMap.GetLength(1) != CharacterMap.GetLength(1))
             {
-                Debug.LogError("Character map and terrain map must be the same dimensions");
+                Debug.LogErrorFormat("Character map and terrain map must be the same dimensions");
                 return;
             }
 
@@ -87,7 +87,6 @@ namespace Logic.Levels
         /// <returns></returns>
         public bool IsOutOfBounds(float x, float y)
         {
-            //return (x < 0f || x >= CharacterMap.GetLength(0) || y < 0f || y >= CharacterMap.GetLength(1) || !TerrainMap[(int)x,(int)y].IsPassable);
             return x < 0f || x >= CharacterMap.GetLength(0) || y < 0f || y >= CharacterMap.GetLength(1);
         }
 
@@ -217,6 +216,23 @@ namespace Logic.Levels
         public void Kill(Character character)
         {
             SetCharacter(null, character.transform.position);
+        }
+
+        public void SetTerrain(Transform transform, float x, float y)
+        {
+            if (IsOutOfBounds(x, y))
+            {
+                Debug.LogErrorFormat("Position is out of bounds: ({0},{1})", x, y);
+                return;
+            }
+
+            Terrain.Terrain terrain = TerrainMap[(int)x, (int)y];
+            if (terrain)
+            {
+                Destroy(terrain.gameObject);
+            }
+
+            TerrainMap[(int)x, (int)y] = Create<Terrain.Terrain>(transform);
         }
 
         public void MoveCharacter(Character character, Vector2 newPosition)

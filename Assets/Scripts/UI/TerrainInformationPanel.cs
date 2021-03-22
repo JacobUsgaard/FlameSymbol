@@ -15,8 +15,8 @@ namespace UI
         public void Show(Terrain.Terrain terrain)
         {
             TerrainNameText.text = terrain.DisplayName;
-            HitPercentageText.text = "Hit: " + terrain.HitPercentage + "%";
-            DefenseText.text = "Def: " + terrain.DefensePercentage + "%";
+            HitPercentageText.text = "Hit: " + terrain.HitPercentageBoost + "%";
+            DefenseText.text = "Def: " + terrain.DefenseBoost + "%";
             MovementCostText.text = "Move: " + terrain.MovementCost;
 
             transform.position = new Vector2(terrain.transform.position.x, terrain.transform.position.y + 1);

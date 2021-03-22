@@ -91,15 +91,14 @@ namespace Characters
             HashSet<Vector2> movableSpaces = new HashSet<Vector2>();
             Character character = GameManager.CurrentLevel.GetCharacter(x, y);
             Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
-            if (remainingMoves <= 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || !terrain.IsPassable(this, x, y) || (character != null && !character.Player.Equals(Player)))
+            remainingMoves -= CalculateMovementCost(x, y);
+
+            if (remainingMoves < 0 || GameManager.CurrentLevel.IsOutOfBounds(x, y) || !terrain.IsPassable(this, x, y) || (character != null && !character.Player.Equals(Player)))
             {
                 return movableSpaces;
             }
 
-            Vector2 position = new Vector2(x, y);
-            remainingMoves -= CalculateMovementCost(position);
-
-            _ = movableSpaces.Add(position);
+            _ = movableSpaces.Add(new Vector2(x, y));
 
             movableSpaces.UnionWith(CalculateMovablePositions(x - 1, y, remainingMoves));
             movableSpaces.UnionWith(CalculateMovablePositions(x + 1, y, remainingMoves));
@@ -414,17 +413,7 @@ namespace Characters
 
         public int CalculateMovementCost(Vector2 position)
         {
-            int cost;
-            if (position.Equals(transform.position))
-            {
-                Debug.LogFormat("The same position");
-                cost = 0;
-            }
-            else
-            {
-                cost = CalculateMovementCost(position.x, position.y);
-            }
-            return cost;
+            return CalculateMovementCost(position.x, position.y);
         }
 
         /// <summary>
@@ -434,13 +423,23 @@ namespace Characters
         /// <returns>The cost for this character to move to the given position</returns>
         protected virtual int CalculateMovementCost(float x, float y)
         {
+            int cost;
             if (GameManager.CurrentLevel.IsOutOfBounds(x, y))
             {
-                return int.MaxValue;
+                cost = int.MaxValue;
             }
+            else
 
-            Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
-            return terrain.MovementCost;
+            if (transform.position.x == x && transform.position.y == y)
+            {
+                cost = 0;
+            }
+            else
+            {
+                Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(x, y);
+                cost = terrain.MovementCost;
+            }
+            return cost;
         }
 
         /// <summary>
