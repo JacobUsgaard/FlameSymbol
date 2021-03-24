@@ -843,5 +843,21 @@ namespace Tests.Characters
 
             Assert.False(character.MovableTransforms.Exists(c => c.position.x == 2 && c.position.y == 0));
         }
+
+        [UnityTest]
+        public IEnumerator TerrainDefenseTest1()
+        {
+            Character attacker = GameManager.CurrentLevel.GetCharacter(2, 2);
+            Character defender = GameManager.CurrentLevel.GetCharacter(1, 2);
+
+            int before = attacker.CalculateDamage(attacker.GetUsableItem<Weapon>(), defender, null);
+
+            GameManager.CurrentLevel.SetTerrain(GameManager.ForrestTerrain, 1, 2);
+            yield return null;
+
+            int after = attacker.CalculateDamage(attacker.GetUsableItem<Weapon>(), defender, null);
+
+            Assert.Greater(before, after);
+        }
     }
 }
