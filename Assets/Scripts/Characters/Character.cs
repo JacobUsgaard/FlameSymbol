@@ -754,7 +754,8 @@ namespace Characters
         /// <returns></returns>
         public int CalculateDamage(Weapon attackWeapon, Character defenseCharacter, Weapon defenseWeapon)
         {
-            int damage = attackWeapon.CalculateDamage(this, defenseCharacter, defenseWeapon);
+            Terrain.Terrain terrain = GameManager.CurrentLevel.GetTerrain(defenseCharacter.transform.position);
+            int damage = attackWeapon.CalculateDamage(this, defenseCharacter, defenseWeapon) - terrain.DefenseBoost;
             if (attackWeapon is StrengthWeapon)
             {
                 damage += Strength - defenseCharacter.Defense;
