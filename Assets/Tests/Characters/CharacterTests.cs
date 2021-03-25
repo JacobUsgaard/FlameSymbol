@@ -859,5 +859,21 @@ namespace Tests.Characters
 
             Assert.Greater(before, after);
         }
+
+        [UnityTest]
+        public IEnumerator TerrainHitTest1()
+        {
+            Character attacker = GameManager.CurrentLevel.GetCharacter(2, 2);
+            Character defender = GameManager.CurrentLevel.GetCharacter(1, 2);
+
+            int before = attacker.CalculateHitPercentage(attacker.GetUsableItem<Weapon>(), defender, null);
+
+            GameManager.CurrentLevel.SetTerrain(GameManager.ForrestTerrain, 1, 2);
+            yield return null;
+
+            int after = attacker.CalculateHitPercentage(attacker.GetUsableItem<Weapon>(), defender, null);
+
+            Assert.Greater(before, after);
+        }
     }
 }

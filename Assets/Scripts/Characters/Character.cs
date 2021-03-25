@@ -734,14 +734,15 @@ namespace Characters
         /// <param name="attackWeapon"></param>
         /// <param name="defenseCharacter"></param>
         /// <returns></returns>
-        private int CalculateHitPercentage(Weapon attackWeapon, Character defenseCharacter, Weapon defenseWeapon)
+        public int CalculateHitPercentage(Weapon attackWeapon, Character defenseCharacter, Weapon defenseWeapon)
         {
-            int damage =
+            int hit =
                 attackWeapon.HitPercentage
                 + Skill
                 - defenseCharacter.Speed
+                - GameManager.CurrentLevel.GetTerrain(defenseCharacter.transform.position).HitPercentageBoost
                 + (defenseWeapon == null ? 0 : defenseWeapon.Weight);
-            return Mathf.Clamp(damage, 0, 100);
+            return Mathf.Clamp(hit, 0, 100);
         }
 
         /// <summary>
