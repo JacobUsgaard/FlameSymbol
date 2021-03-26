@@ -2,8 +2,10 @@
 {
     public class Forest : Terrain
     {
-        public Forest() : base()
+        public new void Awake()
         {
+            base.Awake();
+
             MovementCost = 2;
             HitPercentageBoost = 20;
             DefenseBoost = 2;
