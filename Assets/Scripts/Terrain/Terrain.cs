@@ -26,6 +26,11 @@ namespace Terrain
         /// </summary>
         public int HitPercentageBoost { get; set; } = 0;
 
+        public void Awake()
+        {
+            DisplayName = GetType().Name;
+        }
+
         public virtual bool IsPassable(Character character, float x, float y)
         {
             return true;
