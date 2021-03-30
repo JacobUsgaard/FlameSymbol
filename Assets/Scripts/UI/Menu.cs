@@ -78,8 +78,7 @@ namespace Logic
 
         public void AddMenuItem(Item type, Text displayText, GameManager.Callback menuItemCallback)
         {
-            MenuItem<Item> menuItem = new MenuItem<Item>(type, displayText, menuItemCallback, this);
-            MenuItems.Add(menuItem);
+            MenuItems.Add(new MenuItem<Item>(type, displayText, menuItemCallback, this));
         }
 
         public void SelectMenuItem()

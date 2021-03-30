@@ -88,11 +88,11 @@ namespace Logic
         public Level _currentLevel;
 
         public System.Random Random = new System.Random();
-        private bool IsHumanTurn = false;
         private Player HumanPlayer;
         private AIPlayer AiPlayer;
 
         public Player CurrentPlayer { get; set; }
+        public List<Player> Players { get; } = new List<Player>();
 
         public Level CurrentLevel
         {
@@ -118,8 +118,13 @@ namespace Logic
 
             HumanPlayer = ScriptableObject.CreateInstance<Player>();
             HumanPlayer.Color = Color.blue;
+            HumanPlayer.IsHuman = true;
+            Players.Add(HumanPlayer);
+
             AiPlayer = ScriptableObject.CreateInstance<AIPlayer>();
             AiPlayer.Color = Color.red;
+            AiPlayer.IsHuman = false;
+            Players.Add(AiPlayer);
 
             CurrentLevel = ScriptableObject.CreateInstance<TestLevel>();
             CurrentLevel.Init(this, HumanPlayer, AiPlayer);
@@ -127,7 +132,6 @@ namespace Logic
             Cursor.transform.position = CurrentLevel.StartPosition;
 
             CurrentPlayer = HumanPlayer;
-            IsHumanTurn = true;
             Cursor.Focus();
             Cursor.CurrentState = UI.Cursor.State.Free;
         }
@@ -143,7 +147,14 @@ namespace Logic
                 return;
             }
 
-            if (IsHumanTurn)
+            if (CurrentPlayer.HaveAllCharactersMoved())
+            {
+                Debug.LogFormat("All characters have moved");
+                EndTurn();
+                return;
+            }
+
+            if (CurrentPlayer.IsHuman)
             {
                 HandleInput();
                 return;
@@ -180,7 +191,6 @@ namespace Logic
 
         EndTurn:
             CurrentPlayer = HumanPlayer;
-            IsHumanTurn = true;
             Cursor.Focus();
         }
 
@@ -215,32 +225,6 @@ namespace Logic
                 FocusableObject.CurrentObject.OnArrow(horizontal, vertical);
                 System.Threading.Thread.Sleep(50);
             }
-
-            //Vector2 mousePosition = Input.mousePosition;
-            //if(mousePosition.x < 0 || mousePosition.x > Screen.width || mousePosition.y < 0 || mousePosition.y > Screen.height)
-            //{
-            //    return;
-            //    //Debug.Log("Mouse outside window");
-            //}
-
-            //Vector2 mousePositionWorldPoint = TranslateMousePosition(mousePosition);
-            ////Debug.LogFormat("Mouse position in world: {0}", mousePositionWorldPoint);
-
-            //if (Input.GetMouseButtonDown(1))
-            //{
-            //    Debug.LogFormat("Right click: {0}", mousePositionWorldPoint);
-            //    currentFocusableObject.OnRightMouse(mousePositionWorldPoint);
-            //}
-        }
-
-        public Vector2 TranslateMousePosition(Vector2 mousePosition)
-        {
-            Vector2 vector2 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-            vector2.x += 0.5f;
-            vector2.y += 0.5f;
-
-            return vector2;
         }
 
         public void ShowPlayerActionMenu()
@@ -253,12 +237,15 @@ namespace Logic
                 Cursor.CurrentState = UI.Cursor.State.Free;
                 Cursor.Focus();
             });
-            PlayerActionMenu.Show(delegate (Object[] objects)
-            {
-                PlayerActionMenu.Hide();
-                Cursor.Focus();
-            });
+            PlayerActionMenu.Show(PlayerActionMenuOnCancel);
             PlayerActionMenu.Focus();
+        }
+
+        public void PlayerActionMenuOnCancel(object[] objects)
+        {
+            Debug.Log("PlayerActionMenuOnCancel");
+            PlayerActionMenu.Hide();
+            Cursor.Focus();
         }
 
         public void EndTurn()
@@ -266,29 +253,15 @@ namespace Logic
             EndTurn(CurrentPlayer);
         }
 
-        private void EndTurn(Player player)
+        public void EndTurn(Player player)
         {
             if (!player.Equals(CurrentPlayer))
             {
-                Debug.LogError("Player that is not current player is ending their turn. Current player: " + CurrentPlayer + ", calling player: " + player);
+                Debug.LogErrorFormat("Player that is not current player is ending their turn. Current player: {0}, calling player: {1}", CurrentPlayer, player);
                 return;
             }
 
-            if (HumanPlayer.Equals(CurrentPlayer))
-            {
-                IsHumanTurn = false;
-                CurrentPlayer = AiPlayer;
-            }
-            else if (AiPlayer.Equals(CurrentPlayer))
-            {
-                IsHumanTurn = true;
-                CurrentPlayer = HumanPlayer;
-            }
-            else
-            {
-                Debug.LogError("Player 3 has entered");
-                return;
-            }
+            CurrentPlayer = CalculateNextPlayer();
         }
 
         public static void DestroyAll(ICollection<Transform> transforms = default(List<Transform>))
@@ -314,6 +287,18 @@ namespace Logic
                 }
             }
             return null;
+        }
+
+        public Player CalculateNextPlayer()
+        {
+            int currentIndex = Players.IndexOf(CurrentPlayer);
+            if (currentIndex == -1)
+            {
+                Debug.LogErrorFormat("Unable to find player: {0}", CurrentPlayer.Name);
+                return null;
+            }
+
+            return Players[(Players.Count + 1) % Players.Count];
         }
     }
 }
