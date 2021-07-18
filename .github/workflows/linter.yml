@@ -11,9 +11,9 @@ name: Lint Code Base
 # https://help.github.com/en/articles/workflow-syntax-for-github-actions
 #
 
-#############################
-# Start the job on all push #
-#############################
+######################################
+# Start the job on all pull_requests #
+######################################
 on:
   pull_request:
     branches: [master]
@@ -48,6 +48,6 @@ jobs:
         uses: github/super-linter@v4
         env:
           FILTER_REGEX_EXCLUDE: Assets/Test/*
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
